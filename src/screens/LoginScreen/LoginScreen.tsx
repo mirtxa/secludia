@@ -1,45 +1,35 @@
-import {
-  Button,
-  FieldError,
-  InputGroup,
-  Label,
-  Spinner,
-  Text,
-  TextField,
-} from "@heroui/react";
-import { LoginScreenProps } from "./LoginScreen.types";
-import { useState } from "react";
+import { Button, FieldError, InputGroup, Label, Spinner, Text, TextField } from "@heroui/react";
+import type { LoginScreenProps } from "./LoginScreen.types";
+import { useState, useMemo, useCallback } from "react";
 import { useAppContext } from "@/context/AppContext";
-import {
-  LanguageSelector,
-  ThemeSelector,
-  Typewriter,
-} from "@/components/atoms";
+import { LanguageSelector, ThemeSelector, Typewriter } from "@/components/atoms";
 import { ResponsiveCard } from "@/components/layouts";
 import { CircleExclamationFill } from "@gravity-ui/icons";
+import { validateHomeserver, buildHomeserverUrl } from "@/utils";
 
-export const LoginScreen: React.FC<LoginScreenProps> = ({
-  onLogin,
-  error,
-  isLoading,
-}) => {
+export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, error, isLoading }) => {
   const [homeserver, setHomeserver] = useState<string>("");
   const { t } = useAppContext();
 
-  const handleLogin = () => {
-    if (homeserver.trim()) {
-      onLogin(homeserver.trim());
+  const validatedHomeserver = validateHomeserver(homeserver);
+
+  const handleLogin = useCallback(() => {
+    if (validatedHomeserver) {
+      onLogin(buildHomeserverUrl(validatedHomeserver));
     }
-  };
+  }, [validatedHomeserver, onLogin]);
 
-  const isFormValid = homeserver.trim().length > 0;
+  const isFormValid = validatedHomeserver !== null;
 
-  const typewriterPhrases = [
-    t("LOGIN_TYPEWRITERTEXT_1"),
-    t("LOGIN_TYPEWRITERTEXT_2"),
-    t("LOGIN_TYPEWRITERTEXT_3"),
-    t("LOGIN_TYPEWRITERTEXT_4"),
-  ];
+  const typewriterPhrases = useMemo(
+    () => [
+      t("LOGIN_TYPEWRITERTEXT_1"),
+      t("LOGIN_TYPEWRITERTEXT_2"),
+      t("LOGIN_TYPEWRITERTEXT_3"),
+      t("LOGIN_TYPEWRITERTEXT_4"),
+    ],
+    [t]
+  );
 
   const title = <h1 className="text-2xl font-bold text-center">Secludia</h1>;
 
@@ -50,12 +40,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
   );
 
   const homeserverField = (
-    <TextField
-      isInvalid={!!error}
-      isRequired
-      className="w-full"
-      name="homeserver"
-    >
+    <TextField isInvalid={!!error} isRequired className="w-full" name="homeserver">
       <Label>{t("LOGIN_HOMESERVER")}</Label>
       <InputGroup>
         <InputGroup.Prefix>https://</InputGroup.Prefix>
@@ -66,15 +51,14 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
         />
       </InputGroup>
       <FieldError>
-        <CircleExclamationFill className="inline" />{" "}
-        {t("LOGIN_HOMESERVER_INVALID")}
+        <CircleExclamationFill className="inline" /> {t("LOGIN_HOMESERVER_INVALID")}
       </FieldError>
     </TextField>
   );
 
   const disclaimer = (
     <div className="text-center mt-4 mx-6">
-      <Text className="card__description">{t("LOGIN_DISCLAIMER")}</Text>
+      <Text className="card__description text-muted">{t("LOGIN_DISCLAIMER")}</Text>
     </div>
   );
 
@@ -86,9 +70,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
       isPending={isLoading}
       onPress={handleLogin}
     >
-      {({ isPending }) =>
-        isPending ? <Spinner color="current" size="sm" /> : t("LOGIN_SUBMIT")
-      }
+      {({ isPending }) => (isPending ? <Spinner color="current" size="sm" /> : t("LOGIN_SUBMIT"))}
     </Button>
   );
 

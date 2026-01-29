@@ -1,0 +1,64 @@
+@layer theme {
+  [data-theme="midnight"] {
+    color-scheme: dark;
+
+    /* Deep blue dark theme */
+
+    /* Base Colors */
+    --background: oklch(0.15 0.03 260); /* Deep navy */
+    --foreground: oklch(0.93 0.01 250); /* Soft blue-white */
+
+    /* Surface */
+    --surface: oklch(0.18 0.035 260);
+    --surface-foreground: var(--foreground);
+
+    /* Overlay */
+    --overlay: oklch(0.2 0.04 260);
+    --overlay-foreground: var(--foreground);
+
+    /* Muted */
+    --muted: oklch(0.65 0.03 250);
+
+    /* Accent: Electric blue */
+    --accent: oklch(0.65 0.22 250);
+    --accent-foreground: oklch(0.98 0 0);
+
+    /* Default */
+    --default: oklch(0.28 0.04 260);
+    --default-foreground: var(--foreground);
+
+    /* Form Fields */
+    --field-background: oklch(0.12 0.025 260);
+    --field-foreground: var(--foreground);
+    --field-placeholder: var(--muted);
+    --field-border: transparent;
+
+    /* Status Colors */
+    --success: oklch(0.7 0.18 160);
+    --success-foreground: oklch(0.15 0 0);
+    --warning: oklch(0.8 0.15 80);
+    --warning-foreground: oklch(0.15 0 0);
+    --danger: oklch(0.6 0.22 20);
+    --danger-foreground: oklch(0.98 0 0);
+
+    /* Segment */
+    --segment: oklch(0.25 0.035 260);
+    --segment-foreground: var(--foreground);
+
+    /* Borders */
+    --border: oklch(0.28 0.03 260);
+    --separator: oklch(0.22 0.03 260);
+
+    /* Focus & Links */
+    --focus: var(--accent);
+    --link: oklch(0.7 0.18 250);
+
+    /* Scrollbar */
+    --scrollbar: oklch(0.35 0.04 260);
+
+    /* Shadows */
+    --surface-shadow: 0 2px 8px 0 rgba(0, 0, 50, 0.3);
+    --overlay-shadow: 0 4px 20px 0 rgba(0, 0, 50, 0.4);
+    --field-shadow: none;
+  }
+}

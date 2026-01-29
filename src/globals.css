@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @import "@heroui/styles";
 
-@import "./themes/ocean.css" layer(theme);
-@import "./themes/forest.css" layer(theme);
+@import "./themes/default.css" layer(theme);
 @import "./themes/familiar.css" layer(theme);
+@import "./themes/midnight.css" layer(theme);
+@import "./themes/sunset.css" layer(theme);
+@import "./themes/mint.css" layer(theme);

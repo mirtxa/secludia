@@ -1,11 +1,12 @@
-import { AvailableLanguage } from "@/i18n";
+import type { AvailableLanguage } from "@/i18n";
 
 export type SecludiaTheme =
-  | "ocean"
-  | "ocean-dark"
-  | "forest"
-  | "forest-dark"
-  | "familiar";
+  | "default"
+  | "default-dark"
+  | "familiar"
+  | "midnight"
+  | "sunset"
+  | "mint";
 
 export type SecludiaLanguage = AvailableLanguage;
 

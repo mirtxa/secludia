@@ -1,18 +1,22 @@
-import { SecludiaTheme } from "@/config/configTypes";
+import { memo } from "react";
+import type { SecludiaTheme } from "@/config/configTypes";
 
-import { Button, Dropdown, Header, Label, Selection } from "@heroui/react";
+import type { Selection } from "@heroui/react";
+import { Button, Dropdown, Header, Label } from "@heroui/react";
 import { useAppContext } from "@/context/AppContext";
 import { CircleCheckFill, Palette } from "@gravity-ui/icons";
+import type { TranslationKey } from "@/i18n/types";
 
-const THEMES: SecludiaTheme[] = [
-  "ocean",
-  "ocean-dark",
-  "forest",
-  "forest-dark",
-  "familiar",
+const THEMES: { key: SecludiaTheme; label: TranslationKey }[] = [
+  { key: "default", label: "SETTINGS_THEME_DEFAULT" },
+  { key: "default-dark", label: "SETTINGS_THEME_DEFAULT_DARK" },
+  { key: "familiar", label: "SETTINGS_THEME_FAMILIAR" },
+  { key: "midnight", label: "SETTINGS_THEME_MIDNIGHT" },
+  { key: "sunset", label: "SETTINGS_THEME_SUNSET" },
+  { key: "mint", label: "SETTINGS_THEME_MINT" },
 ];
 
-export const ThemeSelector: React.FC = () => {
+export const ThemeSelector = memo(function ThemeSelector() {
   const { getTheme, setTheme, t } = useAppContext();
 
   const handleSelectionChange = (selection: Selection) => {
@@ -21,28 +25,31 @@ export const ThemeSelector: React.FC = () => {
     }
   };
 
+  const currentTheme = THEMES.find((theme) => theme.key === getTheme());
+
   return (
     <Dropdown>
       <Button className="text-muted" aria-label="Menu" variant="ghost">
         <Palette />
-        {getTheme()}
+        {currentTheme ? t(currentTheme.label) : getTheme()}
       </Button>
       <Dropdown.Popover className="min-w-[256px]" placement="top">
         <Dropdown.Menu
           selectedKeys={new Set([getTheme()])}
           selectionMode="single"
+          disallowEmptySelection
           onSelectionChange={handleSelectionChange}
         >
           <Dropdown.Section>
             <Header>{t("SETTINGS_THEME")}</Header>
             {THEMES.map((theme) => (
-              <Dropdown.Item key={theme} id={theme} textValue={theme}>
+              <Dropdown.Item key={theme.key} id={theme.key} textValue={t(theme.label)}>
                 <Dropdown.ItemIndicator>
                   {({ isSelected }) =>
                     isSelected ? <CircleCheckFill className="text-accent" /> : null
                   }
                 </Dropdown.ItemIndicator>
-                <Label>{theme}</Label>
+                <Label>{t(theme.label)}</Label>
               </Dropdown.Item>
             ))}
           </Dropdown.Section>
@@ -50,4 +57,4 @@ export const ThemeSelector: React.FC = () => {
       </Dropdown.Popover>
     </Dropdown>
   );
-};
+});

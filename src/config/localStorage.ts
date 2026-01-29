@@ -1,8 +1,4 @@
-import type {
-  SecludiaConfig,
-  SecludiaTheme,
-  SecludiaLanguage,
-} from "./configTypes";
+import type { SecludiaConfig, SecludiaTheme, SecludiaLanguage } from "./configTypes";
 import { DEFAULT_CONFIG } from "./defaultConfig";
 
 const STORAGE_KEY = "secludia.config";
@@ -25,10 +21,7 @@ export function saveConfig(config: SecludiaConfig): void {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
 }
 
-function updateConfigField<K extends keyof SecludiaConfig>(
-  key: K,
-  value: SecludiaConfig[K]
-): void {
+function updateConfigField<K extends keyof SecludiaConfig>(key: K, value: SecludiaConfig[K]): void {
   const config = loadConfig();
   saveConfig({ ...config, [key]: value });
 }

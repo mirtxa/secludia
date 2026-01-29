@@ -1,28 +1,28 @@
-import { useState, useEffect } from "react";
+import { useCallback, useSyncExternalStore } from "react";
+
+function getServerSnapshot(): boolean {
+  return false;
+}
 
 /**
  * Hook that returns true if the media query matches
  * @param query - CSS media query string (e.g., "(min-width: 640px)")
  */
 export function useMediaQuery(query: string): boolean {
-  const [matches, setMatches] = useState(() => {
-    if (typeof window === "undefined") return false;
+  const subscribe = useCallback(
+    (callback: () => void) => {
+      const mediaQuery = window.matchMedia(query);
+      mediaQuery.addEventListener("change", callback);
+      return () => mediaQuery.removeEventListener("change", callback);
+    },
+    [query]
+  );
+
+  const getSnapshot = useCallback(() => {
     return window.matchMedia(query).matches;
-  });
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia(query);
-    setMatches(mediaQuery.matches);
-
-    const handler = (event: MediaQueryListEvent) => {
-      setMatches(event.matches);
-    };
-
-    mediaQuery.addEventListener("change", handler);
-    return () => mediaQuery.removeEventListener("change", handler);
   }, [query]);
 
-  return matches;
+  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 }
 
 // Tailwind breakpoints
@@ -37,8 +37,6 @@ export const BREAKPOINTS = {
 /**
  * Hook that returns true if viewport is at or above the specified breakpoint
  */
-export function useBreakpoint(
-  breakpoint: keyof typeof BREAKPOINTS
-): boolean {
+export function useBreakpoint(breakpoint: keyof typeof BREAKPOINTS): boolean {
   return useMediaQuery(BREAKPOINTS[breakpoint]);
 }

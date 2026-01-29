@@ -1,10 +1,9 @@
 import type { TranslationKey } from "./types";
 
 // Auto-detect all locale files from src/locales/
-const localeModules = import.meta.glob<{ default: Record<string, string> }>(
-  "@/locales/*.json",
-  { eager: true }
-);
+const localeModules = import.meta.glob<{ default: Record<string, string> }>("@/locales/*.json", {
+  eager: true,
+});
 
 // Build dictionaries and extract available languages
 const dictionaries: Record<string, Record<string, string>> = {};
@@ -27,9 +26,11 @@ const DEFAULT_LANG = "en";
 
 export type InterpolationValues = Record<string, string | number>;
 
+const INTERPOLATION_REGEX = /\{\{(\w+)\}\}/g;
+
 function interpolate(text: string, values?: InterpolationValues): string {
   if (!values) return text;
-  return text.replace(/\{\{(\w+)\}\}/g, (_, key) => {
+  return text.replace(INTERPOLATION_REGEX, (_, key) => {
     const value = values[key];
     if (value === undefined) {
       if (import.meta.env.DEV) {
@@ -41,18 +42,12 @@ function interpolate(text: string, values?: InterpolationValues): string {
   });
 }
 
-export function t(
-  lang: string,
-  key: TranslationKey,
-  values?: InterpolationValues
-): string {
+export function t(lang: string, key: TranslationKey, values?: InterpolationValues): string {
   const translation = dictionaries[lang]?.[key];
 
   if (translation === undefined) {
     if (import.meta.env.DEV) {
-      console.warn(
-        `[i18n] Missing translation for key: "${key}" in locale: "${lang}"`
-      );
+      console.warn(`[i18n] Missing translation for key: "${key}" in locale: "${lang}"`);
     }
     return interpolate(dictionaries[DEFAULT_LANG]?.[key] ?? key, values);
   }

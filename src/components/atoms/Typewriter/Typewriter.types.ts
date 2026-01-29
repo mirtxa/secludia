@@ -1,7 +1,7 @@
 export enum TypePhase {
-  Typing = 'typing',
-  Pausing = 'pausing',
-  Deleting = 'deleting',
+  Typing = "typing",
+  Pausing = "pausing",
+  Deleting = "deleting",
 }
 
 export interface TypewriterTextProps {

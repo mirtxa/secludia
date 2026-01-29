@@ -1,0 +1,123 @@
+import { describe, it, expect, beforeEach, vi } from "vitest";
+import { loadConfig, saveConfig, updateTheme, updateLanguage } from "./localStorage";
+import { DEFAULT_CONFIG } from "./defaultConfig";
+import type { SecludiaConfig, SecludiaTheme, SecludiaLanguage } from "./configTypes";
+
+describe("localStorage config", () => {
+  const STORAGE_KEY = "secludia.config";
+
+  beforeEach(() => {
+    localStorage.clear();
+    vi.restoreAllMocks();
+    // Reset document.documentElement for theme/language tests
+    document.documentElement.dataset.theme = "";
+    document.documentElement.lang = "";
+  });
+
+  describe("loadConfig", () => {
+    it("returns DEFAULT_CONFIG when localStorage is empty", () => {
+      expect(loadConfig()).toEqual(DEFAULT_CONFIG);
+    });
+
+    it("returns stored config when present", () => {
+      const storedConfig: SecludiaConfig = {
+        theme: "midnight",
+        language: "es",
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(storedConfig));
+
+      expect(loadConfig()).toEqual(storedConfig);
+    });
+
+    it("returns DEFAULT_CONFIG when stored value is invalid JSON", () => {
+      localStorage.setItem(STORAGE_KEY, "not valid json");
+
+      expect(loadConfig()).toEqual(DEFAULT_CONFIG);
+    });
+
+    it("returns DEFAULT_CONFIG when localStorage throws", () => {
+      vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
+        throw new Error("Storage error");
+      });
+
+      expect(loadConfig()).toEqual(DEFAULT_CONFIG);
+    });
+  });
+
+  describe("saveConfig", () => {
+    it("saves config to localStorage", () => {
+      const config: SecludiaConfig = {
+        theme: "familiar",
+        language: "es",
+      };
+
+      saveConfig(config);
+
+      expect(JSON.parse(localStorage.getItem(STORAGE_KEY)!)).toEqual(config);
+    });
+
+    it("overwrites existing config", () => {
+      const oldConfig: SecludiaConfig = { theme: "default", language: "en" };
+      const newConfig: SecludiaConfig = { theme: "midnight", language: "es" };
+
+      saveConfig(oldConfig);
+      saveConfig(newConfig);
+
+      expect(JSON.parse(localStorage.getItem(STORAGE_KEY)!)).toEqual(newConfig);
+    });
+  });
+
+  describe("updateTheme", () => {
+    it("updates theme in localStorage", () => {
+      const newTheme: SecludiaTheme = "sunset";
+
+      updateTheme(newTheme);
+
+      const stored = JSON.parse(localStorage.getItem(STORAGE_KEY)!);
+      expect(stored.theme).toBe(newTheme);
+    });
+
+    it("preserves other config fields", () => {
+      const initialConfig: SecludiaConfig = { theme: "default", language: "es" };
+      saveConfig(initialConfig);
+
+      updateTheme("mint");
+
+      const stored = JSON.parse(localStorage.getItem(STORAGE_KEY)!);
+      expect(stored.language).toBe("es");
+    });
+
+    it("sets theme on document element", () => {
+      updateTheme("default-dark");
+
+      expect(document.documentElement.dataset.theme).toBe("default-dark");
+    });
+  });
+
+  describe("updateLanguage", () => {
+    it("updates language in localStorage", () => {
+      const newLanguage: SecludiaLanguage = "es";
+
+      updateLanguage(newLanguage);
+
+      const stored = JSON.parse(localStorage.getItem(STORAGE_KEY)!);
+      expect(stored.language).toBe(newLanguage);
+    });
+
+    it("preserves other config fields", () => {
+      const initialConfig: SecludiaConfig = { theme: "familiar", language: "en" };
+      saveConfig(initialConfig);
+
+      updateLanguage("es");
+
+      const stored = JSON.parse(localStorage.getItem(STORAGE_KEY)!);
+      expect(stored.theme).toBe("familiar");
+    });
+
+    it("sets lang attribute on document element", () => {
+      updateLanguage("es");
+
+      expect(document.documentElement.lang).toBe("es");
+    });
+  });
+});

@@ -1,1 +1,1 @@
-export { Typewriter } from './Typewriter';
+export { Typewriter } from "./Typewriter";

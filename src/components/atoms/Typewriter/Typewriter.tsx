@@ -1,33 +1,49 @@
-import { useEffect, useState } from "react";
-import { TypePhase, TypewriterTextProps } from "./Typewriter.types";
+import { memo, useEffect, useState, useRef } from "react";
+import type { TypewriterTextProps } from "./Typewriter.types";
+import { TypePhase } from "./Typewriter.types";
 import { getNextStep } from "./Typewriter.utils";
 import "./Typewriter.styles.css";
 
-export const Typewriter: React.FC<TypewriterTextProps> = ({
+export const Typewriter = memo(function Typewriter({
   phrases = [],
   typingSpeed = 90,
   deletingSpeed = 50,
   pauseDuration = 1200,
   jitter = 30,
-}) => {
+}: TypewriterTextProps) {
   const [text, setText] = useState("");
   const [index, setIndex] = useState(0);
   const [phase, setPhase] = useState<TypePhase>(TypePhase.Typing);
 
-  useEffect(() => {
-    if (!phrases.length) return;
+  // Store config in ref to avoid effect dependencies
+  const configRef = useRef({ typingSpeed, deletingSpeed, pauseDuration, jitter });
+  const phrasesRef = useRef(phrases);
 
-    const phrase = phrases[index];
+  // Update refs in effect to avoid updating during render
+  useEffect(() => {
+    configRef.current = { typingSpeed, deletingSpeed, pauseDuration, jitter };
+  }, [typingSpeed, deletingSpeed, pauseDuration, jitter]);
+
+  useEffect(() => {
+    phrasesRef.current = phrases;
+  }, [phrases]);
+
+  useEffect(() => {
+    const currentPhrases = phrasesRef.current;
+    if (!currentPhrases.length) return;
+
+    const config = configRef.current;
+    const phrase = currentPhrases[index];
     const { nextText, nextPhase, delay, nextIndex } = getNextStep({
       text,
       phrase,
       phase,
-      typingSpeed,
-      deletingSpeed,
-      pauseDuration,
-      jitter,
+      typingSpeed: config.typingSpeed,
+      deletingSpeed: config.deletingSpeed,
+      pauseDuration: config.pauseDuration,
+      jitter: config.jitter,
       index,
-      phrasesLength: phrases.length,
+      phrasesLength: currentPhrases.length,
     });
 
     const timeout = setTimeout(() => {
@@ -37,21 +53,12 @@ export const Typewriter: React.FC<TypewriterTextProps> = ({
     }, delay);
 
     return () => clearTimeout(timeout);
-  }, [
-    text,
-    index,
-    phase,
-    phrases,
-    typingSpeed,
-    deletingSpeed,
-    pauseDuration,
-    jitter,
-  ]);
+  }, [text, index, phase]);
 
   return (
-    <div>
+    <span>
       {text}
       <span className="typewriter-cursor">|</span>
-    </div>
+    </span>
   );
-};
+});

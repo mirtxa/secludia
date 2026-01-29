@@ -1,13 +1,14 @@
+import { memo } from "react";
 import { Card } from "@heroui/react";
 import { useBreakpoint } from "@/hooks";
-import { ResponsiveCardProps } from "./ResponsiveCard.types";
+import type { ResponsiveCardProps } from "./ResponsiveCard.types";
 
-export const ResponsiveCard: React.FC<ResponsiveCardProps> = ({
+export const ResponsiveCard = memo(function ResponsiveCard({
   header,
   content,
   footer,
   bottomBar,
-}) => {
+}: ResponsiveCardProps) {
   const isDesktop = useBreakpoint("sm");
 
   if (isDesktop) {
@@ -16,9 +17,7 @@ export const ResponsiveCard: React.FC<ResponsiveCardProps> = ({
         <Card className="w-full max-w-md">
           <Card.Header>{header}</Card.Header>
           <Card.Content>{content}</Card.Content>
-          <Card.Footer className="mt-4 flex flex-col gap-2">
-            {footer}
-          </Card.Footer>
+          <Card.Footer className="mt-4 flex flex-col gap-2">{footer}</Card.Footer>
         </Card>
         {bottomBar && <div className="mt-4">{bottomBar}</div>}
       </div>
@@ -37,4 +36,4 @@ export const ResponsiveCard: React.FC<ResponsiveCardProps> = ({
       </div>
     </div>
   );
-};
+});

@@ -1,0 +1,64 @@
+@layer theme {
+  [data-theme="mint"] {
+    color-scheme: light;
+
+    /* Fresh mint green theme */
+
+    /* Base Colors */
+    --background: oklch(0.97 0.015 165); /* Soft mint white */
+    --foreground: oklch(0.18 0.03 165); /* Deep green-gray */
+
+    /* Surface */
+    --surface: oklch(0.99 0.01 165);
+    --surface-foreground: var(--foreground);
+
+    /* Overlay */
+    --overlay: oklch(0.99 0.01 165);
+    --overlay-foreground: var(--foreground);
+
+    /* Muted */
+    --muted: oklch(0.55 0.04 165);
+
+    /* Accent: Vibrant mint */
+    --accent: oklch(0.55 0.18 165);
+    --accent-foreground: oklch(0.98 0 0);
+
+    /* Default */
+    --default: oklch(0.93 0.02 165);
+    --default-foreground: var(--foreground);
+
+    /* Form Fields */
+    --field-background: oklch(0.99 0.008 165);
+    --field-foreground: var(--foreground);
+    --field-placeholder: var(--muted);
+    --field-border: transparent;
+
+    /* Status Colors */
+    --success: oklch(0.68 0.18 145);
+    --success-foreground: oklch(0.98 0 0);
+    --warning: oklch(0.78 0.15 80);
+    --warning-foreground: oklch(0.18 0 0);
+    --danger: oklch(0.62 0.2 25);
+    --danger-foreground: oklch(0.98 0 0);
+
+    /* Segment */
+    --segment: oklch(0.95 0.02 165);
+    --segment-foreground: var(--foreground);
+
+    /* Borders */
+    --border: oklch(0.88 0.025 165);
+    --separator: oklch(0.92 0.02 165);
+
+    /* Focus & Links */
+    --focus: var(--accent);
+    --link: oklch(0.55 0.15 165);
+
+    /* Scrollbar */
+    --scrollbar: oklch(0.85 0.03 165);
+
+    /* Shadows */
+    --surface-shadow: 0 2px 8px 0 rgba(0, 60, 40, 0.06);
+    --overlay-shadow: 0 4px 16px 0 rgba(0, 60, 40, 0.1);
+    --field-shadow: 0 1px 3px 0 rgba(0, 60, 40, 0.05);
+  }
+}

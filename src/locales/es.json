@@ -2,6 +2,12 @@
   "LANGUAGE_DISPLAY_NAME": "Español",
   "SETTINGS_THEME": "Tema",
   "SETTINGS_THEME_CURRENT": "Tema actual",
+  "SETTINGS_THEME_DEFAULT": "Predeterminado",
+  "SETTINGS_THEME_DEFAULT_DARK": "Predeterminado Oscuro",
+  "SETTINGS_THEME_FAMILIAR": "Familiar",
+  "SETTINGS_THEME_MIDNIGHT": "Medianoche",
+  "SETTINGS_THEME_SUNSET": "Atardecer",
+  "SETTINGS_THEME_MINT": "Menta",
   "SETTINGS_LANGUAGE": "Idioma",
   "SETTINGS_LANGUAGE_ENGLISH": "English",
   "SETTINGS_LANGUAGE_SPANISH": "Español",
@@ -12,5 +18,8 @@
   "LOGIN_HOMESERVER": "Homeserver",
   "LOGIN_HOMESERVER_INVALID": "Homeserver inválido.",
   "LOGIN_DISCLAIMER": "Serás redirigido a tu homeserver para autenticarte via OAuth 2.0",
-  "LOGIN_SUBMIT": "Iniciar sesión"
+  "LOGIN_SUBMIT": "Iniciar sesión",
+  "ERROR_TITLE": "Algo salió mal",
+  "ERROR_DESCRIPTION": "Ocurrió un error inesperado. Por favor, intenta refrescar la página.",
+  "ERROR_TRY_AGAIN": "Intentar de nuevo"
 }

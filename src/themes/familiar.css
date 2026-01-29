@@ -1,326 +1,67 @@
 @layer theme {
   [data-theme="familiar"] {
-    --snow: #ffffff;
-    --eclipse: oklch(0.2103 0.0059 285.89);
+    color-scheme: dark;
+
+    /* Discord-inspired dark theme */
 
     /* Base Colors */
-    --background: #36393f;
-    --foreground: var(--eclipse);
+    --background: oklch(0.23 0.005 260); /* #313338 - main background */
+    --foreground: oklch(0.95 0.005 260); /* #f2f3f5 - primary text */
 
-    --surface: #2d2e33;
+    /* Surface: Cards, accordions, panels */
+    --surface: oklch(0.2 0.005 260); /* #2b2d31 - slightly darker */
+    --surface-foreground: var(--foreground);
 
-    /* Overlay: Used for floating/overlay components (tooltips, popovers, modals, menus) */
-    --accent: #5764f2;
-    --accent-foreground: var(--snow);
+    /* Overlay: Modals, popovers, tooltips */
+    --overlay: oklch(0.23 0.005 260); /* #313338 */
+    --overlay-foreground: var(--foreground);
 
-    /* --color-background: var(--background);
-    --color-foreground: var(--foreground);
+    /* Muted text */
+    --muted: oklch(0.75 0.01 260); /* #b5bac1 */
 
-    --color-surface: var(--surface);
-    --color-surface-foreground: var(--surface-foreground);
-    --color-surface-hover: color-mix(
-      in oklab,
-      var(--surface) 92%,
-      var(--surface-foreground) 8%
-    );
+    /* Accent: Discord Blurple */
+    --accent: oklch(0.55 0.2 265); /* #5865f2 */
+    --accent-foreground: oklch(0.98 0 0); /* white */
 
-    --color-overlay: var(--overlay);
-    --color-overlay-foreground: var(--overlay-foreground);
+    /* Default: Buttons, interactive elements */
+    --default: oklch(0.35 0.01 260); /* #4e5058 */
+    --default-foreground: var(--foreground);
 
-    --color-muted: var(--muted);
+    /* Form Fields */
+    --field-background: oklch(0.16 0.005 260); /* #1e1f22 - darker input bg */
+    --field-foreground: var(--foreground);
+    --field-placeholder: var(--muted);
+    --field-border: transparent;
 
-    --color-accent: var(--accent);
-    --color-accent-foreground: var(--accent-foreground);
+    /* Status Colors */
+    --success: oklch(0.62 0.2 145); /* #23a55a - Discord green */
+    --success-foreground: oklch(0.98 0 0);
+    --warning: oklch(0.78 0.15 85); /* #f0b232 - Discord yellow */
+    --warning-foreground: oklch(0.15 0 0);
+    --danger: oklch(0.55 0.22 25); /* #da373c - Discord red */
+    --danger-foreground: oklch(0.98 0 0);
 
-    --color-segment: var(--segment);
-    --color-segment-foreground: var(--segment-foreground);
+    /* Segment: Tabs, segmented controls */
+    --segment: oklch(0.3 0.01 260); /* #3f4147 */
+    --segment-foreground: var(--foreground);
 
-    --color-border: var(--border);
-    --color-separator: var(--separator);
-    --color-focus: var(--focus);
-    --color-link: var(--link);
+    /* Borders & Separators */
+    --border: oklch(0.3 0.005 260); /* #3f4147 */
+    --separator: oklch(0.27 0.005 260); /* slightly darker */
 
-    --color-default: var(--default);
-    --color-default-foreground: var(--default-foreground);
+    /* Focus & Links */
+    --focus: var(--accent);
+    --link: oklch(0.65 0.18 250); /* #00a8fc - Discord link blue */
 
-    --color-success: var(--success);
-    --color-success-foreground: var(--success-foreground);
+    /* Scrollbar */
+    --scrollbar: oklch(0.35 0.01 260);
 
-    --color-warning: var(--warning);
-    --color-warning-foreground: var(--warning-foreground);
+    /* Shadows - subtle for dark mode */
+    --surface-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+    --overlay-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.4);
+    --field-shadow: none;
 
-    --color-danger: var(--danger);
-    --color-danger-foreground: var(--danger-foreground);
-
-    --shadow-surface: var(--surface-shadow);
-    --shadow-overlay: var(--overlay-shadow);
-    --shadow-field: var(--field-shadow); */
-
-    /* Form Field Tokens */
-    /* --color-field: var(--field-background, var(--color-default));
-    --color-field-hover: color-mix(
-      in oklab,
-      var(--field-background, var(--color-default)) 90%,
-      var(--field-foreground, var(--color-default-foreground)) 10%
-    );
-    --color-field-foreground: var(--field-foreground, var(--color-foreground));
-    --color-field-placeholder: var(--field-placeholder, var(--color-muted));
-    --color-field-border: var(--field-border, var(--color-border));
-    --radius-field: var(--field-radius, var(--radius-xl));
-    --border-width-field: var(--field-border-width, var(--border-width)); */
-
-    /* Calculated Variables */
-
-    /* Colors */
-
-    /* --- background shades --- */
-    /* --color-background-secondary: color-mix(
-      in oklab,
-      var(--color-background) 96%,
-      var(--color-foreground) 4%
-    );
-    --color-background-tertiary: color-mix(
-      in oklab,
-      var(--color-background) 92%,
-      var(--color-foreground) 8%
-    );
-    --color-background-inverse: var(--color-foreground); */
-
-    /* ------------------------- */
-    /* --color-default-hover: color-mix(
-      in oklab,
-      var(--color-default) 96%,
-      var(--color-default-foreground) 4%
-    );
-    --color-accent-hover: color-mix(
-      in oklab,
-      var(--color-accent) 90%,
-      var(--color-accent-foreground) 10%
-    );
-    --color-success-hover: color-mix(
-      in oklab,
-      var(--color-success) 90%,
-      var(--color-success-foreground) 10%
-    );
-    --color-warning-hover: color-mix(
-      in oklab,
-      var(--color-warning) 90%,
-      var(--color-warning-foreground) 10%
-    );
-    --color-danger-hover: color-mix(
-      in oklab,
-      var(--color-danger) 90%,
-      var(--color-danger-foreground) 10%
-    ); */
-
-    /* Form Field Colors */
-    /* --color-field-hover: color-mix(
-      in oklab,
-      var(--color-field) 90%,
-      var(--color-field-foreground) 2%
-    );
-    --color-field-focus: var(--color-field);
-    --color-field-border-hover: color-mix(
-      in oklab,
-      var(--color-field-border) 88%,
-      var(--color-field-foreground) 10%
-    );
-    --color-field-border-focus: color-mix(
-      in oklab,
-      var(--color-field-border) 74%,
-      var(--color-field-foreground) 22%
-    ); */
-
-    /* Soft Colors */
-    /* --color-accent-soft: color-mix(
-      in oklab,
-      var(--color-accent) 15%,
-      transparent
-    );
-    --color-accent-soft-foreground: var(--color-accent);
-    --color-accent-soft-hover: color-mix(
-      in oklab,
-      var(--color-accent) 20%,
-      transparent
-    );
-
-    --color-danger-soft: color-mix(
-      in oklab,
-      var(--color-danger) 15%,
-      transparent
-    );
-    --color-danger-soft-foreground: var(--color-danger);
-    --color-danger-soft-hover: color-mix(
-      in oklab,
-      var(--color-danger) 20%,
-      transparent
-    );
-
-    --color-warning-soft: color-mix(
-      in oklab,
-      var(--color-warning) 15%,
-      transparent
-    );
-    --color-warning-soft-foreground: var(--color-warning);
-    --color-warning-soft-hover: color-mix(
-      in oklab,
-      var(--color-warning) 20%,
-      transparent
-    );
-
-    --color-success-soft: color-mix(
-      in oklab,
-      var(--color-success) 15%,
-      transparent
-    );
-    --color-success-soft-foreground: var(--color-success);
-    --color-success-soft-hover: color-mix(
-      in oklab,
-      var(--color-success) 20%,
-      transparent
-    ); */
-
-    /* Surface Levels - progressively darker/lighter shades for layering */
-    /* --color-surface-secondary: color-mix(
-      in oklab,
-      var(--surface) 94%,
-      var(--surface-foreground) 6%
-    );
-    --color-surface-tertiary: color-mix(
-      in oklab,
-      var(--surface) 92%,
-      var(--surface-foreground) 8%
-    ); */
-
-    /* On Surface Colors (on default surface) */
-    /* --color-on-surface: color-mix(
-      in oklab,
-      var(--surface) 93%,
-      var(--surface-foreground) 7%
-    );
-    --color-on-surface-foreground: var(--surface-foreground);
-    --color-on-surface-hover: color-mix(
-      in oklab,
-      var(--surface) 91%,
-      var(--surface-foreground) 9%
-    );
-    --color-on-surface-focus: var(--color-on-surface); */
-
-    /* On Surface Colors - Secondary (on secondary surface) */
-    /* --color-on-surface-secondary: color-mix(
-      in oklab,
-      var(--surface) 87%,
-      var(--surface-foreground) 13%
-    );
-    --color-on-surface-secondary-foreground: var(--surface-foreground);
-    --color-on-surface-secondary-hover: color-mix(
-      in oklab,
-      var(--surface) 85%,
-      var(--surface-foreground) 15%
-    );
-    --color-on-surface-secondary-focus: var(--color-on-surface-secondary); */
-
-    /* On Surface Colors - Tertiary (on tertiary surface) */
-    /* --color-on-surface-tertiary: color-mix(
-      in oklab,
-      var(--surface) 85%,
-      var(--surface-foreground) 15%
-    );
-    --color-on-surface-tertiary-foreground: var(--surface-foreground);
-    --color-on-surface-tertiary-hover: color-mix(
-      in oklab,
-      var(--surface) 84%,
-      var(--surface-foreground) 16%
-    );
-    --color-on-surface-tertiary-focus: var(--color-on-surface-tertiary); */
-
-    /* Separator Colors - Levels */
-    /* --color-separator-secondary: color-mix(
-      in oklab,
-      var(--surface) 85%,
-      var(--surface-foreground) 15%
-    );
-    --color-separator-tertiary: color-mix(
-      in oklab,
-      var(--surface) 81%,
-      var(--surface-foreground) 19%
-    ); */
-
-    /* Border Colors - Levels (progressive contrast: default → secondary → tertiary) */
-    /* Light mode: lighter → darker | Dark mode: darker → lighter */
-    /* --color-border-secondary: color-mix(
-      in oklab,
-      var(--surface) 78%,
-      var(--surface-foreground) 22%
-    );
-    --color-border-tertiary: color-mix(
-      in oklab,
-      var(--surface) 66%,
-      var(--surface-foreground) 34%
-    ); */
-
-    /* Radius and default sizes - defaults can change by just changing the --radius */
-    /* --radius-xs: calc(var(--radius) * 0.25); 0.125rem (2px) */
-    /* --radius-sm: calc(var(--radius) * 0.5); 0.25rem (4px) */
-    /* --radius-md: calc(var(--radius) * 0.75); 0.375rem (6px) */
-    /* --radius-lg: calc(var(--radius) * 1); 0.5rem (8px) */
-    /* --radius-xl: calc(var(--radius) * 1.5); 0.75rem (12px) */
-    /* --radius-2xl: calc(var(--radius) * 2); 1rem (16px) */
-    /* --radius-3xl: calc(var(--radius) * 3); 1.5rem (24px) */
-    /* --radius-4xl: calc(var(--radius) * 4); 2rem (32px) */
-    /* 
-    /* Transition Timing Functions  */
-    /* --ease-smooth: ease; same as transition: ease; */
-    /* These custom curves are made by https://twitter.com/bdc */
-
-    /* From smoother to faster */
-    /* --ease-in-quad: cubic-bezier(0.55, 0.085, 0.68, 0.53);
-    --ease-in-cubic: cubic-bezier(0.55, 0.055, 0.675, 0.19);
-    --ease-in-quart: cubic-bezier(0.895, 0.03, 0.685, 0.22);
-    --ease-in-quint: cubic-bezier(0.755, 0.05, 0.855, 0.06);
-    --ease-in-expo: cubic-bezier(0.95, 0.05, 0.795, 0.035);
-    --ease-in-circ: cubic-bezier(0.6, 0.04, 0.98, 0.335); */
-    /* From slower to faster */
-    /* --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    --ease-out-cubic: cubic-bezier(0.215, 0.61, 0.355, 1);
-    --ease-out-quart: cubic-bezier(0.165, 0.84, 0.44, 1);
-    --ease-out-quint: cubic-bezier(0.23, 1, 0.32, 1);
-    --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
-    --ease-out-circ: cubic-bezier(0.075, 0.82, 0.165, 1); */
-    /* Custom smooth-out curve: fast start, smooth stop - Apple style */
-    /* --ease-out-fluid: cubic-bezier(0.32, 0.72, 0, 1); */
-    /* From slower to faster */
-    /* --ease-in-out-quad: cubic-bezier(0.455, 0.03, 0.515, 0.955);
-    --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
-    --ease-in-out-quart: cubic-bezier(0.77, 0, 0.175, 1);
-    --ease-in-out-quint: cubic-bezier(0.86, 0, 0.07, 1);
-    --ease-in-out-expo: cubic-bezier(1, 0, 0, 1);
-    --ease-in-out-circ: cubic-bezier(0.785, 0.135, 0.15, 0.86); */
-
-    /* Linear */
-    /* --ease-linear: linear; */
-
-    /* Animations */
-    /* --animate-spin-fast: spin 0.75s linear infinite;
-    --animate-skeleton: skeleton 2s linear infinite;
-    --animate-caret-blink: caret-blink 1.2s ease-out infinite;
-
-    @keyframes skeleton {
-      100% {
-        transform: translateX(200%);
-      }
-    }
-
-    @keyframes caret-blink {
-      0%,
-      70%,
-      100% {
-        opacity: 1;
-      }
-      20%,
-      50% {
-        opacity: 0;
-      }
-    } */
+    /* Border radius - Discord uses rounder corners */
+    --radius: 0.5rem;
   }
 }

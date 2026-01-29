@@ -1,4 +1,4 @@
-import { TypePhase } from './Typewriter.types';
+import { TypePhase } from "./Typewriter.types";
 
 export const randomDelay = (base: number, jitter: number) =>
   Math.max(20, base + (Math.random() * jitter * 2 - jitter));
@@ -46,8 +46,7 @@ export const getNextStep = ({
       };
     case TypePhase.Deleting: {
       const next = phrase.slice(0, text.length - 1);
-      const nextPhase =
-        next.length === 0 ? TypePhase.Typing : TypePhase.Deleting;
+      const nextPhase = next.length === 0 ? TypePhase.Typing : TypePhase.Deleting;
       const nextIndex = next.length === 0 ? (index + 1) % phrasesLength : index;
       return {
         nextText: next,

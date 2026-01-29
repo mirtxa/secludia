@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import { AppContextProvider } from "@/context/AppContext";
+import { ErrorBoundary } from "@/components/layouts";
 
 const rootElement = document.getElementById("root");
 
@@ -11,8 +12,10 @@ if (!rootElement) {
 
 ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
-    <AppContextProvider>
-      <App />
-    </AppContextProvider>
+    <ErrorBoundary>
+      <AppContextProvider>
+        <App />
+      </AppContextProvider>
+    </ErrorBoundary>
   </React.StrictMode>
 );

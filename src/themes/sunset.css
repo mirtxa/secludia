@@ -1,0 +1,64 @@
+@layer theme {
+  [data-theme="sunset"] {
+    color-scheme: light;
+
+    /* Warm sunset theme */
+
+    /* Base Colors */
+    --background: oklch(0.97 0.01 60); /* Warm cream */
+    --foreground: oklch(0.2 0.02 30); /* Warm dark brown */
+
+    /* Surface */
+    --surface: oklch(0.99 0.005 60);
+    --surface-foreground: var(--foreground);
+
+    /* Overlay */
+    --overlay: oklch(0.99 0.005 60);
+    --overlay-foreground: var(--foreground);
+
+    /* Muted */
+    --muted: oklch(0.55 0.03 50);
+
+    /* Accent: Warm coral */
+    --accent: oklch(0.65 0.2 25);
+    --accent-foreground: oklch(0.98 0 0);
+
+    /* Default */
+    --default: oklch(0.92 0.02 55);
+    --default-foreground: var(--foreground);
+
+    /* Form Fields */
+    --field-background: oklch(0.99 0.005 60);
+    --field-foreground: var(--foreground);
+    --field-placeholder: var(--muted);
+    --field-border: transparent;
+
+    /* Status Colors */
+    --success: oklch(0.68 0.18 150);
+    --success-foreground: oklch(0.98 0 0);
+    --warning: oklch(0.78 0.16 70);
+    --warning-foreground: oklch(0.2 0 0);
+    --danger: oklch(0.6 0.22 25);
+    --danger-foreground: oklch(0.98 0 0);
+
+    /* Segment */
+    --segment: oklch(0.95 0.015 55);
+    --segment-foreground: var(--foreground);
+
+    /* Borders */
+    --border: oklch(0.88 0.02 55);
+    --separator: oklch(0.92 0.015 55);
+
+    /* Focus & Links */
+    --focus: var(--accent);
+    --link: oklch(0.55 0.18 25);
+
+    /* Scrollbar */
+    --scrollbar: oklch(0.85 0.02 55);
+
+    /* Shadows */
+    --surface-shadow: 0 2px 8px 0 rgba(80, 40, 20, 0.08);
+    --overlay-shadow: 0 4px 16px 0 rgba(80, 40, 20, 0.12);
+    --field-shadow: 0 1px 3px 0 rgba(80, 40, 20, 0.06);
+  }
+}
