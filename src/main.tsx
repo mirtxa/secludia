@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
-import { AppContextProvider } from "@/context/AppContext";
+import { AppContextProvider } from "@/context";
 import { ErrorBoundary } from "@/components/layouts";
 
 const rootElement = document.getElementById("root");

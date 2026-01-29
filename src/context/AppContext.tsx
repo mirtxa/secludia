@@ -1,20 +1,10 @@
 import type { ReactNode } from "react";
-import { createContext, useContext, useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import type { SecludiaConfig, SecludiaTheme, SecludiaLanguage } from "@/config/configTypes";
 import * as Storage from "@/config/localStorage";
-import type { TranslationKey } from "@/i18n/types";
 import type { InterpolationValues } from "@/i18n";
 import { t as translate } from "@/i18n";
-
-interface AppContextValue {
-  t: (key: TranslationKey, values?: InterpolationValues) => string;
-  getLanguage: () => SecludiaLanguage;
-  getTheme: () => SecludiaTheme;
-  setTheme: (theme: SecludiaTheme) => void;
-  setLanguage: (language: SecludiaLanguage) => void;
-}
-
-const AppContext = createContext<AppContextValue | undefined>(undefined);
+import { AppContext, type AppContextValue } from "./AppContext.types";
 
 export function AppContextProvider({ children }: { children: ReactNode }) {
   const [config, setConfig] = useState<SecludiaConfig>(() => Storage.loadConfig());
@@ -29,7 +19,8 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
   const getTheme = useCallback(() => config.theme, [config.theme]);
 
   const t = useCallback(
-    (key: TranslationKey, values?: InterpolationValues) => translate(config.language, key, values),
+    (key: Parameters<AppContextValue["t"]>[0], values?: InterpolationValues) =>
+      translate(config.language, key, values),
     [config.language]
   );
 
@@ -49,10 +40,4 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
   );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
-}
-
-export function useAppContext(): AppContextValue {
-  const ctx = useContext(AppContext);
-  if (!ctx) throw new Error("useAppContext must be used inside AppContextProvider");
-  return ctx;
 }

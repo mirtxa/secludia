@@ -1,5 +1,6 @@
 .typewriter-cursor {
   margin-left: 2px;
+  color: var(--muted);
   animation: blink 1s step-start infinite;
 }
 

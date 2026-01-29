@@ -3,7 +3,7 @@ import type { SecludiaTheme } from "@/config/configTypes";
 
 import type { Selection } from "@heroui/react";
 import { Button, Dropdown, Header, Label } from "@heroui/react";
-import { useAppContext } from "@/context/AppContext";
+import { useAppContext } from "@/context";
 import { CircleCheckFill, Palette } from "@gravity-ui/icons";
 import type { TranslationKey } from "@/i18n/types";
 

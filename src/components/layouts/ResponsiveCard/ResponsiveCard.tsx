@@ -25,7 +25,7 @@ export const ResponsiveCard = memo(function ResponsiveCard({
   }
 
   return (
-    <div className="flex flex-col min-h-screen w-full bg-surface">
+    <div className="flex flex-col h-full w-full bg-surface">
       <div className="flex-1 p-6">
         {header}
         <div className="mt-6">{content}</div>

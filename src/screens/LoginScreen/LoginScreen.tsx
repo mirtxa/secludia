@@ -1,7 +1,7 @@
 import { Button, FieldError, InputGroup, Label, Spinner, Text, TextField } from "@heroui/react";
 import type { LoginScreenProps } from "./LoginScreen.types";
 import { useState, useMemo, useCallback } from "react";
-import { useAppContext } from "@/context/AppContext";
+import { useAppContext } from "@/context";
 import { LanguageSelector, ThemeSelector, Typewriter } from "@/components/atoms";
 import { ResponsiveCard } from "@/components/layouts";
 import { CircleExclamationFill } from "@gravity-ui/icons";

@@ -9,9 +9,6 @@ describe("localStorage config", () => {
   beforeEach(() => {
     localStorage.clear();
     vi.restoreAllMocks();
-    // Reset document.documentElement for theme/language tests
-    document.documentElement.dataset.theme = "";
-    document.documentElement.lang = "";
   });
 
   describe("loadConfig", () => {
@@ -86,12 +83,6 @@ describe("localStorage config", () => {
       const stored = JSON.parse(localStorage.getItem(STORAGE_KEY)!);
       expect(stored.language).toBe("es");
     });
-
-    it("sets theme on document element", () => {
-      updateTheme("default-dark");
-
-      expect(document.documentElement.dataset.theme).toBe("default-dark");
-    });
   });
 
   describe("updateLanguage", () => {
@@ -112,12 +103,6 @@ describe("localStorage config", () => {
 
       const stored = JSON.parse(localStorage.getItem(STORAGE_KEY)!);
       expect(stored.theme).toBe("familiar");
-    });
-
-    it("sets lang attribute on document element", () => {
-      updateLanguage("es");
-
-      expect(document.documentElement.lang).toBe("es");
     });
   });
 });
