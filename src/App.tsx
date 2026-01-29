@@ -1,10 +1,14 @@
 import "./globals.css";
 import { LoginScreen } from "@/screens/LoginScreen";
+import { TitleBar } from "@/components/system";
 
 function App() {
   return (
-    <div className="min-h-screen bg-background select-none sm:flex sm:items-center sm:justify-center">
-      <LoginScreen onLogin={async () => {}} error="" isLoading={false} />
+    <div className="h-screen flex flex-col bg-background select-none">
+      <TitleBar />
+      <div className="flex-1 sm:flex sm:items-center sm:justify-center overflow-auto">
+        <LoginScreen onLogin={async () => {}} error="" isLoading={false} />
+      </div>
     </div>
   );
 }

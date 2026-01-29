@@ -1,0 +1,5 @@
+.control-actions {
+  display: flex;
+  align-items: center;
+  -webkit-app-region: no-drag;
+}

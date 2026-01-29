@@ -1,0 +1,22 @@
+.control-button {
+  width: 46px;
+  height: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--foreground);
+  font-size: 10px;
+  user-select: none;
+}
+
+.control-button:hover {
+  background: var(--default);
+}
+
+.control-button--close:hover {
+  background: var(--danger);
+  color: var(--danger-foreground);
+}
