@@ -12,9 +12,17 @@
   "app": {
     "windows": [
       {
-        "title": "secludia",
-        "width": 800,
-        "height": 600
+        "title": "Secludia",
+        "width": 1024,
+        "height": 768,
+        "minWidth": 400,
+        "minHeight": 500,
+        "resizable": true,
+        "center": true,
+        "decorations": true,
+        "transparent": false,
+        "focus": true,
+        "visible": true
       }
     ],
     "security": {
@@ -30,6 +38,9 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "windows": {
+      "digestAlgorithm": "sha256"
+    }
   }
 }
