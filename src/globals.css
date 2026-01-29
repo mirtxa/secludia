@@ -3,3 +3,4 @@
 
 @import "./themes/ocean.css" layer(theme);
 @import "./themes/forest.css" layer(theme);
+@import "./themes/familiar.css" layer(theme);

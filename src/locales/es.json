@@ -1,0 +1,16 @@
+{
+  "LANGUAGE_DISPLAY_NAME": "Español",
+  "SETTINGS_THEME": "Tema",
+  "SETTINGS_THEME_CURRENT": "Tema actual",
+  "SETTINGS_LANGUAGE": "Idioma",
+  "SETTINGS_LANGUAGE_ENGLISH": "English",
+  "SETTINGS_LANGUAGE_SPANISH": "Español",
+  "LOGIN_TYPEWRITERTEXT_1": "Sin anuncios.",
+  "LOGIN_TYPEWRITERTEXT_2": "Sin rastreo.",
+  "LOGIN_TYPEWRITERTEXT_3": "Sin vigilancia.",
+  "LOGIN_TYPEWRITERTEXT_4": "Sin tonterías.",
+  "LOGIN_HOMESERVER": "Homeserver",
+  "LOGIN_HOMESERVER_INVALID": "Homeserver inválido.",
+  "LOGIN_DISCLAIMER": "Serás redirigido a tu homeserver para autenticarte via OAuth 2.0",
+  "LOGIN_SUBMIT": "Iniciar sesión"
+}

@@ -1,0 +1,16 @@
+{
+  "LANGUAGE_DISPLAY_NAME": "English",
+  "SETTINGS_THEME": "Theme",
+  "SETTINGS_THEME_CURRENT": "Current theme",
+  "SETTINGS_LANGUAGE": "Language",
+  "SETTINGS_LANGUAGE_ENGLISH": "English",
+  "SETTINGS_LANGUAGE_SPANISH": "Español",
+  "LOGIN_TYPEWRITERTEXT_1": "No ads.",
+  "LOGIN_TYPEWRITERTEXT_2": "No tracking.",
+  "LOGIN_TYPEWRITERTEXT_3": "No surveillance.",
+  "LOGIN_TYPEWRITERTEXT_4": "No BS.",
+  "LOGIN_HOMESERVER": "Homeserver",
+  "LOGIN_HOMESERVER_INVALID": "Invalid Homeserver.",
+  "LOGIN_DISCLAIMER": "You will be redirected to your homeserver to authenticate via OAuth 2.0",
+  "LOGIN_SUBMIT": "Log in"
+}

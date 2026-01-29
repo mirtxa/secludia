@@ -7,6 +7,11 @@ import { DEFAULT_CONFIG } from "./defaultConfig";
 
 const STORAGE_KEY = "secludia.config";
 
+const CONFIG_KEYS = {
+  THEME: "theme",
+  LANGUAGE: "language",
+} as const satisfies Record<string, keyof SecludiaConfig>;
+
 export function loadConfig(): SecludiaConfig {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
@@ -16,20 +21,24 @@ export function loadConfig(): SecludiaConfig {
   }
 }
 
-export function saveConfig(config: SecludiaConfig) {
+export function saveConfig(config: SecludiaConfig): void {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
 }
 
-export function updateTheme(theme: SecludiaTheme) {
+function updateConfigField<K extends keyof SecludiaConfig>(
+  key: K,
+  value: SecludiaConfig[K]
+): void {
   const config = loadConfig();
-  const next = { ...config, theme };
-  saveConfig(next);
+  saveConfig({ ...config, [key]: value });
+}
+
+export function updateTheme(theme: SecludiaTheme): void {
+  updateConfigField(CONFIG_KEYS.THEME, theme);
   document.documentElement.dataset.theme = theme;
 }
 
-export function updateLanguage(language: SecludiaLanguage) {
-  const config = loadConfig();
-  const next = { ...config, language };
-  saveConfig(next);
+export function updateLanguage(language: SecludiaLanguage): void {
+  updateConfigField(CONFIG_KEYS.LANGUAGE, language);
   document.documentElement.lang = language;
 }

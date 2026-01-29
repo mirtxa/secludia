@@ -6,11 +6,12 @@ import type {
 } from "@/config/configTypes";
 import * as Storage from "@/config/localStorage";
 import { TranslationKey } from "@/i18n/types";
-import { t as translate } from "@/i18n";
+import { t as translate, InterpolationValues } from "@/i18n";
 
 interface AppContextValue {
-  config: SecludiaConfig;
-  t: (key: TranslationKey) => string;
+  t: (key: TranslationKey, values?: InterpolationValues) => string;
+  getLanguage: () => SecludiaLanguage;
+  getTheme: () => SecludiaTheme;
   setTheme: (theme: SecludiaTheme) => void;
   setLanguage: (language: SecludiaLanguage) => void;
 }
@@ -27,7 +28,12 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
     return cfg;
   });
 
-  const t = (key: TranslationKey) => translate(config.language, key);
+  const getLanguage = () => config.language;
+
+  const getTheme = () => config.theme;
+
+  const t = (key: TranslationKey, values?: InterpolationValues) =>
+    translate(config.language, key, values);
 
   const setTheme = (theme: SecludiaTheme) => {
     Storage.updateTheme(theme);
@@ -40,7 +46,9 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AppContext.Provider value={{ config, setTheme, setLanguage, t }}>
+    <AppContext.Provider
+      value={{ getLanguage, getTheme, setTheme, setLanguage, t }}
+    >
       {children}
     </AppContext.Provider>
   );
