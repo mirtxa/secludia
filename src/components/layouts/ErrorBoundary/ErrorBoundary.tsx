@@ -3,6 +3,7 @@ import type { ErrorBoundaryProps, ErrorBoundaryState } from "./ErrorBoundary.typ
 import { t } from "@/i18n";
 import { loadConfig } from "@/config/localStorage";
 import { Button } from "@heroui/react";
+import { ResponsiveCard } from "@/components/layouts/ResponsiveCard";
 
 export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
@@ -33,18 +34,38 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
       const lang = loadConfig().language;
 
+      const title = <h1 className="text-2xl font-bold text-center">{t(lang, "ERROR_TITLE")}</h1>;
+
+      const description = (
+        <p className="text-center card__description mt-2 text-muted">
+          {t(lang, "ERROR_DESCRIPTION")}
+        </p>
+      );
+
+      const errorDetails = import.meta.env.DEV && this.state.error && (
+        <code className="mt-4 block overflow-auto rounded bg-default p-4 text-left text-sm text-danger">
+          {this.state.error.message}
+        </code>
+      );
+
+      const resetButton = (
+        <Button className="w-full" onPress={this.handleReset}>
+          {t(lang, "ERROR_TRY_AGAIN")}
+        </Button>
+      );
+
       return (
-        <div className="flex min-h-screen items-center justify-center bg-surface p-6">
-          <div className="max-w-md text-center">
-            <h1 className="mb-4 text-2xl font-bold text-foreground">{t(lang, "ERROR_TITLE")}</h1>
-            <p className="mb-6 text-muted">{t(lang, "ERROR_DESCRIPTION")}</p>
-            {import.meta.env.DEV && this.state.error && (
-              <code className="mb-6 block overflow-auto rounded bg-content1 p-4 text-left text-sm text-danger">
-                {this.state.error.message}
-              </code>
-            )}
-            <Button onPress={this.handleReset}>{t(lang, "ERROR_TRY_AGAIN")}</Button>
-          </div>
+        <div className="min-h-screen bg-background select-none sm:flex sm:items-center sm:justify-center">
+          <ResponsiveCard
+            header={
+              <>
+                {title}
+                {description}
+              </>
+            }
+            content={errorDetails}
+            footer={resetButton}
+          />
         </div>
       );
     }
