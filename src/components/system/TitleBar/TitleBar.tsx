@@ -7,7 +7,6 @@ import "./TitleBar.css";
 export const TitleBar = memo(function TitleBar() {
   const { selectedRoom } = useAppContext();
 
-  // Only render in Tauri desktop app, not on web
   if (!isTauri()) {
     return null;
   }

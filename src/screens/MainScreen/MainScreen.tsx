@@ -1,8 +1,9 @@
-import { memo, useCallback, useEffect, useMemo } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { Bars, CommentDot, Gear, Plus } from "@gravity-ui/icons";
 import { Avatar, Button, Separator } from "@heroui/react";
-import { NavBarButton } from "@/components/atoms";
-import { useAppContext } from "@/context";
+import { NavBarButton, UserAvatar } from "@/components/atoms";
+import { SettingsModal } from "@/components/organisms";
+import { useAppContext, useUserContext } from "@/context";
 import { useBreakpoint, useResizable, useSidebar } from "@/hooks";
 import type { MainScreenProps } from "./MainScreen.types";
 import "./MainScreen.css";
@@ -20,9 +21,11 @@ const SIDEBAR_WIDTH_OPTIONS = { minWidth: 180, maxWidth: 348, defaultWidth: 280 
 
 export const MainScreen = memo(function MainScreen(_props: MainScreenProps) {
   const { selectedRoom, setSelectedRoom, t } = useAppContext();
+  const { user } = useUserContext();
   const sidebar = useSidebar();
   const isDesktop = useBreakpoint("md");
   const resizable = useResizable(SIDEBAR_WIDTH_OPTIONS);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const dmLabel = t("NAV_DIRECT_MESSAGES");
 
@@ -93,7 +96,11 @@ export const MainScreen = memo(function MainScreen(_props: MainScreenProps) {
             </Avatar>
           </NavBarButton>
 
-          <NavBarButton label={t("NAV_SETTINGS")} showIndicator={false}>
+          <NavBarButton
+            label={t("NAV_SETTINGS")}
+            showIndicator={false}
+            onPress={() => setIsSettingsOpen(true)}
+          >
             <Avatar className="size-10 rounded-lg">
               <Avatar.Fallback className="rounded-lg">
                 <Gear />
@@ -101,14 +108,8 @@ export const MainScreen = memo(function MainScreen(_props: MainScreenProps) {
             </Avatar>
           </NavBarButton>
 
-          <NavBarButton label={t("NAV_PROFILE")} showIndicator={false}>
-            <Avatar className="size-10">
-              <Avatar.Image
-                alt={t("NAV_PROFILE")}
-                src="https://img.heroui.chat/image/avatar?w=200&h=200&u=99"
-              />
-              <Avatar.Fallback>ME</Avatar.Fallback>
-            </Avatar>
+          <NavBarButton label={user?.displayName ?? t("NAV_PROFILE")} showIndicator={false}>
+            <UserAvatar size="md" showPresenceRing />
           </NavBarButton>
         </nav>
         <div className="sidebar__content" style={contentStyle}>
@@ -133,6 +134,8 @@ export const MainScreen = memo(function MainScreen(_props: MainScreenProps) {
         </header>
         <div className="main-content__body" />
       </main>
+
+      <SettingsModal isOpen={isSettingsOpen} onOpenChange={setIsSettingsOpen} />
     </div>
   );
 });

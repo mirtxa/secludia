@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
-import { AppContextProvider } from "@/context";
+import { AppContextProvider, UserContextProvider } from "@/context";
 import { ErrorBoundary } from "@/components/layouts";
 
 const rootElement = document.getElementById("root");
@@ -14,7 +14,9 @@ ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
     <ErrorBoundary>
       <AppContextProvider>
-        <App />
+        <UserContextProvider>
+          <App />
+        </UserContextProvider>
       </AppContextProvider>
     </ErrorBoundary>
   </React.StrictMode>

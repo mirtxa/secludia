@@ -1,0 +1,52 @@
+.settings-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px;
+  background: var(--surface);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.15s ease-out;
+}
+
+.settings-row:hover {
+  background: var(--surface-secondary);
+}
+
+.settings-row__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: var(--default);
+  border-radius: 10px;
+  color: var(--foreground);
+  flex-shrink: 0;
+}
+
+.settings-row__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.settings-row__title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--foreground);
+}
+
+.settings-row__value {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.settings-row__chevron {
+  color: var(--muted);
+  flex-shrink: 0;
+}

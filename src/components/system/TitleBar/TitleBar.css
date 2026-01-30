@@ -6,6 +6,7 @@
   display: flex;
   align-items: center;
   user-select: none;
+  flex-shrink: 0;
   -webkit-app-region: drag;
 }
 

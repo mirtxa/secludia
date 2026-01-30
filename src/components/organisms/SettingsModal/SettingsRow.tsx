@@ -1,17 +1,26 @@
 import { memo, useCallback, useMemo } from "react";
 import type { Selection } from "@heroui/react";
-import { Button, Dropdown, Header, Label } from "@heroui/react";
-import { CircleCheckFill } from "@gravity-ui/icons";
-import type { SelectorDropdownProps } from "./SelectorDropdown.types";
+import { Dropdown, Header, Label } from "@heroui/react";
+import { ChevronDown, CircleCheckFill } from "@gravity-ui/icons";
+import "./SettingsRow.css";
 
-function SelectorDropdownInner<T extends string>({
+interface SettingsRowProps<T extends string> {
+  icon: React.ReactNode;
+  title: string;
+  options: { key: T; label: string }[];
+  value: T;
+  displayValue: string;
+  onChange: (value: T) => void;
+}
+
+function SettingsRowInner<T extends string>({
   icon,
   title,
   options,
   value,
   displayValue,
   onChange,
-}: SelectorDropdownProps<T>) {
+}: SettingsRowProps<T>) {
   const selectedKeys = useMemo(() => new Set([value]), [value]);
 
   const handleSelectionChange = useCallback(
@@ -28,11 +37,15 @@ function SelectorDropdownInner<T extends string>({
 
   return (
     <Dropdown>
-      <Button className="text-muted" aria-label={title} variant="ghost">
-        {icon}
-        {displayValue}
-      </Button>
-      <Dropdown.Popover className="min-w-[256px]" placement="top">
+      <Dropdown.Trigger className="settings-row">
+        <div className="settings-row__icon">{icon}</div>
+        <div className="settings-row__content">
+          <span className="settings-row__title">{title}</span>
+          <span className="settings-row__value">{displayValue}</span>
+        </div>
+        <ChevronDown className="settings-row__chevron" />
+      </Dropdown.Trigger>
+      <Dropdown.Popover className="min-w-[200px]" placement="bottom end">
         <Dropdown.Menu
           selectedKeys={selectedKeys}
           selectionMode="single"
@@ -58,4 +71,4 @@ function SelectorDropdownInner<T extends string>({
   );
 }
 
-export const SelectorDropdown = memo(SelectorDropdownInner) as typeof SelectorDropdownInner;
+export const SettingsRow = memo(SettingsRowInner) as typeof SettingsRowInner;
