@@ -1,26 +1,17 @@
 import { memo, useMemo, useState } from "react";
 import { Font, Palette, PlanetEarth } from "@gravity-ui/icons";
 import { useAppContext } from "@/context";
+import { THEME_OPTIONS } from "@/config/configTypes";
 import { AVAILABLE_LANGUAGES, getLanguageDisplayName } from "@/i18n";
-import { SettingsRow } from "./SettingsRow";
-import type { SecludiaTheme } from "@/config/configTypes";
 import type { TranslationKey } from "@/i18n/types";
+import { SettingsRow } from "./SettingsRow";
 
 type FontSize = "small" | "medium" | "large";
 
-const THEME_KEYS: { key: SecludiaTheme; label: TranslationKey }[] = [
-  { key: "default", label: "SETTINGS_THEME_DEFAULT" },
-  { key: "default-dark", label: "SETTINGS_THEME_DEFAULT_DARK" },
-  { key: "familiar", label: "SETTINGS_THEME_FAMILIAR" },
-  { key: "midnight", label: "SETTINGS_THEME_MIDNIGHT" },
-  { key: "sunset", label: "SETTINGS_THEME_SUNSET" },
-  { key: "mint", label: "SETTINGS_THEME_MINT" },
-];
-
-const FONT_SIZE_KEYS: { key: FontSize; label: TranslationKey }[] = [
-  { key: "small", label: "SETTINGS_FONT_SIZE_SMALL" },
-  { key: "medium", label: "SETTINGS_FONT_SIZE_MEDIUM" },
-  { key: "large", label: "SETTINGS_FONT_SIZE_LARGE" },
+const FONT_SIZE_OPTIONS: { key: FontSize; labelKey: TranslationKey }[] = [
+  { key: "small", labelKey: "SETTINGS_FONT_SIZE_SMALL" },
+  { key: "medium", labelKey: "SETTINGS_FONT_SIZE_MEDIUM" },
+  { key: "large", labelKey: "SETTINGS_FONT_SIZE_LARGE" },
 ];
 
 export const AppearanceSection = memo(function AppearanceSection() {
@@ -28,13 +19,13 @@ export const AppearanceSection = memo(function AppearanceSection() {
   const [fontSize, setFontSize] = useState<FontSize>("medium");
 
   const themeOptions = useMemo(
-    () => THEME_KEYS.map((item) => ({ key: item.key, label: t(item.label) })),
+    () => THEME_OPTIONS.map((item) => ({ key: item.key, label: t(item.labelKey) })),
     [t]
   );
 
   const themeDisplayValue = useMemo(() => {
-    const found = THEME_KEYS.find((item) => item.key === theme);
-    return found ? t(found.label) : theme;
+    const found = THEME_OPTIONS.find((item) => item.key === theme);
+    return found ? t(found.labelKey) : theme;
   }, [theme, t]);
 
   const languageOptions = useMemo(
@@ -43,13 +34,13 @@ export const AppearanceSection = memo(function AppearanceSection() {
   );
 
   const fontSizeOptions = useMemo(
-    () => FONT_SIZE_KEYS.map((item) => ({ key: item.key, label: t(item.label) })),
+    () => FONT_SIZE_OPTIONS.map((item) => ({ key: item.key, label: t(item.labelKey) })),
     [t]
   );
 
   const fontSizeDisplayValue = useMemo(() => {
-    const found = FONT_SIZE_KEYS.find((item) => item.key === fontSize);
-    return found ? t(found.label) : fontSize;
+    const found = FONT_SIZE_OPTIONS.find((item) => item.key === fontSize);
+    return found ? t(found.labelKey) : fontSize;
   }, [fontSize, t]);
 
   return (
