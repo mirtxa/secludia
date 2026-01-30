@@ -22,13 +22,15 @@ export const LoginScreen = memo(function LoginScreen({
   isLoading,
 }: LoginScreenProps) {
   const [homeserver, setHomeserver] = useState("");
+  const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
   const { t } = useAppContext();
 
   const validatedHomeserver = useMemo(() => validateHomeserver(homeserver), [homeserver]);
-  const hasValidationError = homeserver.length > 0 && validatedHomeserver === null;
+  const hasValidationError = hasAttemptedSubmit && validatedHomeserver === null;
   const fieldError = error || (hasValidationError ? t("LOGIN_HOMESERVER_INVALID") : "");
 
   const handleLogin = useCallback(() => {
+    setHasAttemptedSubmit(true);
     if (validatedHomeserver) {
       onLogin(buildHomeserverUrl(validatedHomeserver));
     }

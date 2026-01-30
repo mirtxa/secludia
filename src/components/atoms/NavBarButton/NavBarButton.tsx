@@ -20,7 +20,7 @@ export const NavBarButton = memo(function NavBarButton({
           {children}
         </button>
       </Tooltip.Trigger>
-      <Tooltip.Content placement="right" className="rounded-lg">
+      <Tooltip.Content placement="right" offset={12} className="rounded-lg">
         {label}
       </Tooltip.Content>
     </Tooltip>
