@@ -1,17 +1,21 @@
+import { memo, useState, useMemo, useCallback } from "react";
 import { Button, FieldError, InputGroup, Label, Spinner, Text, TextField } from "@heroui/react";
-import type { LoginScreenProps } from "./LoginScreen.types";
-import { useState, useMemo, useCallback } from "react";
+import { CircleExclamationFill } from "@gravity-ui/icons";
 import { useAppContext } from "@/context";
 import { LanguageSelector, ThemeSelector, Typewriter } from "@/components/atoms";
 import { ResponsiveCard } from "@/components/layouts";
-import { CircleExclamationFill } from "@gravity-ui/icons";
 import { validateHomeserver, buildHomeserverUrl } from "@/utils";
+import type { LoginScreenProps } from "./LoginScreen.types";
 
-export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, error, isLoading }) => {
-  const [homeserver, setHomeserver] = useState<string>("");
+export const LoginScreen = memo(function LoginScreen({
+  onLogin,
+  error,
+  isLoading,
+}: LoginScreenProps) {
+  const [homeserver, setHomeserver] = useState("");
   const { t } = useAppContext();
 
-  const validatedHomeserver = validateHomeserver(homeserver);
+  const validatedHomeserver = useMemo(() => validateHomeserver(homeserver), [homeserver]);
 
   const handleLogin = useCallback(() => {
     if (validatedHomeserver) {
@@ -99,4 +103,4 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, error, isLoad
       bottomBar={selectors}
     />
   );
-};
+});

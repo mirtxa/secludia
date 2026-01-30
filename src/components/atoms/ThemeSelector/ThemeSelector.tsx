@@ -1,10 +1,9 @@
-import { memo } from "react";
-import type { SecludiaTheme } from "@/config/configTypes";
-
+import { memo, useCallback } from "react";
 import type { Selection } from "@heroui/react";
 import { Button, Dropdown, Header, Label } from "@heroui/react";
-import { useAppContext } from "@/context";
 import { CircleCheckFill, Palette } from "@gravity-ui/icons";
+import { useAppContext } from "@/context";
+import type { SecludiaTheme } from "@/config/configTypes";
 import type { TranslationKey } from "@/i18n/types";
 
 const THEMES: { key: SecludiaTheme; label: TranslationKey }[] = [
@@ -19,11 +18,14 @@ const THEMES: { key: SecludiaTheme; label: TranslationKey }[] = [
 export const ThemeSelector = memo(function ThemeSelector() {
   const { getTheme, setTheme, t } = useAppContext();
 
-  const handleSelectionChange = (selection: Selection) => {
-    if (typeof selection === "object" && "currentKey" in selection) {
-      setTheme(selection.currentKey as SecludiaTheme);
-    }
-  };
+  const handleSelectionChange = useCallback(
+    (selection: Selection) => {
+      if (typeof selection === "object" && "currentKey" in selection) {
+        setTheme(selection.currentKey as SecludiaTheme);
+      }
+    },
+    [setTheme]
+  );
 
   const currentTheme = THEMES.find((theme) => theme.key === getTheme());
 

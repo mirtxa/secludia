@@ -29,10 +29,5 @@ export function useTauriWindow() {
     await window?.close();
   }, [getWindow]);
 
-  const startDragging = useCallback(async () => {
-    const window = await getWindow();
-    await window?.startDragging();
-  }, [getWindow]);
-
-  return { minimize, toggleMaximize, close, startDragging };
+  return { minimize, toggleMaximize, close };
 }

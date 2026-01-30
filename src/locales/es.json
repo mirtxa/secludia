@@ -21,5 +21,8 @@
   "LOGIN_SUBMIT": "Iniciar sesión",
   "ERROR_TITLE": "Algo salió mal",
   "ERROR_DESCRIPTION": "Ocurrió un error inesperado. Por favor, intenta refrescar la página.",
-  "ERROR_TRY_AGAIN": "Intentar de nuevo"
+  "ERROR_TRY_AGAIN": "Intentar de nuevo",
+  "MAIN_WELCOME": "Bienvenido a Secludia",
+  "MAIN_CONNECTED_TO": "Conectado a {{homeserver}}",
+  "MAIN_LOGOUT": "Cerrar sesión"
 }

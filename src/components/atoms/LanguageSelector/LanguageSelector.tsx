@@ -1,20 +1,22 @@
-import { memo } from "react";
-import type { SecludiaLanguage } from "@/config/configTypes";
-import { AVAILABLE_LANGUAGES, getLanguageDisplayName } from "@/i18n";
-
+import { memo, useCallback } from "react";
 import type { Selection } from "@heroui/react";
 import { Button, Dropdown, Header, Label } from "@heroui/react";
-import { useAppContext } from "@/context";
 import { CircleCheckFill, PlanetEarth } from "@gravity-ui/icons";
+import { useAppContext } from "@/context";
+import { AVAILABLE_LANGUAGES, getLanguageDisplayName } from "@/i18n";
+import type { SecludiaLanguage } from "@/config/configTypes";
 
 export const LanguageSelector = memo(function LanguageSelector() {
   const { getLanguage, setLanguage, t } = useAppContext();
 
-  const handleSelectionChange = (selection: Selection) => {
-    if (typeof selection === "object" && "currentKey" in selection) {
-      setLanguage(selection.currentKey as SecludiaLanguage);
-    }
-  };
+  const handleSelectionChange = useCallback(
+    (selection: Selection) => {
+      if (typeof selection === "object" && "currentKey" in selection) {
+        setLanguage(selection.currentKey as SecludiaLanguage);
+      }
+    },
+    [setLanguage]
+  );
 
   return (
     <Dropdown>

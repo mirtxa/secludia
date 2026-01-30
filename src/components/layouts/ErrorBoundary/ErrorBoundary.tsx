@@ -1,9 +1,10 @@
 import { Component, type ReactNode, type ErrorInfo } from "react";
-import type { ErrorBoundaryProps, ErrorBoundaryState } from "./ErrorBoundary.types";
+import { Button } from "@heroui/react";
 import { t } from "@/i18n";
 import { loadConfig } from "@/config/localStorage";
-import { Button } from "@heroui/react";
+import { TitleBar } from "@/components/system";
 import { ResponsiveCard } from "@/components/layouts/ResponsiveCard";
+import type { ErrorBoundaryProps, ErrorBoundaryState } from "./ErrorBoundary.types";
 
 export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
@@ -55,17 +56,22 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       );
 
       return (
-        <div className="min-h-screen bg-background select-none sm:flex sm:items-center sm:justify-center">
-          <ResponsiveCard
-            header={
-              <>
-                {title}
-                {description}
-              </>
-            }
-            content={errorDetails}
-            footer={resetButton}
-          />
+        <div className="h-screen flex flex-col bg-background select-none">
+          <TitleBar />
+          <div className="flex-1 overflow-auto">
+            <div className="h-full flex items-center justify-center">
+              <ResponsiveCard
+                header={
+                  <>
+                    {title}
+                    {description}
+                  </>
+                }
+                content={errorDetails}
+                footer={resetButton}
+              />
+            </div>
+          </div>
         </div>
       );
     }

@@ -21,5 +21,8 @@
   "LOGIN_SUBMIT": "Log in",
   "ERROR_TITLE": "Something went wrong",
   "ERROR_DESCRIPTION": "An unexpected error occurred. Please try refreshing the page.",
-  "ERROR_TRY_AGAIN": "Try again"
+  "ERROR_TRY_AGAIN": "Try again",
+  "MAIN_WELCOME": "Welcome to Secludia",
+  "MAIN_CONNECTED_TO": "Connected to {{homeserver}}",
+  "MAIN_LOGOUT": "Log out"
 }
