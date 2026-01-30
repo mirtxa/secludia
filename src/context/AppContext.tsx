@@ -4,19 +4,16 @@ import type { SecludiaConfig, SecludiaTheme, SecludiaLanguage } from "@/config/c
 import * as Storage from "@/config/localStorage";
 import type { InterpolationValues } from "@/i18n";
 import { t as translate } from "@/i18n";
-import { AppContext, type AppContextValue } from "./AppContext.types";
+import { AppContext, type AppContextValue, type SelectedRoom } from "./AppContext.types";
 
 export function AppContextProvider({ children }: { children: ReactNode }) {
   const [config, setConfig] = useState<SecludiaConfig>(() => Storage.loadConfig());
+  const [selectedRoom, setSelectedRoom] = useState<SelectedRoom | null>(null);
 
   useEffect(() => {
     document.documentElement.dataset.theme = config.theme;
     document.documentElement.lang = config.language;
   }, [config.theme, config.language]);
-
-  const getLanguage = useCallback(() => config.language, [config.language]);
-
-  const getTheme = useCallback(() => config.theme, [config.theme]);
 
   const t = useCallback(
     (key: Parameters<AppContextValue["t"]>[0], values?: InterpolationValues) =>
@@ -35,8 +32,16 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ getLanguage, getTheme, setTheme, setLanguage, t }),
-    [getLanguage, getTheme, setTheme, setLanguage, t]
+    () => ({
+      t,
+      language: config.language,
+      theme: config.theme,
+      setTheme,
+      setLanguage,
+      selectedRoom,
+      setSelectedRoom,
+    }),
+    [t, config.language, config.theme, setTheme, setLanguage, selectedRoom]
   );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

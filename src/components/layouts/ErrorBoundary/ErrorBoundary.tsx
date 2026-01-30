@@ -2,7 +2,7 @@ import { Component, type ReactNode, type ErrorInfo } from "react";
 import { Button } from "@heroui/react";
 import { t } from "@/i18n";
 import { loadConfig } from "@/config/localStorage";
-import { TitleBar } from "@/components/system";
+import { AppLayout } from "@/components/layouts/AppLayout";
 import { ResponsiveCard } from "@/components/layouts/ResponsiveCard";
 import type { ErrorBoundaryProps, ErrorBoundaryState } from "./ErrorBoundary.types";
 
@@ -56,23 +56,20 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       );
 
       return (
-        <div className="h-screen flex flex-col bg-background select-none">
-          <TitleBar />
-          <div className="flex-1 overflow-auto">
-            <div className="h-full flex items-center justify-center">
-              <ResponsiveCard
-                header={
-                  <>
-                    {title}
-                    {description}
-                  </>
-                }
-                content={errorDetails}
-                footer={resetButton}
-              />
-            </div>
+        <AppLayout>
+          <div className="h-full flex items-center justify-center">
+            <ResponsiveCard
+              header={
+                <>
+                  {title}
+                  {description}
+                </>
+              }
+              content={errorDetails}
+              footer={resetButton}
+            />
           </div>
-        </div>
+        </AppLayout>
       );
     }
 

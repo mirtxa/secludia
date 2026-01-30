@@ -4,11 +4,11 @@ import { AppContextProvider, useAppContext } from ".";
 
 // Test component that uses the context
 function TestConsumer() {
-  const { t, getTheme, getLanguage, setTheme, setLanguage } = useAppContext();
+  const { t, theme, language, setTheme, setLanguage } = useAppContext();
   return (
     <div>
-      <span data-testid="theme">{getTheme()}</span>
-      <span data-testid="language">{getLanguage()}</span>
+      <span data-testid="theme">{theme}</span>
+      <span data-testid="language">{language}</span>
       <span data-testid="translation">{t("LOGIN_SUBMIT")}</span>
       <button data-testid="change-theme" onClick={() => setTheme("midnight")}>
         Change Theme

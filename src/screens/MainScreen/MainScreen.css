@@ -10,6 +10,7 @@
 .main-screen {
   --header-height: 50px;
   --nav-width: 72px;
+  --sidebar-slide-offset: 30px;
 
   display: flex;
   height: 100%;
@@ -34,10 +35,15 @@
 }
 
 .sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 12px;
   width: var(--nav-width);
   flex-shrink: 0;
   background: var(--surface);
   border-right: 1px solid var(--border);
+  overflow-y: auto;
   transform: translateX(calc(-1 * var(--nav-width)));
   transition: transform 0.3s ease-out;
 }
@@ -54,7 +60,7 @@
   min-width: 0;
   background: var(--surface);
   opacity: 0;
-  transform: translateX(-30px);
+  transform: translateX(calc(-1 * var(--sidebar-slide-offset)));
   transition:
     opacity 0.25s ease-out 0.2s,
     transform 0.25s ease-out 0.2s;

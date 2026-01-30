@@ -1,0 +1,43 @@
+.nav-bar-button {
+  --button-size: 40px;
+  --button-margin: 5px;
+  --indicator-width: 8px;
+  --indicator-offset: 20px;
+  --indicator-radius: 4px;
+
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: var(--button-margin) 0;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.nav-bar-button__indicator {
+  position: absolute;
+  left: calc(-1 * var(--indicator-offset));
+  width: var(--indicator-width);
+  height: var(--button-size);
+  border-radius: 0 var(--indicator-radius) var(--indicator-radius) 0;
+  background-color: var(--foreground);
+  transform: scaleY(0);
+  transform-origin: center;
+  transition:
+    transform 0.15s ease-out,
+    background-color 0.15s ease-out;
+}
+
+.nav-bar-button .nav-bar-button__indicator {
+  transform: scaleY(0);
+}
+
+.nav-bar-button:not(.nav-bar-button--selected):hover .nav-bar-button__indicator {
+  transform: scaleY(0.5);
+}
+
+.nav-bar-button--selected .nav-bar-button__indicator {
+  transform: scaleY(1);
+}

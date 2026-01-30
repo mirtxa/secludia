@@ -1,11 +1,16 @@
 .title-bar {
+  --control-actions-width: 138px;
+
   height: 32px;
   background: var(--surface);
   display: flex;
   align-items: center;
-  justify-content: space-between;
   user-select: none;
   -webkit-app-region: drag;
+}
+
+.title-bar__spacer {
+  display: none;
 }
 
 .title-bar__title {
@@ -14,4 +19,16 @@
   font-size: 12px;
   font-weight: 500;
   color: var(--foreground);
+}
+
+@media (min-width: 768px) {
+  .title-bar__spacer {
+    display: block;
+    width: var(--control-actions-width);
+  }
+
+  .title-bar__title {
+    text-align: center;
+    padding-left: 0;
+  }
 }

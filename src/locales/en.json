@@ -1,5 +1,9 @@
 {
   "LANGUAGE_DISPLAY_NAME": "English",
+  "NAV_DIRECT_MESSAGES": "Direct Messages",
+  "NAV_ADD_ROOM": "Add room or space",
+  "NAV_SETTINGS": "Settings",
+  "NAV_PROFILE": "Your profile",
   "SETTINGS_THEME": "Theme",
   "SETTINGS_THEME_CURRENT": "Current theme",
   "SETTINGS_THEME_DEFAULT": "Default",

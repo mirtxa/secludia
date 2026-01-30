@@ -1,12 +1,11 @@
-import { memo, useCallback } from "react";
-import type { Selection } from "@heroui/react";
-import { Button, Dropdown, Header, Label } from "@heroui/react";
-import { CircleCheckFill, Palette } from "@gravity-ui/icons";
+import { memo, useMemo } from "react";
+import { Palette } from "@gravity-ui/icons";
 import { useAppContext } from "@/context";
+import { SelectorDropdown } from "../SelectorDropdown";
 import type { SecludiaTheme } from "@/config/configTypes";
 import type { TranslationKey } from "@/i18n/types";
 
-const THEMES: { key: SecludiaTheme; label: TranslationKey }[] = [
+const THEME_KEYS: { key: SecludiaTheme; label: TranslationKey }[] = [
   { key: "default", label: "SETTINGS_THEME_DEFAULT" },
   { key: "default-dark", label: "SETTINGS_THEME_DEFAULT_DARK" },
   { key: "familiar", label: "SETTINGS_THEME_FAMILIAR" },
@@ -16,47 +15,26 @@ const THEMES: { key: SecludiaTheme; label: TranslationKey }[] = [
 ];
 
 export const ThemeSelector = memo(function ThemeSelector() {
-  const { getTheme, setTheme, t } = useAppContext();
+  const { theme, setTheme, t } = useAppContext();
 
-  const handleSelectionChange = useCallback(
-    (selection: Selection) => {
-      if (typeof selection === "object" && "currentKey" in selection) {
-        setTheme(selection.currentKey as SecludiaTheme);
-      }
-    },
-    [setTheme]
+  const options = useMemo(
+    () => THEME_KEYS.map((item) => ({ key: item.key, label: t(item.label) })),
+    [t]
   );
 
-  const currentTheme = THEMES.find((theme) => theme.key === getTheme());
+  const displayValue = useMemo(() => {
+    const found = THEME_KEYS.find((item) => item.key === theme);
+    return found ? t(found.label) : theme;
+  }, [theme, t]);
 
   return (
-    <Dropdown>
-      <Button className="text-muted" aria-label="Menu" variant="ghost">
-        <Palette />
-        {currentTheme ? t(currentTheme.label) : getTheme()}
-      </Button>
-      <Dropdown.Popover className="min-w-[256px]" placement="top">
-        <Dropdown.Menu
-          selectedKeys={new Set([getTheme()])}
-          selectionMode="single"
-          disallowEmptySelection
-          onSelectionChange={handleSelectionChange}
-        >
-          <Dropdown.Section>
-            <Header>{t("SETTINGS_THEME")}</Header>
-            {THEMES.map((theme) => (
-              <Dropdown.Item key={theme.key} id={theme.key} textValue={t(theme.label)}>
-                <Dropdown.ItemIndicator>
-                  {({ isSelected }) =>
-                    isSelected ? <CircleCheckFill className="text-accent" /> : null
-                  }
-                </Dropdown.ItemIndicator>
-                <Label>{t(theme.label)}</Label>
-              </Dropdown.Item>
-            ))}
-          </Dropdown.Section>
-        </Dropdown.Menu>
-      </Dropdown.Popover>
-    </Dropdown>
+    <SelectorDropdown
+      icon={<Palette />}
+      title={t("SETTINGS_THEME")}
+      options={options}
+      value={theme}
+      displayValue={displayValue}
+      onChange={setTheme}
+    />
   );
 });

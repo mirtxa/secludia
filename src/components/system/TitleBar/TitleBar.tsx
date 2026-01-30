@@ -1,13 +1,12 @@
 import { memo } from "react";
 import { isTauri } from "@tauri-apps/api/core";
+import { useAppContext } from "@/context";
 import { ControlActions } from "../ControlActions";
 import "./TitleBar.css";
 
-interface TitleBarProps {
-  title?: string;
-}
+export const TitleBar = memo(function TitleBar() {
+  const { selectedRoom } = useAppContext();
 
-export const TitleBar = memo(function TitleBar({ title = "Secludia" }: TitleBarProps) {
   // Only render in Tauri desktop app, not on web
   if (!isTauri()) {
     return null;
@@ -15,7 +14,8 @@ export const TitleBar = memo(function TitleBar({ title = "Secludia" }: TitleBarP
 
   return (
     <div className="title-bar" data-tauri-drag-region>
-      <span className="title-bar__title">{title}</span>
+      <div className="title-bar__spacer" />
+      <span className="title-bar__title">{selectedRoom?.name ?? "Secludia"}</span>
       <ControlActions />
     </div>
   );

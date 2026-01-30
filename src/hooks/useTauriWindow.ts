@@ -15,18 +15,30 @@ export function useTauriWindow() {
   }, []);
 
   const minimize = useCallback(async () => {
-    const window = await getWindow();
-    await window?.minimize();
+    try {
+      const window = await getWindow();
+      await window?.minimize();
+    } catch (error) {
+      if (import.meta.env.DEV) console.error("Failed to minimize window:", error);
+    }
   }, [getWindow]);
 
   const toggleMaximize = useCallback(async () => {
-    const window = await getWindow();
-    await window?.toggleMaximize();
+    try {
+      const window = await getWindow();
+      await window?.toggleMaximize();
+    } catch (error) {
+      if (import.meta.env.DEV) console.error("Failed to toggle maximize:", error);
+    }
   }, [getWindow]);
 
   const close = useCallback(async () => {
-    const window = await getWindow();
-    await window?.close();
+    try {
+      const window = await getWindow();
+      await window?.close();
+    } catch (error) {
+      if (import.meta.env.DEV) console.error("Failed to close window:", error);
+    }
   }, [getWindow]);
 
   return { minimize, toggleMaximize, close };

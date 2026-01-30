@@ -1,5 +1,9 @@
 {
   "LANGUAGE_DISPLAY_NAME": "Español",
+  "NAV_DIRECT_MESSAGES": "Mensajes Directos",
+  "NAV_ADD_ROOM": "Añadir sala o espacio",
+  "NAV_SETTINGS": "Configuración",
+  "NAV_PROFILE": "Tu perfil",
   "SETTINGS_THEME": "Tema",
   "SETTINGS_THEME_CURRENT": "Tema actual",
   "SETTINGS_THEME_DEFAULT": "Predeterminado",
