@@ -1,9 +1,3 @@
 .dm-search-input {
   min-width: 0;
-  width: 100%;
-  text-overflow: ellipsis;
-}
-
-.dm-search-input::placeholder {
-  text-overflow: ellipsis;
 }

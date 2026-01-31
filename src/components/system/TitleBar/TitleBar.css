@@ -3,21 +3,5 @@
 }
 
 .title-bar__spacer {
-  display: none;
-}
-
-.title-bar__title {
-  padding-left: 12px;
-}
-
-@media (min-width: 768px) {
-  .title-bar__spacer {
-    display: block;
-    width: 138px;
-  }
-
-  .title-bar__title {
-    text-align: center;
-    padding-left: 0;
-  }
+  width: 138px;
 }

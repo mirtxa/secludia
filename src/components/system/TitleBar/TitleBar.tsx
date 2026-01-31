@@ -16,8 +16,8 @@ export const TitleBar = memo(function TitleBar() {
       className="title-bar flex h-8 shrink-0 select-none items-center bg-surface"
       data-tauri-drag-region
     >
-      <div className="title-bar__spacer" />
-      <span className="title-bar__title flex-1 text-xs font-medium text-foreground">
+      <div className="title-bar__spacer hidden md:block" />
+      <span className="title-bar__title flex-1 pl-3 text-xs font-medium text-foreground md:pl-0 md:text-center">
         {selectedRoom?.name ?? "Secludia"}
       </span>
       <ControlActions />

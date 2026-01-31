@@ -3,6 +3,7 @@ import { Bars, CommentFill, Gear, Hashtag, Plus } from "@gravity-ui/icons";
 import { Avatar, Button, Separator, Skeleton } from "@heroui/react";
 import { EncryptionChip, NavBarButton, PresenceAvatar, Scrollbar } from "@/components/atoms";
 import { DirectMessagesSection, SettingsModal, type Conversation } from "@/components/organisms";
+import { SIDEBAR_WIDTH, SIMULATED_LOADING_DELAY } from "@/constants";
 import { useAppContext, useUserContext, type RoomType } from "@/context";
 import { useBreakpoint, useResizable, useSidebar } from "@/hooks";
 import { MOCK_ROOMS } from "@/mocks";
@@ -10,7 +11,11 @@ import { getInitials } from "@/utils";
 import type { MainScreenProps } from "./MainScreen.types";
 import "./MainScreen.css";
 
-const SIDEBAR_WIDTH_OPTIONS = { minWidth: 180, maxWidth: 348, defaultWidth: 280 };
+const SIDEBAR_WIDTH_OPTIONS = {
+  minWidth: SIDEBAR_WIDTH.min,
+  maxWidth: SIDEBAR_WIDTH.max,
+  defaultWidth: SIDEBAR_WIDTH.default,
+};
 
 export const MainScreen = memo(function MainScreen(_: MainScreenProps) {
   const { selectedRoom, setSelectedRoom, t } = useAppContext();
@@ -27,7 +32,7 @@ export const MainScreen = memo(function MainScreen(_: MainScreenProps) {
 
   // Simulate loading state (replace with actual data fetching logic)
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 1500);
+    const timer = setTimeout(() => setIsLoading(false), SIMULATED_LOADING_DELAY);
     return () => clearTimeout(timer);
   }, []);
 

@@ -2,6 +2,7 @@ import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { PersonPlus, TrashBin } from "@gravity-ui/icons";
 import { Button, Modal, SearchField, Skeleton } from "@heroui/react";
 import { Scrollbar } from "@/components/atoms";
+import { SIMULATED_LOADING_DELAY } from "@/constants";
 import { useAppContext } from "@/context";
 import { MOCK_CONVERSATIONS } from "@/mocks";
 import { ConversationItem } from "./ConversationItem";
@@ -20,7 +21,7 @@ export const DirectMessagesSection = memo(function DirectMessagesSection({
 
   // Simulate loading state (replace with actual data fetching logic)
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 1500);
+    const timer = setTimeout(() => setIsLoading(false), SIMULATED_LOADING_DELAY);
     return () => clearTimeout(timer);
   }, []);
 
