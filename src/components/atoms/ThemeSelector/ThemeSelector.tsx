@@ -2,7 +2,7 @@ import { memo, useMemo } from "react";
 import { Palette } from "@gravity-ui/icons";
 import { useAppContext } from "@/context";
 import { THEME_OPTIONS } from "@/config/configTypes";
-import { SelectorDropdown } from "../SelectorDropdown";
+import { SelectDropdown } from "../SelectDropdown";
 
 export const ThemeSelector = memo(function ThemeSelector() {
   const { theme, setTheme, t } = useAppContext();
@@ -18,7 +18,7 @@ export const ThemeSelector = memo(function ThemeSelector() {
   }, [theme, t]);
 
   return (
-    <SelectorDropdown
+    <SelectDropdown
       icon={<Palette />}
       title={t("SETTINGS_THEME")}
       options={options}

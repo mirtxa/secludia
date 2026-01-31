@@ -1,44 +1,87 @@
-import { memo, useCallback, useEffect, useMemo, useState } from "react";
-import { Bars, CommentDot, Gear, Plus } from "@gravity-ui/icons";
-import { Avatar, Button, Separator } from "@heroui/react";
-import { NavBarButton, UserAvatar } from "@/components/atoms";
-import { SettingsModal } from "@/components/organisms";
-import { useAppContext, useUserContext } from "@/context";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Bars, CommentFill, Gear, Hashtag, Plus } from "@gravity-ui/icons";
+import { Avatar, Button, Separator, Skeleton } from "@heroui/react";
+import { EncryptionChip, NavBarButton, PresenceAvatar, Scrollbar } from "@/components/atoms";
+import { DirectMessagesSection, SettingsModal, type Conversation } from "@/components/organisms";
+import { useAppContext, useUserContext, type RoomType } from "@/context";
 import { useBreakpoint, useResizable, useSidebar } from "@/hooks";
+import { MOCK_ROOMS } from "@/mocks";
+import { getInitials } from "@/utils";
 import type { MainScreenProps } from "./MainScreen.types";
 import "./MainScreen.css";
 
-const ROOMS = [
-  { id: 1, name: "Bob Martinez", image: "https://img.heroui.chat/image/avatar?w=200&h=200&u=2" },
-  { id: 2, name: "Carol Davis", image: "https://img.heroui.chat/image/avatar?w=200&h=200&u=3" },
-  { id: 3, name: "Dan Wilson", image: "https://img.heroui.chat/image/avatar?w=200&h=200&u=4" },
-  { id: 4, name: "Emma Brown", image: "https://img.heroui.chat/image/avatar?w=200&h=200&u=5" },
-  { id: 5, name: "Frank Lee", image: "https://img.heroui.chat/image/avatar?w=200&h=200&u=6" },
-  { id: 6, name: "Grace Kim", image: "https://img.heroui.chat/image/avatar?w=200&h=200&u=7" },
-];
-
 const SIDEBAR_WIDTH_OPTIONS = { minWidth: 180, maxWidth: 348, defaultWidth: 280 };
 
-export const MainScreen = memo(function MainScreen(_props: MainScreenProps) {
+export const MainScreen = memo(function MainScreen(_: MainScreenProps) {
   const { selectedRoom, setSelectedRoom, t } = useAppContext();
-  const { user } = useUserContext();
+  const { user, presence } = useUserContext();
   const sidebar = useSidebar();
   const isDesktop = useBreakpoint("md");
   const resizable = useResizable(SIDEBAR_WIDTH_OPTIONS);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [activeConversation, setActiveConversation] = useState<Conversation | null>(null);
+  const [roomsHasScroll, setRoomsHasScroll] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const roomsWrapperRef = useRef<HTMLDivElement>(null);
+  const roomsContentRef = useRef<HTMLDivElement>(null);
+
+  // Simulate loading state (replace with actual data fetching logic)
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 1500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleConversationSelect = useCallback(
+    (conversation: Conversation) => {
+      setActiveConversation(conversation);
+      if (!isDesktop) {
+        sidebar.close();
+      }
+    },
+    [isDesktop, sidebar]
+  );
 
   const dmLabel = t("NAV_DIRECT_MESSAGES");
 
+  const isTablet = useBreakpoint("sm") && !isDesktop;
+
   const handleNavSelect = useCallback(
-    (id: string | number, name: string) => {
-      setSelectedRoom({ id, name });
+    (id: string | number, name: string, type: RoomType) => {
+      setSelectedRoom({ id, name, type });
+      if (isTablet && type !== "group") {
+        sidebar.open();
+      } else if (isTablet && type === "group") {
+        sidebar.close();
+      }
     },
-    [setSelectedRoom]
+    [setSelectedRoom, isTablet, sidebar]
   );
 
   useEffect(() => {
-    setSelectedRoom({ id: "dm", name: dmLabel });
+    setSelectedRoom({ id: "dm", name: dmLabel, type: "dm" });
   }, [setSelectedRoom, dmLabel]);
+
+  useEffect(() => {
+    const checkScroll = () => {
+      const wrapper = roomsWrapperRef.current;
+      const content = roomsContentRef.current;
+      if (wrapper && content) {
+        setRoomsHasScroll(content.scrollHeight > wrapper.clientHeight);
+      }
+    };
+
+    checkScroll();
+
+    const resizeObserver = new ResizeObserver(checkScroll);
+    if (roomsWrapperRef.current) {
+      resizeObserver.observe(roomsWrapperRef.current);
+    }
+    if (roomsContentRef.current) {
+      resizeObserver.observe(roomsContentRef.current);
+    }
+
+    return () => resizeObserver.disconnect();
+  }, []);
 
   const sidebarClass = sidebar.isOpen ? "sidebar sidebar--open" : "sidebar";
   const resizeHandleClass = resizable.isResizing
@@ -52,71 +95,118 @@ export const MainScreen = memo(function MainScreen(_props: MainScreenProps) {
   return (
     <div className="main-screen">
       <aside className={sidebarClass}>
-        <nav className="sidebar__nav">
-          <NavBarButton
-            label={dmLabel}
-            selected={selectedRoom?.id === "dm"}
-            onPress={() => handleNavSelect("dm", dmLabel)}
-          >
-            <Avatar className="size-10 rounded-lg">
-              <Avatar.Fallback className="rounded-lg">
-                <CommentDot />
-              </Avatar.Fallback>
-            </Avatar>
-          </NavBarButton>
-
-          <Separator className="w-10" />
-
-          {ROOMS.map((room) => (
+        <nav className="sidebar__nav" aria-label="Main navigation">
+          <div className="sidebar__nav-top">
             <NavBarButton
-              key={room.id}
-              label={room.name}
-              selected={selectedRoom?.id === room.id}
-              onPress={() => handleNavSelect(room.id, room.name)}
+              label={dmLabel}
+              selected={selectedRoom?.id === "dm"}
+              onPress={() => handleNavSelect("dm", dmLabel, "dm")}
             >
               <Avatar className="size-10 rounded-lg">
-                <Avatar.Image alt={room.name} src={room.image} className="rounded-lg" />
                 <Avatar.Fallback className="rounded-lg">
-                  {room.name
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")}
+                  <CommentFill />
                 </Avatar.Fallback>
               </Avatar>
             </NavBarButton>
-          ))}
+            <Separator className="w-10" />
+          </div>
 
-          <div className="flex-1" />
+          <div ref={roomsWrapperRef} className="sidebar__nav-scroll-wrapper">
+            <Scrollbar className="sidebar__nav-scroll">
+              <div ref={roomsContentRef} className="sidebar__nav-rooms">
+                {isLoading
+                  ? Array.from({ length: 4 }).map((_, i) => (
+                      <div key={i} className="flex h-14 items-center justify-center">
+                        <Skeleton className="size-10 rounded-lg" />
+                      </div>
+                    ))
+                  : MOCK_ROOMS.map((room) => (
+                      <NavBarButton
+                        key={room.id}
+                        label={room.name}
+                        selected={selectedRoom?.id === room.id}
+                        onPress={() => handleNavSelect(room.id, room.name, room.type)}
+                      >
+                        <div className="relative">
+                          <Avatar className="size-10 rounded-lg">
+                            {room.image && (
+                              <Avatar.Image
+                                alt={room.name}
+                                src={room.image}
+                                className="rounded-lg"
+                              />
+                            )}
+                            <Avatar.Fallback className="rounded-lg">
+                              {getInitials(room.name)}
+                            </Avatar.Fallback>
+                          </Avatar>
+                          {room.type === "space" && (
+                            <div className="space-badge absolute -bottom-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full bg-default ring-2 ring-background">
+                              <Hashtag className="size-2.5 text-muted" />
+                            </div>
+                          )}
+                        </div>
+                      </NavBarButton>
+                    ))}
+              </div>
+            </Scrollbar>
+          </div>
 
-          <NavBarButton label={t("NAV_ADD_ROOM")} showIndicator={false}>
-            <Avatar className="size-10 rounded-lg">
-              <Avatar.Fallback className="rounded-lg">
-                <Plus />
-              </Avatar.Fallback>
-            </Avatar>
-          </NavBarButton>
+          <div className="sidebar__nav-bottom">
+            {roomsHasScroll && <Separator className="w-10" />}
+            <NavBarButton label={t("NAV_ADD_ROOM")} showIndicator={false}>
+              <Avatar className="size-10 rounded-lg">
+                <Avatar.Fallback className="rounded-lg">
+                  <Plus />
+                </Avatar.Fallback>
+              </Avatar>
+            </NavBarButton>
 
-          <NavBarButton
-            label={t("NAV_SETTINGS")}
-            showIndicator={false}
-            onPress={() => setIsSettingsOpen(true)}
-          >
-            <Avatar className="size-10 rounded-lg">
-              <Avatar.Fallback className="rounded-lg">
-                <Gear />
-              </Avatar.Fallback>
-            </Avatar>
-          </NavBarButton>
+            <NavBarButton
+              label={t("NAV_SETTINGS")}
+              showIndicator={false}
+              onPress={() => setIsSettingsOpen(true)}
+            >
+              <Avatar className="size-10 rounded-lg">
+                <Avatar.Fallback className="rounded-lg">
+                  <Gear />
+                </Avatar.Fallback>
+              </Avatar>
+            </NavBarButton>
 
-          <NavBarButton label={user?.displayName ?? t("NAV_PROFILE")} showIndicator={false}>
-            <UserAvatar size="md" showPresenceRing />
-          </NavBarButton>
+            <div className="mt-3">
+              {isLoading ? (
+                <div className="flex h-14 items-center justify-center">
+                  <Skeleton className="size-10 rounded-full" />
+                </div>
+              ) : (
+                <NavBarButton
+                  label={user?.displayName ?? t("NAV_PROFILE")}
+                  showIndicator={false}
+                  rounded
+                >
+                  <PresenceAvatar
+                    name={user?.displayName ?? ""}
+                    avatarUrl={user?.avatarUrl ?? undefined}
+                    presence={presence}
+                    size="md"
+                  />
+                </NavBarButton>
+              )}
+            </div>
+          </div>
         </nav>
-        <div className="sidebar__content" style={contentStyle}>
-          <header className="sidebar__header" />
-          <div className="sidebar__body" />
-          <div className={resizeHandleClass} onMouseDown={resizable.handleMouseDown} />
-        </div>
+        {selectedRoom?.type !== "group" && (
+          <div className="sidebar__content" style={contentStyle}>
+            {selectedRoom?.type === "dm" && (
+              <DirectMessagesSection
+                activeConversationId={activeConversation?.id}
+                onConversationSelect={handleConversationSelect}
+              />
+            )}
+            <div className={resizeHandleClass} onMouseDown={resizable.handleMouseDown} />
+          </div>
+        )}
       </aside>
 
       <main className="main-content">
@@ -130,9 +220,26 @@ export const MainScreen = memo(function MainScreen(_props: MainScreenProps) {
           >
             <Bars />
           </Button>
-          <div className="main-content__header-content" />
+          <div className="main-content__header-content flex items-center gap-3 px-3">
+            {activeConversation && (
+              <>
+                <PresenceAvatar
+                  name={activeConversation.displayName ?? activeConversation.username}
+                  avatarUrl={activeConversation.avatarUrl}
+                  presence={activeConversation.presence}
+                  size="sm"
+                />
+                <span className="min-w-0 flex-1 truncate text-sm font-medium">
+                  {activeConversation.displayName ?? activeConversation.username}
+                </span>
+                <div className="ml-auto shrink-0">
+                  <EncryptionChip isEncrypted={activeConversation.isEncrypted} />
+                </div>
+              </>
+            )}
+          </div>
         </header>
-        <div className="main-content__body" />
+        <Scrollbar className="main-content__body" />
       </main>
 
       <SettingsModal isOpen={isSettingsOpen} onOpenChange={setIsSettingsOpen} />

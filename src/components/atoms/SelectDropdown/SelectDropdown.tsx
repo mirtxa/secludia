@@ -1,17 +1,18 @@
 import { memo, useCallback, useMemo } from "react";
 import type { Selection } from "@heroui/react";
 import { Button, Dropdown, Header, Label } from "@heroui/react";
-import { CircleCheckFill } from "@gravity-ui/icons";
-import type { SelectorDropdownProps } from "./SelectorDropdown.types";
+import { ChevronDown, CircleCheckFill } from "@gravity-ui/icons";
+import type { SelectDropdownProps } from "./SelectDropdown.types";
 
-function SelectorDropdownInner<T extends string>({
+function SelectDropdownInner<T extends string>({
   icon,
   title,
   options,
   value,
   displayValue,
   onChange,
-}: SelectorDropdownProps<T>) {
+  variant = "compact",
+}: SelectDropdownProps<T>) {
   const selectedKeys = useMemo(() => new Set([value]), [value]);
 
   const handleSelectionChange = useCallback(
@@ -26,13 +27,34 @@ function SelectorDropdownInner<T extends string>({
     [onChange, options]
   );
 
-  return (
-    <Dropdown>
+  const trigger =
+    variant === "compact" ? (
       <Button className="text-muted" aria-label={title} variant="ghost">
         {icon}
         {displayValue}
       </Button>
-      <Dropdown.Popover className="min-w-[256px]" placement="top">
+    ) : (
+      <Dropdown.Trigger className="flex w-full cursor-pointer items-center gap-3 rounded-xl border-none bg-surface p-3 transition-colors hover:bg-default">
+        <div className="flex size-10 shrink-0 items-center justify-center rounded-[10px] bg-default text-foreground">
+          {icon}
+        </div>
+        <div className="flex min-w-0 flex-1 flex-col items-start">
+          <span className="text-sm font-medium text-foreground">{title}</span>
+          <span className="text-[13px] text-muted">{displayValue}</span>
+        </div>
+        <ChevronDown className="shrink-0 text-muted" />
+      </Dropdown.Trigger>
+    );
+
+  const popoverProps =
+    variant === "compact"
+      ? { className: "min-w-[256px]", placement: "top" as const }
+      : { className: "min-w-[200px]", placement: "bottom end" as const };
+
+  return (
+    <Dropdown>
+      {trigger}
+      <Dropdown.Popover {...popoverProps}>
         <Dropdown.Menu
           selectedKeys={selectedKeys}
           selectionMode="single"
@@ -58,4 +80,4 @@ function SelectorDropdownInner<T extends string>({
   );
 }
 
-export const SelectorDropdown = memo(SelectorDropdownInner) as typeof SelectorDropdownInner;
+export const SelectDropdown = memo(SelectDropdownInner) as typeof SelectDropdownInner;

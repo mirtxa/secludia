@@ -1,6 +1,5 @@
-export interface UserAvatarProps {
+export interface ProfileAvatarProps {
   size?: "sm" | "md" | "lg";
-  showPresenceRing?: boolean;
   showEditButton?: boolean;
   onEditClick?: () => void;
 }

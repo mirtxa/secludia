@@ -12,9 +12,14 @@ export const TitleBar = memo(function TitleBar() {
   }
 
   return (
-    <div className="title-bar" data-tauri-drag-region>
+    <div
+      className="title-bar flex h-8 shrink-0 select-none items-center bg-surface"
+      data-tauri-drag-region
+    >
       <div className="title-bar__spacer" />
-      <span className="title-bar__title">{selectedRoom?.name ?? "Secludia"}</span>
+      <span className="title-bar__title flex-1 text-xs font-medium text-foreground">
+        {selectedRoom?.name ?? "Secludia"}
+      </span>
       <ControlActions />
     </div>
   );

@@ -2,66 +2,72 @@
   [data-theme="familiar"] {
     color-scheme: dark;
 
-    /* Discord-inspired dark theme */
+    /* Discord-style dark theme */
 
     /* Base Colors */
-    --background: oklch(0.23 0.005 260); /* #313338 - main background */
-    --foreground: oklch(0.95 0.005 260); /* #f2f3f5 - primary text */
+    --background: #313238;
+    --foreground: #ffffff;
 
-    /* Surface: Cards, accordions, panels */
-    --surface: oklch(0.2 0.005 260); /* #2b2d31 - slightly darker */
+    /* Surface: Sidebar, cards, panels */
+    --surface: #2d2e33;
     --surface-foreground: var(--foreground);
+    --surface-secondary: #393a40;
 
     /* Overlay: Modals, popovers, tooltips */
-    --overlay: oklch(0.23 0.005 260); /* #313338 */
+    --overlay: #2d2e33;
     --overlay-foreground: var(--foreground);
 
     /* Muted text */
-    --muted: oklch(0.75 0.01 260); /* #b5bac1 */
+    --muted: #c5c6c9;
 
-    /* Accent: Discord Blurple */
-    --accent: oklch(0.55 0.2 265); /* #5865f2 */
-    --accent-foreground: oklch(0.98 0 0); /* white */
+    /* Accent: Blurple */
+    --accent: #5764f2;
+    --accent-foreground: #ffffff;
 
     /* Default: Buttons, interactive elements */
-    --default: oklch(0.35 0.01 260); /* #4e5058 */
-    --default-foreground: var(--foreground);
+    --default: #35353b;
+    --default-foreground: #dcdcde;
 
     /* Form Fields */
-    --field-background: oklch(0.16 0.005 260); /* #1e1f22 - darker input bg */
+    --field-background: #232429;
     --field-foreground: var(--foreground);
     --field-placeholder: var(--muted);
     --field-border: transparent;
 
     /* Status Colors */
-    --success: oklch(0.62 0.2 145); /* #23a55a - Discord green */
-    --success-foreground: oklch(0.98 0 0);
-    --warning: oklch(0.78 0.15 85); /* #f0b232 - Discord yellow */
-    --warning-foreground: oklch(0.15 0 0);
-    --danger: oklch(0.55 0.22 25); /* #da373c - Discord red */
-    --danger-foreground: oklch(0.98 0 0);
+    --success: #45a366;
+    --success-foreground: #ffffff;
+    --warning: #ffc14f;
+    --warning-foreground: #1a1a1a;
+    --danger: #d93d42;
+    --danger-foreground: #ffffff;
+
+    /* Presence Colors */
+    --presence-online: #45a366;
+    --presence-offline: #84858c;
+    --presence-unavailable: #ffc14f;
 
     /* Segment: Tabs, segmented controls */
-    --segment: oklch(0.3 0.01 260); /* #3f4147 */
+    --segment: #393a40;
     --segment-foreground: var(--foreground);
 
     /* Borders & Separators */
-    --border: oklch(0.3 0.005 260); /* #3f4147 */
-    --separator: oklch(0.27 0.005 260); /* slightly darker */
+    --border: #393a40;
+    --separator: #393a40;
 
     /* Focus & Links */
     --focus: var(--accent);
-    --link: oklch(0.65 0.18 250); /* #00a8fc - Discord link blue */
+    --link: #5764f2;
 
     /* Scrollbar */
-    --scrollbar: oklch(0.35 0.01 260);
+    --scrollbar: #757680;
 
-    /* Shadows - subtle for dark mode */
-    --surface-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
-    --overlay-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.4);
+    /* Shadows - minimal */
+    --surface-shadow: none;
+    --overlay-shadow: 0 8px 16px rgba(0, 0, 0, 0.24);
     --field-shadow: none;
 
-    /* Border radius - Discord uses rounder corners */
+    /* Border radius */
     --radius: 0.5rem;
   }
 }

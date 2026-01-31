@@ -9,11 +9,27 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  width: var(--button-size);
+  height: var(--button-size);
   margin: var(--button-margin) 0;
   padding: 0;
   border: none;
+  border-radius: 0.5rem;
   background: none;
   cursor: pointer;
+}
+
+.nav-bar-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.nav-bar-button--rounded {
+  border-radius: 9999px;
+}
+
+.nav-bar-button--rounded:focus-visible {
+  outline-offset: 6px;
 }
 
 .nav-bar-button__indicator {
@@ -30,14 +46,35 @@
     background-color 0.15s ease-out;
 }
 
-.nav-bar-button .nav-bar-button__indicator {
-  transform: scaleY(0);
-}
-
 .nav-bar-button:not(.nav-bar-button--selected):hover .nav-bar-button__indicator {
   transform: scaleY(0.5);
 }
 
 .nav-bar-button--selected .nav-bar-button__indicator {
   transform: scaleY(1);
+}
+
+/* Default state for avatar fallback */
+.nav-bar-button .avatar__fallback {
+  color: var(--default-foreground);
+}
+
+/* Hover and selected states for avatar */
+.nav-bar-button:hover .avatar,
+.nav-bar-button:hover .avatar__fallback,
+.nav-bar-button--selected .avatar,
+.nav-bar-button--selected .avatar__fallback {
+  background-color: var(--accent);
+  color: var(--accent-foreground);
+}
+
+/* Hover and selected states for space badge */
+.nav-bar-button:hover .space-badge,
+.nav-bar-button--selected .space-badge {
+  background-color: var(--accent);
+}
+
+.nav-bar-button:hover .space-badge svg,
+.nav-bar-button--selected .space-badge svg {
+  color: var(--accent-foreground);
 }

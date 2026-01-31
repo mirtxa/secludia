@@ -4,7 +4,7 @@ import { useAppContext } from "@/context";
 import { THEME_OPTIONS } from "@/config/configTypes";
 import { AVAILABLE_LANGUAGES, getLanguageDisplayName } from "@/i18n";
 import type { TranslationKey } from "@/i18n/types";
-import { SettingsRow } from "./SettingsRow";
+import { SelectDropdown } from "@/components/atoms";
 
 type FontSize = "small" | "medium" | "large";
 
@@ -45,7 +45,8 @@ export const AppearanceSection = memo(function AppearanceSection() {
 
   return (
     <div className="flex flex-col gap-3">
-      <SettingsRow
+      <SelectDropdown
+        variant="row"
         icon={<Palette />}
         title={t("SETTINGS_THEME")}
         options={themeOptions}
@@ -54,7 +55,8 @@ export const AppearanceSection = memo(function AppearanceSection() {
         onChange={setTheme}
       />
 
-      <SettingsRow
+      <SelectDropdown
+        variant="row"
         icon={<PlanetEarth />}
         title={t("SETTINGS_LANGUAGE")}
         options={languageOptions}
@@ -63,7 +65,8 @@ export const AppearanceSection = memo(function AppearanceSection() {
         onChange={setLanguage}
       />
 
-      <SettingsRow
+      <SelectDropdown
+        variant="row"
         icon={<Font />}
         title={t("SETTINGS_FONT_SIZE")}
         options={fontSizeOptions}

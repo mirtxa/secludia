@@ -9,9 +9,9 @@ export const ResponsiveCard = memo(function ResponsiveCard({
   footer,
   bottomBar,
 }: ResponsiveCardProps) {
-  const isDesktop = useBreakpoint("sm");
+  const showCard = useBreakpoint("sm");
 
-  if (isDesktop) {
+  if (showCard) {
     return (
       <div>
         <Card className="w-full max-w-md">

@@ -1,12 +1,4 @@
 .title-bar {
-  --control-actions-width: 138px;
-
-  height: 32px;
-  background: var(--surface);
-  display: flex;
-  align-items: center;
-  user-select: none;
-  flex-shrink: 0;
   -webkit-app-region: drag;
 }
 
@@ -15,17 +7,13 @@
 }
 
 .title-bar__title {
-  flex: 1;
   padding-left: 12px;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--foreground);
 }
 
 @media (min-width: 768px) {
   .title-bar__spacer {
     display: block;
-    width: var(--control-actions-width);
+    width: 138px;
   }
 
   .title-bar__title {

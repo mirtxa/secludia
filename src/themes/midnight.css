@@ -56,6 +56,11 @@
     /* Scrollbar */
     --scrollbar: oklch(0.35 0.04 260);
 
+    /* Presence Colors */
+    --presence-online: #34d399;
+    --presence-offline: #7c8aab;
+    --presence-unavailable: #fbbf24;
+
     /* Shadows */
     --surface-shadow: 0 2px 8px 0 rgba(0, 0, 50, 0.3);
     --overlay-shadow: 0 4px 20px 0 rgba(0, 0, 50, 0.4);

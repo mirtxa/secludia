@@ -2,7 +2,7 @@ import { memo, useEffect, useState, useRef } from "react";
 import type { TypewriterTextProps } from "./Typewriter.types";
 import { TypePhase } from "./Typewriter.types";
 import { getNextStep } from "./Typewriter.utils";
-import "./Typewriter.styles.css";
+import "./Typewriter.css";
 
 export const Typewriter = memo(function Typewriter({
   phrases = [],

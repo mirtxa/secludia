@@ -2,7 +2,7 @@ import { memo, useCallback, useRef } from "react";
 import { ArrowUpRightFromSquare } from "@gravity-ui/icons";
 import { Button, Input, Label, Tabs, TextField } from "@heroui/react";
 import { useAppContext, useUserContext, type Presence } from "@/context";
-import { UserAvatar } from "@/components/atoms";
+import { ProfileAvatar } from "@/components/atoms";
 
 export const AccountSection = memo(function AccountSection() {
   const { t } = useAppContext();
@@ -40,7 +40,7 @@ export const AccountSection = memo(function AccountSection() {
     <div className="flex flex-col gap-8">
       <div className="flex flex-col items-center gap-6 md:flex-row md:items-start">
         <div className="flex flex-col items-center gap-3">
-          <UserAvatar size="lg" showPresenceRing showEditButton onEditClick={handleAvatarClick} />
+          <ProfileAvatar size="lg" showEditButton onEditClick={handleAvatarClick} />
           <input
             ref={fileInputRef}
             type="file"

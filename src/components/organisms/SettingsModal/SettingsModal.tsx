@@ -1,6 +1,7 @@
 import { memo, useState, useCallback, useMemo } from "react";
 import { Bell, Key, Lock, Palette, Person, Smartphone } from "@gravity-ui/icons";
 import { Modal, Tooltip } from "@heroui/react";
+import { Scrollbar } from "@/components/atoms";
 import { useAppContext } from "@/context";
 import { useBreakpoint } from "@/hooks";
 import { AccountSection } from "./AccountSection";
@@ -36,28 +37,25 @@ export const SettingsModal = memo(function SettingsModal({
   }, [activeSection, t]);
 
   return (
-    <Modal.Backdrop
-      isOpen={isOpen}
-      onOpenChange={onOpenChange}
-      variant="opaque"
-      className="settings-modal-backdrop"
-    >
+    <Modal.Backdrop isOpen={isOpen} onOpenChange={onOpenChange} variant="opaque">
       <Modal.Container size={isDesktop ? "lg" : "full"}>
-        <Modal.Dialog className="settings-modal md:max-w-6xl">
-          <Modal.CloseTrigger />
-          <div className="settings-modal__layout">
-            <nav className="settings-modal__nav">
+        <Modal.Dialog className="settings-modal h-full max-h-full overflow-hidden p-0 md:max-w-6xl">
+          <Modal.CloseTrigger className="z-10" />
+          <div className="flex h-full">
+            <nav className="settings-modal__nav flex shrink-0 flex-col gap-1 border-r border-border bg-surface p-4">
               {SECTIONS.map((section) => {
                 const label = t(section.labelKey as Parameters<typeof t>[0]);
-                const buttonClass =
-                  activeSection === section.key
-                    ? "settings-modal__nav-item settings-modal__nav-item--active"
-                    : "settings-modal__nav-item";
+                const isActive = activeSection === section.key;
 
                 const button = (
                   <button
                     type="button"
-                    className={buttonClass}
+                    aria-label={label}
+                    className={`settings-modal__nav-item flex cursor-pointer items-center gap-3 rounded-lg border-none px-3 py-2.5 text-sm transition-colors ${
+                      isActive
+                        ? "bg-accent text-accent-foreground"
+                        : "bg-transparent text-foreground hover:bg-default"
+                    }`}
                     onClick={() => handleSectionChange(section.key)}
                   >
                     {section.icon}
@@ -71,7 +69,7 @@ export const SettingsModal = memo(function SettingsModal({
 
                 return (
                   <Tooltip key={section.key} delay={0}>
-                    <Tooltip.Trigger aria-label={label}>{button}</Tooltip.Trigger>
+                    {button}
                     <Tooltip.Content placement="right" offset={12} className="rounded-lg">
                       {label}
                     </Tooltip.Content>
@@ -79,14 +77,16 @@ export const SettingsModal = memo(function SettingsModal({
                 );
               })}
             </nav>
-            <div className="settings-modal__content">
-              <h2 className="settings-modal__title">{activeSectionLabel}</h2>
-              <div className="settings-modal__body">
-                {activeSection === "account" && <AccountSection />}
-                {activeSection === "sessions" && <SessionsSection />}
-                {activeSection === "appearance" && <AppearanceSection />}
+            <Scrollbar className="flex min-w-0 flex-1 flex-col">
+              <div className="p-4 md:p-6">
+                <h2 className="mb-6 text-xl font-semibold">{activeSectionLabel}</h2>
+                <div className="flex-1">
+                  {activeSection === "account" && <AccountSection />}
+                  {activeSection === "sessions" && <SessionsSection />}
+                  {activeSection === "appearance" && <AppearanceSection />}
+                </div>
               </div>
-            </div>
+            </Scrollbar>
           </div>
         </Modal.Dialog>
       </Modal.Container>

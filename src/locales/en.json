@@ -50,5 +50,16 @@
   "ERROR_TRY_AGAIN": "Try again",
   "MAIN_WELCOME": "Welcome to Secludia",
   "MAIN_CONNECTED_TO": "Connected to {{homeserver}}",
-  "MAIN_LOGOUT": "Log out"
+  "MAIN_LOGOUT": "Log out",
+  "DM_SEARCH_PLACEHOLDER": "Search conversations...",
+  "DM_NO_CONVERSATIONS": "No conversations yet",
+  "DM_NO_RESULTS": "No conversations match your search",
+  "DM_ME": "Me",
+  "DM_NEW_CHAT": "New chat",
+  "DM_SEARCH_USERS": "Search users...",
+  "DM_SEARCH_USERS_HINT": "Enter a username to find people",
+  "DM_DELETE_CONVERSATION": "Delete conversation",
+  "DM_DELETE_CONVERSATIONS": "Delete conversations",
+  "CHAT_ENCRYPTED": "Encrypted",
+  "CHAT_NOT_ENCRYPTED": "Not encrypted"
 }

@@ -3,9 +3,12 @@ import type { SecludiaTheme, SecludiaLanguage } from "@/config/configTypes";
 import type { TranslationKey } from "@/i18n/types";
 import type { InterpolationValues } from "@/i18n";
 
+export type RoomType = "dm" | "space" | "group";
+
 export interface SelectedRoom {
   id: string | number;
   name: string;
+  type: RoomType;
 }
 
 export interface AppContextValue {

@@ -2,7 +2,7 @@ import { memo, useMemo } from "react";
 import { PlanetEarth } from "@gravity-ui/icons";
 import { useAppContext } from "@/context";
 import { AVAILABLE_LANGUAGES, getLanguageDisplayName } from "@/i18n";
-import { SelectorDropdown } from "../SelectorDropdown";
+import { SelectDropdown } from "../SelectDropdown";
 
 export const LanguageSelector = memo(function LanguageSelector() {
   const { language, setLanguage, t } = useAppContext();
@@ -13,7 +13,7 @@ export const LanguageSelector = memo(function LanguageSelector() {
   );
 
   return (
-    <SelectorDropdown
+    <SelectDropdown
       icon={<PlanetEarth />}
       title={t("SETTINGS_LANGUAGE")}
       options={options}

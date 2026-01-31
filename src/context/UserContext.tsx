@@ -1,19 +1,12 @@
 import type { ReactNode } from "react";
 import { useState, useCallback, useMemo } from "react";
+import { MOCK_USER } from "@/mocks";
 import {
   UserContext,
   type UserContextValue,
   type UserProfile,
   type Presence,
 } from "./UserContext.types";
-
-// Mock data - will be replaced with actual Matrix client data
-const MOCK_USER: UserProfile = {
-  displayName: "John Doe",
-  username: "@johndoe:matrix.org",
-  avatarUrl: "https://img.heroui.chat/image/avatar?w=200&h=200&u=99",
-  homeserverUrl: "https://matrix.org",
-};
 
 export function UserContextProvider({ children }: { children: ReactNode }) {
   const [user, setUserState] = useState<UserProfile | null>(MOCK_USER);

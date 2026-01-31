@@ -1,0 +1,26 @@
+.scrollbar--shadow-top {
+  mask-image: linear-gradient(to bottom, transparent, black 40px);
+  -webkit-mask-image: linear-gradient(to bottom, transparent, black 40px);
+}
+
+.scrollbar--shadow-bottom {
+  mask-image: linear-gradient(to top, transparent, black 40px);
+  -webkit-mask-image: linear-gradient(to top, transparent, black 40px);
+}
+
+.scrollbar--shadow-top.scrollbar--shadow-bottom {
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    black 40px,
+    black calc(100% - 40px),
+    transparent
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    black 40px,
+    black calc(100% - 40px),
+    transparent
+  );
+}

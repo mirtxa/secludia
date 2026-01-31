@@ -9,7 +9,7 @@ export const AppLayout = memo(function AppLayout({ children }: AppLayoutProps) {
   return (
     <div className="h-screen flex flex-col bg-background select-none">
       <TitleBar />
-      <div className="flex-1 overflow-auto">{children}</div>
+      <div className="flex-1 overflow-hidden">{children}</div>
     </div>
   );
 });

@@ -1,7 +1,14 @@
+export { EncryptionChip } from "./EncryptionChip";
+export type { EncryptionChipProps } from "./EncryptionChip";
 export { LanguageSelector } from "./LanguageSelector";
+export { PresenceAvatar } from "./PresenceAvatar";
+export type { PresenceAvatarProps } from "./PresenceAvatar";
 export { NavBarButton } from "./NavBarButton";
-export { SelectorDropdown } from "./SelectorDropdown";
+export { Scrollbar } from "./Scrollbar";
+export type { ScrollbarProps } from "./Scrollbar";
+export { SelectDropdown } from "./SelectDropdown";
+export type { SelectDropdownProps, SelectOption } from "./SelectDropdown";
 export { ThemeSelector } from "./ThemeSelector";
 export { Typewriter } from "./Typewriter";
-export { UserAvatar } from "./UserAvatar";
-export type { UserAvatarProps } from "./UserAvatar";
+export { ProfileAvatar } from "./ProfileAvatar";
+export type { ProfileAvatarProps } from "./ProfileAvatar";

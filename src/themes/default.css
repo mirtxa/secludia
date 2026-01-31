@@ -1,7 +1,12 @@
 @layer theme {
   [data-theme="default"] {
-    /* HeroUI default light theme - no overrides needed */
+    /* HeroUI default light theme */
     color-scheme: light;
+
+    /* Presence Colors */
+    --presence-online: #22c55e;
+    --presence-offline: #a1a1aa;
+    --presence-unavailable: #eab308;
   }
 
   [data-theme="default-dark"] {
@@ -49,6 +54,11 @@
     /* Focus & Links */
     --focus: var(--accent);
     --link: var(--foreground);
+
+    /* Presence Colors */
+    --presence-online: #4ade80;
+    --presence-offline: #a1a1aa;
+    --presence-unavailable: #facc15;
 
     /* Shadows - minimal for dark mode */
     --surface-shadow: 0 0 0 0 transparent inset;
