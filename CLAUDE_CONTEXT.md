@@ -21,6 +21,7 @@ The app should work both as a **web application** and as a **desktop app** via T
 src/
 ├── components/
 │   ├── atoms/          # Basic UI (NavBarButton, PresenceAvatar, ProfileAvatar, EncryptionChip, Scrollbar, SelectDropdown, AppToast, etc.)
+│   ├── molecules/      # Composed components (GhostEmptyState)
 │   ├── layouts/        # Layout wrappers (ErrorBoundary, ResponsiveCard)
 │   ├── organisms/      # Complex components (DirectMessagesSection, SettingsModal, NotificationsSection)
 │   └── system/         # Tauri-specific (TitleBar, ControlActions, ControlButton)
@@ -38,7 +39,7 @@ src/
 ```
 
 ### Key Patterns
-- **Atomic Design**: Components organized as atoms/layouts/organisms/system
+- **Atomic Design**: Components organized as atoms/molecules/layouts/organisms/system
 - **Barrel Exports**: Every folder has `index.ts` for clean imports
 - **Colocation**: Types, styles, tests colocated with components
 - **Memoization**: All components use `memo()`, callbacks use `useCallback`
@@ -67,11 +68,14 @@ src/
    - Skeleton loading states for rooms and profile
 4. **Direct Messages Section** - Conversation list with:
    - SearchField for filtering by username/displayName
+   - HeroUI ListBox for accessible keyboard navigation
    - ConversationItem components with presence avatars
    - Active conversation highlighting (accent background)
-   - Multi-select for deletion (checkbox selection via avatar click)
+   - Auto-select first conversation on initial load
+   - Empty state with ghost icon and wave text animation (opens "New chat" modal on click)
    - Skeleton loading states
    - Encryption status chip in header
+   - On mobile/tablet with no conversations: sidebar stays visible, main content hidden
 5. **Room Types** - Three types with visual differentiation:
    - `dm` - Direct messages (rounded square)
    - `space` - Spaces with hashtag badge indicator
@@ -105,6 +109,7 @@ src/
 - **Mobile (<640px)**: Sidebar hidden, hamburger button opens full-screen sidebar overlay
 - **Tablet (640-768px)**: 72px navbar always visible, sidebar content opens as overlay when DM/Space selected
 - **Desktop (768px+)**: Full sidebar (nav 72px + resizable content 180-348px) + main content
+- **Empty DM state (mobile/tablet)**: When DMs selected with no conversations, sidebar stays visible with ghost empty state, main content is hidden (CSS class `sidebar--dm-empty`)
 
 ### MainScreen Animation
 When opening sidebar on mobile:
@@ -129,12 +134,20 @@ Closing reverses with content fading first, then nav sliding out.
   - `AppToastContainer.tsx` - React component with SVG countdown animation
   - `AppToast.css` - Animation keyframes and HeroUI overrides
 
+### Components (Molecules)
+- `GhostEmptyState.tsx` - Empty state with ghost icon and wave text animation
+  - Wave animation on both ghost and text (per-word delay)
+  - Clickable ghost triggers action (e.g., opens new chat modal)
+  - CSS animation in `GhostEmptyState.css`
+
 ### Components (Organisms)
 - `DirectMessagesSection.tsx` - DM list with search, skeleton loading, conversation items
+  - Uses HeroUI ListBox for accessible list navigation
+  - GhostEmptyState shown when no conversations
+  - New chat modal with user search
 - `ConversationItem.tsx` - Individual conversation row with:
   - PresenceAvatar with outer border on active state
   - Active highlighting (accent background)
-  - Selection checkbox (CircleCheckFill icon)
   - Muted text by default, normal on hover/active/selected
 - `SettingsModal.tsx` - Settings dialog with tabbed sections
 - `AccountSection.tsx` - Profile editing with avatar upload trigger
