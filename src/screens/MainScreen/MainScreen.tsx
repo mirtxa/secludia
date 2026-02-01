@@ -11,7 +11,7 @@ import {
 import { SIDEBAR_WIDTH, SIMULATED_LOADING_DELAY } from "@/constants";
 import { useAppContext, useUserContext, type RoomType } from "@/context";
 import { useBreakpoint, useResizable, useSidebar } from "@/hooks";
-import { MOCK_ROOMS } from "@/mocks";
+import { MOCK_CONVERSATIONS, MOCK_ROOMS } from "@/mocks";
 import { getInitials } from "@/utils";
 import type { MainScreenProps } from "./MainScreen.types";
 import "./MainScreen.css";
@@ -34,10 +34,26 @@ export const MainScreen = memo(function MainScreen(_: MainScreenProps) {
   const [isLoading, setIsLoading] = useState(true);
   const roomsWrapperRef = useRef<HTMLDivElement>(null);
   const roomsContentRef = useRef<HTMLDivElement>(null);
+  const hasInitializedConversation = useRef(false);
 
-  // Simulate loading state (replace with actual data fetching logic)
+  // Simulate loading state and auto-select first conversation on initial load
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), SIMULATED_LOADING_DELAY);
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+      if (!hasInitializedConversation.current && MOCK_CONVERSATIONS.length > 0) {
+        hasInitializedConversation.current = true;
+        const first = MOCK_CONVERSATIONS[0];
+        setActiveConversation({
+          id: first.id,
+          userId: first.userId,
+          displayName: first.displayName,
+          username: first.username,
+          avatarUrl: first.avatarUrl,
+          presence: first.presence,
+          isEncrypted: first.isEncrypted,
+        });
+      }
+    }, SIMULATED_LOADING_DELAY);
     return () => clearTimeout(timer);
   }, []);
 
@@ -93,7 +109,14 @@ export const MainScreen = memo(function MainScreen(_: MainScreenProps) {
     return () => resizeObserver.disconnect();
   }, []);
 
-  const sidebarClass = sidebar.isOpen ? "sidebar sidebar--open" : "sidebar";
+  const isDmEmpty = selectedRoom?.type === "dm" && !isLoading && MOCK_CONVERSATIONS.length === 0;
+  const sidebarClass = [
+    "sidebar",
+    sidebar.isOpen && "sidebar--open",
+    isDmEmpty && "sidebar--dm-empty",
+  ]
+    .filter(Boolean)
+    .join(" ");
   const resizeHandleClass = resizable.isResizing
     ? "sidebar__resize-handle sidebar__resize-handle--active"
     : "sidebar__resize-handle";

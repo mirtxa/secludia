@@ -1,0 +1,18 @@
+.ghost-wave,
+.ghost-wave-text span {
+  animation: ghost-wave 2.5s ease-in-out infinite;
+}
+
+.ghost-wave-text span {
+  display: inline-block;
+}
+
+@keyframes ghost-wave {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
