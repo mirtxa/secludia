@@ -12,5 +12,7 @@ export { SelectDropdown } from "./SelectDropdown";
 export type { SelectDropdownProps, SelectOption } from "./SelectDropdown";
 export { ThemeSelector } from "./ThemeSelector";
 export { Typewriter } from "./Typewriter";
+export { WaveText } from "./WaveText";
+export type { WaveTextProps } from "./WaveText";
 export { ProfileAvatar } from "./ProfileAvatar";
 export type { ProfileAvatarProps } from "./ProfileAvatar";
