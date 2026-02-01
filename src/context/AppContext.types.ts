@@ -19,6 +19,8 @@ export interface AppContextValue {
   setLanguage: (language: SecludiaLanguage) => void;
   selectedRoom: SelectedRoom | null;
   setSelectedRoom: (room: SelectedRoom | null) => void;
+  toastDuration: number;
+  setToastDuration: (duration: number) => void;
 }
 
 export const AppContext = createContext<AppContextValue | undefined>(undefined);

@@ -1,11 +1,12 @@
 import { memo, useState, useCallback, useMemo } from "react";
 import { Bell, Key, Lock, Palette, Person, Smartphone } from "@gravity-ui/icons";
-import { Modal, Tooltip } from "@heroui/react";
+import { Button, Modal, Tooltip } from "@heroui/react";
 import { Scrollbar } from "@/components/atoms";
 import { useAppContext } from "@/context";
 import { useBreakpoint } from "@/hooks";
 import { AccountSection } from "./AccountSection";
 import { AppearanceSection } from "./AppearanceSection";
+import { NotificationsSection } from "./NotificationsSection";
 import { SessionsSection } from "./SessionsSection";
 import type { SettingsModalProps, SettingsSection } from "./SettingsModal.types";
 import "./SettingsModal.css";
@@ -19,10 +20,7 @@ const SECTIONS: { key: SettingsSection; labelKey: string; icon: React.ReactNode 
   { key: "encryption", labelKey: "SETTINGS_ENCRYPTION", icon: <Key /> },
 ];
 
-export const SettingsModal = memo(function SettingsModal({
-  isOpen,
-  onOpenChange,
-}: SettingsModalProps) {
+export const SettingsModal = memo(function SettingsModal({ state }: SettingsModalProps) {
   const { t } = useAppContext();
   const isDesktop = useBreakpoint("md");
   const [activeSection, setActiveSection] = useState<SettingsSection>("account");
@@ -37,7 +35,7 @@ export const SettingsModal = memo(function SettingsModal({
   }, [activeSection, t]);
 
   return (
-    <Modal.Backdrop isOpen={isOpen} onOpenChange={onOpenChange} variant="opaque">
+    <Modal.Backdrop isOpen={state.isOpen} onOpenChange={state.setOpen} variant="opaque">
       <Modal.Container size={isDesktop ? "lg" : "full"}>
         <Modal.Dialog className="settings-modal h-full max-h-full overflow-hidden p-0 md:max-w-6xl">
           <Modal.CloseTrigger className="z-10" />
@@ -48,19 +46,19 @@ export const SettingsModal = memo(function SettingsModal({
                 const isActive = activeSection === section.key;
 
                 const button = (
-                  <button
-                    type="button"
+                  <Button
                     aria-label={label}
-                    className={`settings-modal__nav-item flex cursor-pointer items-center gap-3 rounded-lg border-none px-3 py-2.5 text-sm transition-colors ${
+                    variant="ghost"
+                    className={`settings-modal__nav-item justify-start gap-3 rounded-lg px-3 py-2.5 text-sm ${
                       isActive
                         ? "bg-accent text-accent-foreground"
-                        : "bg-transparent text-foreground hover:bg-default"
+                        : "text-foreground hover:bg-default"
                     }`}
-                    onClick={() => handleSectionChange(section.key)}
+                    onPress={() => handleSectionChange(section.key)}
                   >
                     {section.icon}
                     <span>{label}</span>
-                  </button>
+                  </Button>
                 );
 
                 if (isDesktop) {
@@ -84,6 +82,7 @@ export const SettingsModal = memo(function SettingsModal({
                   {activeSection === "account" && <AccountSection />}
                   {activeSection === "sessions" && <SessionsSection />}
                   {activeSection === "appearance" && <AppearanceSection />}
+                  {activeSection === "notifications" && <NotificationsSection />}
                 </div>
               </div>
             </Scrollbar>

@@ -11,9 +11,13 @@ export type SecludiaTheme =
 
 export type SecludiaLanguage = AvailableLanguage;
 
+export type NotificationPermissionStatus = "pending" | "granted" | "dismissed";
+
 export interface SecludiaConfig {
   theme: SecludiaTheme;
   language: SecludiaLanguage;
+  notificationPermission: NotificationPermissionStatus;
+  toastDuration: number;
 }
 
 export const THEME_OPTIONS: { key: SecludiaTheme; labelKey: TranslationKey }[] = [

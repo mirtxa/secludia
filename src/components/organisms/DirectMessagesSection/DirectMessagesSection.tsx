@@ -64,9 +64,8 @@ export const DirectMessagesSection = memo(function DirectMessagesSection({
 
   const handleDeleteSelected = useCallback(() => {
     // TODO: Implement delete conversations
-    console.log("Delete conversations:", Array.from(selectedIds));
     setSelectedIds(new Set());
-  }, [selectedIds]);
+  }, []);
 
   return (
     <>

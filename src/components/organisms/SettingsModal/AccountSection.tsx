@@ -3,6 +3,7 @@ import { ArrowUpRightFromSquare } from "@gravity-ui/icons";
 import { Button, Input, Label, Tabs, TextField } from "@heroui/react";
 import { useAppContext, useUserContext, type Presence } from "@/context";
 import { ProfileAvatar } from "@/components/atoms";
+import { safeOpenUrl } from "@/utils";
 
 export const AccountSection = memo(function AccountSection() {
   const { t } = useAppContext();
@@ -13,23 +14,18 @@ export const AccountSection = memo(function AccountSection() {
     fileInputRef.current?.click();
   }, []);
 
-  const handleAvatarChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      // TODO: Implement avatar upload
-      console.log("Avatar file selected:", file.name);
-    }
+  const handleAvatarChange = useCallback((_event: React.ChangeEvent<HTMLInputElement>) => {
+    // TODO: Implement avatar upload
   }, []);
 
   const handleManageAccount = useCallback(() => {
     if (user) {
-      window.open(`${user.homeserverUrl}/_matrix/client/v3/account`, "_blank");
+      safeOpenUrl(`${user.homeserverUrl}/_matrix/client/v3/account`);
     }
   }, [user]);
 
   const handleLogout = useCallback(() => {
     // TODO: Implement logout
-    console.log("Logout clicked");
   }, []);
 
   if (!user) {

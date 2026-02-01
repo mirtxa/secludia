@@ -6,9 +6,8 @@ import { SessionItem } from "./SessionItem";
 export const SessionsSection = memo(function SessionsSection() {
   const { t } = useAppContext();
 
-  const handleRemoveSession = useCallback((sessionId: string) => {
+  const handleRemoveSession = useCallback((_sessionId: string) => {
     // TODO: Implement session removal
-    console.log("Remove session:", sessionId);
   }, []);
 
   return (

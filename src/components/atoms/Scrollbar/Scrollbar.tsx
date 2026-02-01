@@ -1,6 +1,7 @@
 import { memo, useCallback, useState } from "react";
 import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 import type { EventListenerArgs } from "overlayscrollbars";
+import { cn } from "@/utils";
 import type { ScrollbarProps } from "./Scrollbar.types";
 import "./Scrollbar.css";
 
@@ -39,18 +40,13 @@ export const Scrollbar = memo(function Scrollbar({
     [updateShadows]
   );
 
-  const shadowClasses = [
-    showTopShadow && "scrollbar--shadow-top",
-    showBottomShadow && "scrollbar--shadow-bottom",
-  ]
-    .filter(Boolean)
-    .join(" ");
-
-  const combinedClassName = [className, shadowClasses].filter(Boolean).join(" ");
-
   return (
     <OverlayScrollbarsComponent
-      className={combinedClassName}
+      className={cn(
+        className,
+        showTopShadow && "scrollbar--shadow-top",
+        showBottomShadow && "scrollbar--shadow-bottom"
+      )}
       options={{
         scrollbars: {
           autoHide: "leave",

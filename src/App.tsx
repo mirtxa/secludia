@@ -1,5 +1,6 @@
 import "./globals.css";
 import { useState, useCallback } from "react";
+import { AppToastContainer } from "@/components/atoms";
 import { AppLayout } from "@/components/layouts";
 import { LoginScreen } from "@/screens/LoginScreen";
 import { MainScreen } from "@/screens/MainScreen";
@@ -22,6 +23,7 @@ function App() {
 
   return (
     <AppLayout>
+      <AppToastContainer placement="top end" />
       {screen === "login" ? (
         <div className="h-full flex items-center justify-center">
           <LoginScreen onLogin={handleLogin} error="" isLoading={false} />

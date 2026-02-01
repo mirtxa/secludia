@@ -1,0 +1,30 @@
+.app-toast [data-slot="toast-close"] {
+  display: none;
+}
+
+.app-toast__outline-path {
+  stroke: var(--color-accent);
+  stroke-dasharray: 100;
+  stroke-dashoffset: 0;
+  animation: toast-countdown-stroke var(--toast-timeout, 5000ms) linear forwards;
+}
+
+@keyframes toast-countdown-stroke {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -100;
+  }
+}
+
+/* Center toast when placement is "top" (used on small screens) */
+.toast.toast--top.app-toast {
+  min-width: auto;
+  width: auto;
+  justify-content: center;
+}
+
+[data-placement="top"].toast__region {
+  justify-content: center;
+}

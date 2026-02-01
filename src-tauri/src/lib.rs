@@ -12,6 +12,7 @@ pub fn run() {
     info!("Starting Secludia application");
 
     let app = tauri::Builder::default()
+        .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_opener::init())
         .setup(|app| {
             // Create tray menu with just "Quit"

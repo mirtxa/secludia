@@ -31,6 +31,11 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
     setConfig((prev) => ({ ...prev, language }));
   }, []);
 
+  const setToastDuration = useCallback((toastDuration: number) => {
+    Storage.updateToastDuration(toastDuration);
+    setConfig((prev) => ({ ...prev, toastDuration }));
+  }, []);
+
   const value = useMemo(
     () => ({
       t,
@@ -40,8 +45,19 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
       setLanguage,
       selectedRoom,
       setSelectedRoom,
+      toastDuration: config.toastDuration,
+      setToastDuration,
     }),
-    [t, config.language, config.theme, setTheme, setLanguage, selectedRoom]
+    [
+      t,
+      config.language,
+      config.theme,
+      setTheme,
+      setLanguage,
+      selectedRoom,
+      config.toastDuration,
+      setToastDuration,
+    ]
   );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

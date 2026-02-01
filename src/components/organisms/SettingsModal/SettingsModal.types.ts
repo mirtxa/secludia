@@ -1,3 +1,5 @@
+import type { UseOverlayStateReturn } from "@heroui/react";
+
 export type SettingsSection =
   | "account"
   | "sessions"
@@ -7,6 +9,5 @@ export type SettingsSection =
   | "encryption";
 
 export interface SettingsModalProps {
-  isOpen: boolean;
-  onOpenChange: (isOpen: boolean) => void;
+  state: UseOverlayStateReturn;
 }

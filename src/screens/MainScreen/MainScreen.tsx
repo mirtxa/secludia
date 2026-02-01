@@ -1,8 +1,13 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Bars, CommentFill, Gear, Hashtag, Plus } from "@gravity-ui/icons";
-import { Avatar, Button, Separator, Skeleton } from "@heroui/react";
+import { Avatar, Button, Separator, Skeleton, useOverlayState } from "@heroui/react";
 import { EncryptionChip, NavBarButton, PresenceAvatar, Scrollbar } from "@/components/atoms";
-import { DirectMessagesSection, SettingsModal, type Conversation } from "@/components/organisms";
+import {
+  DirectMessagesSection,
+  NotificationPermissionAlert,
+  SettingsModal,
+  type Conversation,
+} from "@/components/organisms";
 import { SIDEBAR_WIDTH, SIMULATED_LOADING_DELAY } from "@/constants";
 import { useAppContext, useUserContext, type RoomType } from "@/context";
 import { useBreakpoint, useResizable, useSidebar } from "@/hooks";
@@ -23,7 +28,7 @@ export const MainScreen = memo(function MainScreen(_: MainScreenProps) {
   const sidebar = useSidebar();
   const isDesktop = useBreakpoint("md");
   const resizable = useResizable(SIDEBAR_WIDTH_OPTIONS);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const settingsState = useOverlayState();
   const [activeConversation, setActiveConversation] = useState<Conversation | null>(null);
   const [roomsHasScroll, setRoomsHasScroll] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -170,7 +175,7 @@ export const MainScreen = memo(function MainScreen(_: MainScreenProps) {
             <NavBarButton
               label={t("NAV_SETTINGS")}
               showIndicator={false}
-              onPress={() => setIsSettingsOpen(true)}
+              onPress={settingsState.open}
             >
               <Avatar className="size-10 rounded-lg">
                 <Avatar.Fallback className="rounded-lg">
@@ -245,9 +250,10 @@ export const MainScreen = memo(function MainScreen(_: MainScreenProps) {
           </div>
         </header>
         <Scrollbar className="main-content__body" />
+        <NotificationPermissionAlert />
       </main>
 
-      <SettingsModal isOpen={isSettingsOpen} onOpenChange={setIsSettingsOpen} />
+      <SettingsModal state={settingsState} />
     </div>
   );
 });
