@@ -165,6 +165,7 @@
   "SETTINGS_VIDEO_HARDWARE_ACCEL_DESC": "Usar GPU para codificación/decodificación cuando esté disponible",
   "SETTINGS_VIDEO_SIMULCAST": "Simulcast",
   "SETTINGS_VIDEO_SIMULCAST_DESC": "Enviar múltiples capas de calidad para llamadas SFU (mejora calidad de llamadas grupales)",
+  "SETTINGS_VIDEO_ADVANCED_COMING_SOON": "Estos ajustes tendrán efecto cuando las videollamadas estén implementadas.",
   "SETTINGS_VIDEO_PERMISSION_TITLE": "Acceso a cámara requerido",
   "SETTINGS_VIDEO_PERMISSION_PROMPT_DESC": "Secludia necesita acceso a tu cámara para configurar los ajustes de video.",
   "SETTINGS_VIDEO_PERMISSION_DENIED_DESC": "El acceso a la cámara fue bloqueado. Para usar las funciones de video, permite el acceso a la cámara en la configuración de privacidad del sistema y reinicia Secludia.",

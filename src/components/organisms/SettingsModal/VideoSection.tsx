@@ -1,6 +1,6 @@
 import { memo, useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { Video, Display, CirclePlay, Gear } from "@gravity-ui/icons";
-import { Button, Card } from "@heroui/react";
+import { Button, Card, Chip } from "@heroui/react";
 import {
   PermissionAlert,
   SectionHeader,
@@ -65,15 +65,18 @@ function heightToResolutionLabel(height: number): string {
 }
 
 /** Get actual resolution and frame rate from a MediaStream */
-function getStreamInfo(stream: MediaStream | null): string | null {
+function getStreamInfo(
+  stream: MediaStream | null
+): { resolution: string; fps: number | null } | null {
   if (!stream) return null;
   const videoTrack = stream.getVideoTracks()[0];
   if (!videoTrack) return null;
   const settings = videoTrack.getSettings();
   if (settings.height) {
-    const resolution = heightToResolutionLabel(settings.height);
-    const fps = settings.frameRate ? Math.round(settings.frameRate) : null;
-    return fps ? `${resolution} ${fps}fps` : resolution;
+    return {
+      resolution: heightToResolutionLabel(settings.height),
+      fps: settings.frameRate ? Math.round(settings.frameRate) : null,
+    };
   }
   return null;
 }
@@ -172,8 +175,17 @@ const CameraPreview = memo(function CameraPreview({
         {isActive && (
           <>
             {streamInfo && (
-              <div className="absolute top-2 left-2 rounded bg-black/60 px-2 py-1 text-xs text-white">
-                {streamInfo}
+              <div className="absolute top-2 left-2 flex gap-2">
+                <Chip size="sm" className="px-2">
+                  <Display className="size-3" />
+                  {streamInfo.resolution}
+                </Chip>
+                {streamInfo.fps && (
+                  <Chip size="sm" className="px-2">
+                    <CirclePlay className="size-3" />
+                    {streamInfo.fps} fps
+                  </Chip>
+                )}
               </div>
             )}
             <div className="absolute inset-x-0 bottom-3 flex justify-center">
@@ -332,6 +344,7 @@ export const VideoSection = memo(function VideoSection() {
       {/* Advanced */}
       <section className="flex flex-col gap-5">
         <SectionHeader icon={<Gear />} title={t("SETTINGS_VIDEO_SECTION_ADVANCED")} />
+        <p className="text-sm text-muted">{t("SETTINGS_VIDEO_ADVANCED_COMING_SOON")}</p>
 
         <SettingSelect
           icon={<Gear />}
@@ -339,6 +352,7 @@ export const VideoSection = memo(function VideoSection() {
           options={codecOptions}
           value={videoCodec}
           onChange={handleCodecChange}
+          isDisabled
         />
 
         <SettingSlider
@@ -349,6 +363,7 @@ export const VideoSection = memo(function VideoSection() {
           maxValue={8000}
           step={100}
           formatValue={(v) => `${v} kbps`}
+          isDisabled
         />
 
         <SettingSwitch
@@ -356,6 +371,7 @@ export const VideoSection = memo(function VideoSection() {
           description={t("SETTINGS_VIDEO_HARDWARE_ACCEL_DESC")}
           isSelected={hardwareAcceleration}
           onChange={handleHardwareAccelerationChange}
+          isDisabled
         />
 
         <SettingSwitch
@@ -363,6 +379,7 @@ export const VideoSection = memo(function VideoSection() {
           description={t("SETTINGS_VIDEO_SIMULCAST_DESC")}
           isSelected={simulcast}
           onChange={handleSimulcastChange}
+          isDisabled
         />
       </section>
     </div>

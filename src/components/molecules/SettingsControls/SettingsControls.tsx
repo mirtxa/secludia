@@ -1,6 +1,6 @@
 import { memo } from "react";
 import { CircleCheckFill } from "@gravity-ui/icons";
-import { Label, ListBox, Select, Slider, Switch } from "@heroui/react";
+import { Description, Label, ListBox, Select, Slider, Switch } from "@heroui/react";
 
 export const SectionHeader = memo(function SectionHeader({
   icon,
@@ -34,8 +34,8 @@ export const SettingSwitch = memo(function SettingSwitch({
     <Switch isSelected={isSelected} onChange={onChange} isDisabled={isDisabled}>
       <div className="flex w-full items-center justify-between gap-3">
         <div className="flex flex-col">
-          <Label className="text-sm font-medium text-foreground">{label}</Label>
-          {description && <span className="text-xs text-muted">{description}</span>}
+          <Label isDisabled={isDisabled}>{label}</Label>
+          {description && <Description>{description}</Description>}
         </div>
         <Switch.Control>
           <Switch.Thumb />
@@ -77,7 +77,7 @@ export const SettingSlider = memo(function SettingSlider({
         isDisabled={isDisabled}
       >
         <div className="flex items-center justify-between">
-          <Label className="text-sm font-medium text-foreground">{label}</Label>
+          <Label isDisabled={isDisabled}>{label}</Label>
           <Slider.Output className="text-sm text-muted">
             {({ state }) => (formatValue ? formatValue(state.values[0]) : `${state.values[0]}`)}
           </Slider.Output>
@@ -87,7 +87,7 @@ export const SettingSlider = memo(function SettingSlider({
           <Slider.Thumb />
         </Slider.Track>
       </Slider>
-      {description && <p className="text-xs text-muted">{description}</p>}
+      {description && <Description>{description}</Description>}
     </div>
   );
 });
@@ -119,13 +119,17 @@ function SettingSelectInner<T extends string>({
   return (
     <div className="flex w-full items-center justify-between gap-3">
       {icon && (
-        <div className="hidden size-10 shrink-0 items-center justify-center rounded-[10px] bg-default text-foreground md:flex">
+        <div
+          className={`hidden size-10 shrink-0 items-center justify-center rounded-[10px] md:flex ${
+            isDisabled ? "bg-default/50 text-muted" : "bg-default text-foreground"
+          }`}
+        >
           {icon}
         </div>
       )}
       <div className="flex min-w-0 flex-1 flex-col">
-        <span className="text-sm font-medium text-foreground">{label}</span>
-        {description && <span className="text-xs text-muted">{description}</span>}
+        <Label isDisabled={isDisabled}>{label}</Label>
+        {description && <Description>{description}</Description>}
       </div>
       <Select
         className="w-1/2 shrink-0"

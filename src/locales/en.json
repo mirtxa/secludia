@@ -165,6 +165,7 @@
   "SETTINGS_VIDEO_HARDWARE_ACCEL_DESC": "Use GPU for video encoding/decoding when available",
   "SETTINGS_VIDEO_SIMULCAST": "Simulcast",
   "SETTINGS_VIDEO_SIMULCAST_DESC": "Send multiple quality layers for SFU calls (improves group call quality)",
+  "SETTINGS_VIDEO_ADVANCED_COMING_SOON": "These settings will take effect when video calls are implemented.",
   "SETTINGS_VIDEO_PERMISSION_TITLE": "Camera access required",
   "SETTINGS_VIDEO_PERMISSION_PROMPT_DESC": "Secludia needs access to your camera to configure video settings.",
   "SETTINGS_VIDEO_PERMISSION_DENIED_DESC": "Camera access was blocked. To use video features, please allow camera access in your system privacy settings, then restart Secludia.",
