@@ -6,7 +6,7 @@ import path from "path";
 const host = process.env.TAURI_DEV_HOST;
 
 // https://vite.dev/config/
-export default defineConfig(async () => ({
+export default defineConfig({
   plugins: [react(), tailwindcss()],
 
   clearScreen: false,
@@ -32,4 +32,22 @@ export default defineConfig(async () => ({
       "@": path.resolve(__dirname, "src"),
     },
   },
-}));
+
+  optimizeDeps: {
+    exclude: ["@jitsi/rnnoise-wasm"],
+  },
+
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          audio: ["@jitsi/rnnoise-wasm"],
+        },
+      },
+    },
+  },
+
+  worker: {
+    format: "es",
+  },
+});

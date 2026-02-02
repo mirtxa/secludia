@@ -1,5 +1,11 @@
+export { useMediaDevices } from "./useMediaDevices";
+export type { MediaDevice } from "./useMediaDevices";
 export { useMediaQuery, useBreakpoint, BREAKPOINTS } from "./useMediaQuery";
+export { useMediaStream } from "./useMediaStream";
+export type { UseMediaStreamOptions, UseMediaStreamResult } from "./useMediaStream";
 export { useNotification, playNotificationSound } from "./useNotification";
+export { usePlatform, getPlatformSync } from "./usePlatform";
+export type { Platform, PlatformInfo } from "./usePlatform";
 export { useResizable } from "./useResizable";
 export { useSidebar } from "./useSidebar";
 export { useTauriWindow } from "./useTauriWindow";

@@ -16,14 +16,21 @@ describe("localStorage config", () => {
       expect(loadConfig()).toEqual(DEFAULT_CONFIG);
     });
 
-    it("returns stored config when present", () => {
-      const storedConfig: SecludiaConfig = {
+    it("returns stored config merged with defaults when present", () => {
+      const partialConfig = {
         theme: "midnight",
         language: "es",
       };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(storedConfig));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(partialConfig));
 
-      expect(loadConfig()).toEqual(storedConfig);
+      const result = loadConfig();
+      // Stored values override defaults
+      expect(result.theme).toBe("midnight");
+      expect(result.language).toBe("es");
+      // Missing values filled from defaults
+      expect(result.notificationPermission).toBe("pending");
+      expect(result.toastDuration).toBe(5);
+      expect(result.voice).toEqual(DEFAULT_CONFIG.voice);
     });
 
     it("returns DEFAULT_CONFIG when stored value is invalid JSON", () => {

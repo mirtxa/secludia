@@ -13,11 +13,21 @@ export type SecludiaLanguage = AvailableLanguage;
 
 export type NotificationPermissionStatus = "pending" | "granted" | "dismissed";
 
+export interface VoiceConfig {
+  audioInputDevice: string;
+  inputVolume: number; // 0-100
+  echoCancellation: boolean;
+  inputSensitivity: number; // -100 to 0 dB
+  noiseSuppressionEnabled: boolean;
+  audioBitrate: number; // 32-256 kbps
+}
+
 export interface SecludiaConfig {
   theme: SecludiaTheme;
   language: SecludiaLanguage;
   notificationPermission: NotificationPermissionStatus;
   toastDuration: number;
+  voice: VoiceConfig;
 }
 
 export const THEME_OPTIONS: { key: SecludiaTheme; labelKey: TranslationKey }[] = [

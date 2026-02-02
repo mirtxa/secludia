@@ -1,9 +1,31 @@
 use log::info;
+use std::fs;
 use tauri::{
     menu::{Menu, MenuItem},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
-    Manager, RunEvent, WindowEvent,
+    AppHandle, Manager, RunEvent, WindowEvent,
 };
+
+/// Reset WebView2 permissions by deleting the EBWebView folder and restarting the app
+#[tauri::command]
+async fn reset_webview_permissions(app: AppHandle) -> Result<(), String> {
+    let app_data_dir = app
+        .path()
+        .app_data_dir()
+        .map_err(|e| format!("Failed to get app data dir: {}", e))?;
+
+    let webview_dir = app_data_dir.join("EBWebView");
+
+    if webview_dir.exists() {
+        info!("Deleting WebView2 data at {:?}", webview_dir);
+        fs::remove_dir_all(&webview_dir)
+            .map_err(|e| format!("Failed to delete WebView2 data: {}", e))?;
+    }
+
+    info!("Exiting application for permission reset...");
+    // Use process::exit to bypass the ExitRequested handler that prevents exit
+    std::process::exit(0);
+}
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -12,8 +34,10 @@ pub fn run() {
     info!("Starting Secludia application");
 
     let app = tauri::Builder::default()
+        .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_opener::init())
+        .invoke_handler(tauri::generate_handler![reset_webview_permissions])
         .setup(|app| {
             // Create tray menu with just "Quit"
             let quit = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;

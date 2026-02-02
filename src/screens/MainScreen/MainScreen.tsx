@@ -2,6 +2,7 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Bars, CommentFill, Gear, Hashtag, Plus } from "@gravity-ui/icons";
 import { Avatar, Button, Separator, Skeleton, useOverlayState } from "@heroui/react";
 import { EncryptionChip, NavBarButton, PresenceAvatar, Scrollbar } from "@/components/atoms";
+import { PrivacyIndicatorModal } from "@/components/molecules";
 import {
   DirectMessagesSection,
   NotificationPermissionAlert,
@@ -9,7 +10,7 @@ import {
   type Conversation,
 } from "@/components/organisms";
 import { SIDEBAR_WIDTH, SIMULATED_LOADING_DELAY } from "@/constants";
-import { useAppContext, useUserContext, type RoomType } from "@/context";
+import { useAppContext, useMediaRegistry, useUserContext, type RoomType } from "@/context";
 import { useBreakpoint, useResizable, useSidebar } from "@/hooks";
 import { MOCK_CONVERSATIONS, MOCK_ROOMS } from "@/mocks";
 import { getInitials } from "@/utils";
@@ -25,6 +26,7 @@ const SIDEBAR_WIDTH_OPTIONS = {
 export const MainScreen = memo(function MainScreen(_: MainScreenProps) {
   const { selectedRoom, setSelectedRoom, t } = useAppContext();
   const { user, presence } = useUserContext();
+  const { hasActiveMedia } = useMediaRegistry();
   const sidebar = useSidebar();
   const isDesktop = useBreakpoint("md");
   const resizable = useResizable(SIDEBAR_WIDTH_OPTIONS);
@@ -67,7 +69,8 @@ export const MainScreen = memo(function MainScreen(_: MainScreenProps) {
     [isDesktop, sidebar]
   );
 
-  const dmLabel = t("NAV_DIRECT_MESSAGES");
+  // Memoize translated label to prevent unnecessary effect re-runs
+  const dmLabel = useMemo(() => t("NAV_DIRECT_MESSAGES"), [t]);
 
   const isTablet = useBreakpoint("sm") && !isDesktop;
 
@@ -213,18 +216,15 @@ export const MainScreen = memo(function MainScreen(_: MainScreenProps) {
                   <Skeleton className="size-10 rounded-full" />
                 </div>
               ) : (
-                <NavBarButton
-                  label={user?.displayName ?? t("NAV_PROFILE")}
-                  showIndicator={false}
-                  rounded
-                >
+                <PrivacyIndicatorModal>
                   <PresenceAvatar
                     name={user?.displayName ?? ""}
                     avatarUrl={user?.avatarUrl ?? undefined}
                     presence={presence}
                     size="md"
+                    mediaActive={hasActiveMedia}
                   />
-                </NavBarButton>
+                </PrivacyIndicatorModal>
               )}
             </div>
           </div>

@@ -3,12 +3,15 @@ import { Avatar } from "@heroui/react";
 import { PRESENCE_RING_COLORS } from "@/constants";
 import type { Presence } from "@/context";
 import { getInitials } from "@/utils";
+import "./PresenceAvatar.css";
 
 export interface PresenceAvatarProps {
   name: string;
   avatarUrl?: string;
   presence: Presence;
   size?: "sm" | "md" | "lg";
+  /** Show red pulsing ring when media (mic/camera/screen) is active */
+  mediaActive?: boolean;
 }
 
 const SIZE_CLASSES = {
@@ -22,13 +25,18 @@ export const PresenceAvatar = memo(function PresenceAvatar({
   avatarUrl,
   presence,
   size = "sm",
+  mediaActive = false,
 }: PresenceAvatarProps) {
   const initials = getInitials(name);
   const { avatar, ring } = SIZE_CLASSES[size];
-  const ringClass = `${ring} ${PRESENCE_RING_COLORS[presence]} ring-offset-background`;
+
+  const presenceColor = PRESENCE_RING_COLORS[presence];
+  const ringClass = mediaActive
+    ? `${ring} ring-offset-background presence-avatar--media-active`
+    : `${ring} ${presenceColor} ring-offset-background`;
 
   return (
-    <Avatar className={`${avatar} ${ringClass}`}>
+    <Avatar className={`${avatar} ${ringClass}`} data-presence={presence}>
       {avatarUrl && <Avatar.Image alt={name} src={avatarUrl} />}
       <Avatar.Fallback>{initials}</Avatar.Fallback>
     </Avatar>

@@ -18,6 +18,6 @@ export interface SelectDropdownProps<T extends string> {
   displayValue: string;
   /** Callback when selection changes */
   onChange: (value: T) => void;
-  /** Visual variant: "compact" for button, "row" for settings-style row */
-  variant?: "compact" | "row";
+  /** Whether the dropdown is disabled */
+  isDisabled?: boolean;
 }

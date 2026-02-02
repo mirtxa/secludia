@@ -5,6 +5,10 @@ export type SettingsSection =
   | "sessions"
   | "appearance"
   | "notifications"
+  | "audio"
+  | "voice"
+  | "video"
+  | "screenSharing"
   | "security"
   | "encryption";
 

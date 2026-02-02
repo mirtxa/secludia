@@ -14,3 +14,4 @@ export { ThemeSelector } from "./ThemeSelector";
 export { Typewriter } from "./Typewriter";
 export { ProfileAvatar } from "./ProfileAvatar";
 export type { ProfileAvatarProps } from "./ProfileAvatar";
+export { VoiceRecorderButton } from "./VoiceRecorderButton";

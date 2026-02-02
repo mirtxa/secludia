@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
-import { AppContextProvider, UserContextProvider } from "@/context";
+import { AppContextProvider, MediaRegistryProvider, UserContextProvider } from "@/context";
 import { ErrorBoundary } from "@/components/layouts";
 
 const rootElement = document.getElementById("root");
@@ -15,7 +15,9 @@ ReactDOM.createRoot(rootElement).render(
     <ErrorBoundary>
       <AppContextProvider>
         <UserContextProvider>
-          <App />
+          <MediaRegistryProvider>
+            <App />
+          </MediaRegistryProvider>
         </UserContextProvider>
       </AppContextProvider>
     </ErrorBoundary>

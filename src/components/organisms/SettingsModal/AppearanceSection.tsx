@@ -5,7 +5,7 @@ import { THEME_OPTIONS } from "@/config/configTypes";
 import { AVAILABLE_LANGUAGES, getLanguageDisplayName } from "@/i18n";
 import type { TranslationKey } from "@/i18n/types";
 import { useTranslatedOptions } from "@/hooks";
-import { SelectDropdown } from "@/components/atoms";
+import { SettingSelect } from "@/components/molecules";
 
 type FontSize = "small" | "medium" | "large";
 
@@ -19,11 +19,8 @@ export const AppearanceSection = memo(function AppearanceSection() {
   const { theme, setTheme, language, setLanguage, t } = useAppContext();
   const [fontSize, setFontSize] = useState<FontSize>("medium");
 
-  const { options: themeOptions, getDisplayValue: getThemeDisplayValue } =
-    useTranslatedOptions(THEME_OPTIONS);
-
-  const { options: fontSizeOptions, getDisplayValue: getFontSizeDisplayValue } =
-    useTranslatedOptions(FONT_SIZE_OPTIONS);
+  const { options: themeOptions } = useTranslatedOptions(THEME_OPTIONS);
+  const { options: fontSizeOptions } = useTranslatedOptions(FONT_SIZE_OPTIONS);
 
   const languageOptions = useMemo(
     () => AVAILABLE_LANGUAGES.map((lang) => ({ key: lang, label: getLanguageDisplayName(lang) })),
@@ -32,33 +29,27 @@ export const AppearanceSection = memo(function AppearanceSection() {
 
   return (
     <div className="flex flex-col gap-3">
-      <SelectDropdown
-        variant="row"
+      <SettingSelect
         icon={<Palette />}
-        title={t("SETTINGS_THEME")}
+        label={t("SETTINGS_THEME")}
         options={themeOptions}
         value={theme}
-        displayValue={getThemeDisplayValue(theme)}
         onChange={setTheme}
       />
 
-      <SelectDropdown
-        variant="row"
+      <SettingSelect
         icon={<PlanetEarth />}
-        title={t("SETTINGS_LANGUAGE")}
+        label={t("SETTINGS_LANGUAGE")}
         options={languageOptions}
         value={language}
-        displayValue={getLanguageDisplayName(language)}
         onChange={setLanguage}
       />
 
-      <SelectDropdown
-        variant="row"
+      <SettingSelect
         icon={<Font />}
-        title={t("SETTINGS_FONT_SIZE")}
+        label={t("SETTINGS_FONT_SIZE")}
         options={fontSizeOptions}
         value={fontSize}
-        displayValue={getFontSizeDisplayValue(fontSize)}
         onChange={setFontSize}
       />
     </div>

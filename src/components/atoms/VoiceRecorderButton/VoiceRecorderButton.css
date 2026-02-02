@@ -1,0 +1,18 @@
+.voice-indicator {
+  animation: pulse-fade 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse-fade {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.waveform-bar {
+  will-change: left;
+  transition: left 0.1s linear;
+}

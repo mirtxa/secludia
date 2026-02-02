@@ -20,16 +20,18 @@ The app should work both as a **web application** and as a **desktop app** via T
 ```
 src/
 ├── components/
-│   ├── atoms/          # Basic UI (NavBarButton, PresenceAvatar, ProfileAvatar, EncryptionChip, Scrollbar, SelectDropdown, AppToast, etc.)
-│   ├── molecules/      # Composed components (GhostEmptyState)
+│   ├── atoms/          # Basic UI (NavBarButton, PresenceAvatar, ProfileAvatar, EncryptionChip, Scrollbar, SelectDropdown, AppToast, VoiceRecorderButton, etc.)
+│   ├── molecules/      # Composed components (GhostEmptyState, InputSensitivityMeter, PrivacyIndicatorModal, SettingsControls)
 │   ├── layouts/        # Layout wrappers (ErrorBoundary, ResponsiveCard)
 │   ├── organisms/      # Complex components (DirectMessagesSection, SettingsModal, NotificationsSection)
 │   └── system/         # Tauri-specific (TitleBar, ControlActions, ControlButton)
 ├── config/             # App configuration and localStorage persistence
 ├── constants/          # App constants (PRESENCE_RING_COLORS, SIDEBAR_WIDTH, SIMULATED_LOADING_DELAY)
 ├── context/            # React Context (AppContext, UserContext)
-├── hooks/              # Custom hooks (useBreakpoint, useResizable, useSidebar, etc.)
+├── hooks/              # Custom hooks (useBreakpoint, useResizable, useSidebar, useMediaDevices, etc.)
 ├── i18n/               # Internationalization with auto-loading locales
+├── lib/                # Library code
+│   └── audio/          # Audio processing (RNNoise noise suppression)
 ├── locales/            # Translation files (en.json, es.json)
 ├── mocks/              # Mock data for development (conversations, rooms, sessions, user)
 ├── screens/            # Full-page screens (LoginScreen, MainScreen)
@@ -45,6 +47,9 @@ src/
 - **Memoization**: All components use `memo()`, callbacks use `useCallback`
 - **BEM CSS**: Class naming follows BEM convention (e.g., `sidebar__content--open`)
 - **Platform Detection**: `isTauri()` from `@tauri-apps/api/core` for desktop-specific features
+- **DRY Settings Controls**: `SettingSwitch`, `SettingSlider`, `SettingSelect<T>` in molecules
+- **Generic Components**: Type-safe with `<T extends string>` for dropdowns/selectors
+- **Centralized Media Access**: All media access through `useMediaStream` hook (privacy)
 
 ---
 
@@ -104,6 +109,12 @@ src/
     - Notification type selector (Auto/Toast/System)
     - Toast duration slider
     - Test notification buttons
+16. **Media Privacy System** - Centralized media access with visual indicator:
+    - MediaRegistry context tracks all active streams globally
+    - `useMediaStream` hook is the ONLY way to access media (enforces registration)
+    - Profile avatar presence ring pulses red when any media is active
+    - Clicking pulsing avatar opens modal showing what's active and where
+    - Race condition protection prevents orphaned streams
 
 ### MainScreen Responsive Behavior
 - **Mobile (<640px)**: Sidebar hidden, hamburger button opens full-screen sidebar overlay
@@ -128,7 +139,38 @@ Closing reverses with content fading first, then nav sliding out.
 - `ProfileAvatar.tsx` - Current user's avatar (uses PresenceAvatar internally, adds edit button)
 - `EncryptionChip.tsx` - Chip showing encryption status (lock icon)
 - `Scrollbar.tsx` - Custom scrollbar with OverlayScrollbars and shadow detection
-- `SelectDropdown.tsx` - Unified dropdown component with `variant="compact"` or `variant="row"`
+- `SelectDropdown.tsx` - Compact dropdown for toolbars (button trigger, used in ThemeSelector, LanguageSelector)
+- `VoiceRecorderButton/` - Self-contained voice recorder with 3 states:
+  - **Idle**: Simple mic button (accent background)
+  - **Recording**: Animated waveform + timer + voice indicator + discard + send buttons
+  - **Stopped**: Full waveform visualization + play/pause + discard + send buttons
+  - Props: `onSend`, `onError`, `orientation`, `isDisabled`, `hideSendButton`, `maxDuration` (default 60s)
+  - Features:
+    - Direct send while recording (stops, processes, and sends in one action)
+    - Click-to-seek in playback waveform (only while playing)
+    - Auto-stop when `maxDuration` reached
+    - VAD disabled for voice messages (preserves natural pauses)
+    - RNNoise processing applied on stop (if enabled in settings)
+  - Timer display logic:
+    - Recording → elapsed time
+    - Playing → current position
+    - Paused → keeps current position
+    - Stopped/finished → total duration
+  - Subcomponents (all memoized):
+    - `VoiceIndicator` - Pac-man style mouth that opens based on audio level (0-60°)
+    - `RecordingWaveform` - Real-time waveform bars moving towards indicator
+    - `PlaybackWaveform` - Full recorded waveform with progress tracking and click-to-seek
+    - `WaveformBar` / `PlaybackBar` - Individual bar components (centered, grow equally up/down)
+    - `TimeDisplay` - Memoized time display with position-based margin
+  - Orientation support: `left` or `right` - indicator always faces timer
+  - Performance optimizations:
+    - All components use `memo()` with function syntax
+    - `useRef` instead of `useState` for bars array and container width (avoids re-renders)
+    - Single `forceRender` state trigger for batch updates
+    - `FLIP_STYLE` constant defined outside component (avoids object creation)
+    - `will-change: left` CSS hint for waveform bar transitions
+    - `ResizeObserver` for responsive bar count
+  - CSS file: `VoiceRecorderButton.css` with pulse-fade animation for indicator (100% to 35% opacity)
 - `AppToast/` - Toast notification system:
   - `appToast.ts` - Queue, `appToast()` function, and `AppToastContent` type
   - `AppToastContainer.tsx` - React component with SVG countdown animation
@@ -139,6 +181,20 @@ Closing reverses with content fading first, then nav sliding out.
   - Wave animation on both ghost and text (per-word delay)
   - Clickable ghost triggers action (e.g., opens new chat modal)
   - CSS animation in `GhostEmptyState.css`
+- `InputSensitivityMeter/` - Discord-like microphone sensitivity control:
+  - Real-time audio level visualization with HeroUI Slider
+  - VAD threshold control in dB (-100 to 0)
+  - Color-coded: yellow (below threshold/ignored), green (above threshold/transmitted)
+  - Audio level shown as dark overlay filling from left
+  - Uses GainNode for input volume control
+- `SettingsControls/` - Reusable settings components (DRY extraction):
+  - `SectionHeader` - Section title with icon
+  - `SettingSwitch` - Toggle switch with label and description
+  - `SettingSlider` - Slider with label, description, and value formatter
+  - `SettingSelect<T>` - Generic select dropdown for settings (icon + label + select on right)
+- `PrivacyIndicatorModal/` - Modal showing active media sources:
+  - Lists each active stream with type icon and source description
+  - Triggered by clicking the pulsing presence avatar
 
 ### Components (Organisms)
 - `DirectMessagesSection.tsx` - DM list with search, skeleton loading, conversation items
@@ -154,6 +210,16 @@ Closing reverses with content fading first, then nav sliding out.
 - `AppearanceSection.tsx` - Theme, language, font size settings
 - `SessionsSection.tsx` - Current and other sessions display
 - `NotificationsSection.tsx` - Notification settings with permission status, type selector, duration slider, and test buttons
+- `VoiceSection.tsx` - Voice/microphone settings (persisted to localStorage):
+  - Device selection and input volume (GainNode-based, 0-100%)
+  - Echo cancellation toggle (browser WebRTC, disabled by default)
+  - Input sensitivity meter with VAD threshold (-100 to 0 dB, default -70)
+  - Noise suppression toggle (RNNoise)
+  - Audio bitrate slider (TODO: not yet used, for future WebRTC/MatrixRTC)
+  - VoiceRecorderButton for testing microphone settings (maxDuration=30s, hideSendButton)
+- `AudioSection.tsx` - Audio output settings (speaker selection, volume, test tone)
+- `VideoSection.tsx` - Camera settings with live preview
+- `ScreenSharingSection.tsx` - Screen share quality and capture options
 
 ### Hooks
 - `useMediaQuery.ts` - Media query hook with Tailwind breakpoints (sm, md, lg, xl, 2xl)
@@ -163,18 +229,46 @@ Closing reverses with content fading first, then nav sliding out.
 - `useTauriWindow.ts` - Tauri window operations (minimize, maximize, close)
 - `useNotification.ts` - System notification API (permission, send) + `playNotificationSound()` export
 - `useTranslatedOptions.ts` - Hook to create translated dropdown options from config arrays (DRY helper)
+- `useMediaDevices.ts` - Enumerate audio/video devices with auto-refresh on device changes
+- `useMediaStream.ts` - **CRITICAL: Centralized media stream access** (see Media Privacy System below)
+- `usePlatform.ts` - Platform detection (macos/windows/linux/ios/android/web) via Tauri plugin-os
 - `isWindowFocused.ts` - Utility to check if window is focused (for auto notification type)
+
+### Lib (Audio)
+- `rnnoise.ts` - RNNoise noise suppression (offline processing):
+  - `RnnoiseProcessor` class - WASM memory management and frame processing
+  - `processRawSamplesWithRNNoise()` - Process samples and return WAV blob
+  - `samplesToWav()` - Convert samples to WAV without processing
+  - `processAudioSamples()` - Low-level 480-sample frame processing
+- `rnnoise-worklet.ts` - Real-time RNNoise AudioWorklet wrapper:
+  - `createRnnoiseNode()` - Create AudioWorklet node for real-time noise suppression
+  - `createRnnoiseStream()` - Create processed MediaStream from input stream
+- `audio-recorder.ts` - AudioWorklet-based audio recorder:
+  - `createAudioRecorder()` - Create recorder with VAD support and input volume control
+  - Returns `AudioRecorder` with start/stop/clear/setVadThreshold/setInputVolume methods
+- `worklet/rnnoise-processor.worklet.ts` - AudioWorklet processor for RNNoise:
+  - Buffers 128-sample chunks into 480-sample frames for RNNoise
+  - Uses circular buffer (LCM of 128 and 480 = 1920 samples)
+  - WASM loaded synchronously with inlined binary
+- `worklet/recorder-processor.worklet.ts` - AudioWorklet processor for recording:
+  - Voice Activity Detection (VAD) with configurable threshold (dB)
+  - 300ms hang time to avoid cutting off speech
+  - Accumulates samples and sends to main thread on stop
 
 ### Context
 - `AppContext.tsx` - Provides theme, language, selectedRoom, toastDuration, and `t()` translation function
 - `AppContext.types.ts` - Types including `RoomType` ("dm" | "space" | "group")
 - `UserContext.tsx` - Current user state and presence
-- `useAppContext.ts` / `useUserContext.ts` - Hooks to access context safely
+- `MediaRegistryContext.tsx` - Tracks active media streams for privacy indicator (see Media Privacy System below)
+- `MediaRegistryContext.types.ts` - Types for MediaRegistry (MediaType, MediaUsage, context value)
+- `useAppContext.ts` / `useUserContext.ts` / `useMediaRegistry.ts` - Hooks to access context safely
 
 ### Config
 - `localStorage.ts` - Config persistence with generic `updateConfig<K>()` helper and schema validation
-- `configTypes.ts` - `SecludiaConfig` type (theme, language, notificationPermission, toastDuration)
-- `defaultConfig.ts` - Default config values
+  - `getVoiceConfig()` / `updateVoiceConfig()` for voice settings
+- `configTypes.ts` - `SecludiaConfig` type (theme, language, notificationPermission, toastDuration, voice)
+  - `VoiceConfig` type (audioInputDevice, inputVolume, echoCancellation, inputSensitivity, noiseSuppressionEnabled, audioBitrate)
+- `defaultConfig.ts` - Default config values including `DEFAULT_VOICE_CONFIG`
 
 ### Constants
 - `presence.ts` - `PRESENCE_RING_COLORS` mapping for online/offline/unavailable
@@ -248,18 +342,160 @@ export const ComponentName = memo(function ComponentName(props: Props) {
    - Room sync, message sending/receiving
    - Replace mock data with real conversations
 
-3. **Space Content** - When a space is selected, show space-specific content:
+3. **VoIP/Video Calls** - MatrixRTC integration:
+   - **1:1 DM calls**: P2P WebRTC (full-mesh transport) - direct connection, no server
+   - **3+ participants**: LiveKit SFU - self-hosted or hosted instance
+   - Both use MatrixRTC protocol with different transports
+   - **Screen sharing**: Supported in P2P, with quality options up to 4K 60fps for power users
+
+4. **Space Content** - When a space is selected, show space-specific content:
    - Channels list within the space
    - Space settings/info
 
-4. **Group Chat** - When a group is selected:
+5. **Group Chat** - When a group is selected:
    - Show chat directly in main content (no sidebar panel)
 
-5. **Settings Expansion** - Implement remaining settings sections:
+6. **Settings Expansion** - Implement remaining settings sections:
    - Security
    - Encryption
 
-6. **Additional Translations** - More languages beyond en/es
+7. **Additional Translations** - More languages beyond en/es
+
+8. **Permission Reset (Cross-Platform)** - Current implementation doesn't work because WebView locks the data folder while running:
+   - **Proposed solution**: Startup cleanup approach
+     1. "Reset & close" button creates a marker file in app data
+     2. App exits
+     3. On next startup, *before* WebView initializes, check for marker and delete permission data
+     4. Delete marker and continue startup
+   - **Platform-specific data locations**:
+     - Windows: `%APPDATA%\secludia\EBWebView\` (WebView2)
+     - macOS: System-level (WKWebView uses macOS Privacy settings)
+     - Linux: `~/.local/share/secludia/` (WebKitGTK)
+     - Web: Browser settings only - no programmatic reset possible
+   - **Current state**: Rust command `reset_webview_permissions` exists but folder deletion fails due to lock. UI shows "Reset & close" button in Tauri when permission is denied.
+
+---
+
+## Audio Processing - RNNoise Noise Suppression
+
+### Overview
+
+The app uses **RNNoise** for real-time noise suppression in voice chat. RNNoise is a hybrid DSP/deep learning approach developed by Jean-Marc Valin (Xiph.Org/Mozilla).
+
+**Key resources:**
+- [Original Demo](https://jmvalin.ca/demo/rnnoise/) - Interactive demo with samples
+- [Paper](https://arxiv.org/abs/1709.08243) - "A Hybrid DSP/Deep Learning Approach to Real-Time Full-Band Speech Enhancement"
+- [GitHub](https://github.com/xiph/rnnoise) - Original C implementation
+
+### How RNNoise Works
+
+RNNoise uses a **GRU-based neural network** (3 layers) to compute ideal critical band gains across 22 Bark-scale frequency bands. Key characteristics:
+
+1. **Frame size**: 480 samples (10ms at 48kHz) - non-negotiable
+2. **Sample rate**: 48kHz only - resample if needed
+3. **Sample format**: Float scaled to int16 range (multiply by 32768)
+4. **Processing**: In-place (same buffer for input/output)
+5. **State**: GRU hidden state MUST persist across frames for temporal context
+6. **Pitch filtering**: Attenuates noise between pitch harmonics (handled internally)
+
+### Implementation (`src/lib/audio/rnnoise.ts`)
+
+**Package**: `@jitsi/rnnoise-wasm` (BSD-3-Clause + Apache-2.0)
+- Actively maintained by Jitsi team (8x8)
+- Used in production by Jitsi Meet
+
+**RnnoiseProcessor class** (based on Jitsi's reference implementation):
+```typescript
+class RnnoiseProcessor {
+  private _context: number;           // WASM RNNoise state
+  private _wasmPcmInput: number;      // Allocated WASM buffer
+  private _wasmPcmInputF32Index: number; // Float32 index into HEAPF32
+
+  processAudioFrame(pcmFrame: Float32Array, shouldDenoise = false): number {
+    // 1. Scale float [-1,1] to int16 [-32768,32767]
+    for (let i = 0; i < 480; i++) {
+      this._wasmInterface.HEAPF32[this._wasmPcmInputF32Index + i] =
+        pcmFrame[i] * 32768;
+    }
+
+    // 2. Process in-place (output = input buffer)
+    const vadScore = this._wasmInterface._rnnoise_process_frame(
+      this._context,
+      this._wasmPcmInput,  // output
+      this._wasmPcmInput   // input (same buffer)
+    );
+
+    // 3. Scale back to float range
+    if (shouldDenoise) {
+      for (let i = 0; i < 480; i++) {
+        pcmFrame[i] = this._wasmInterface.HEAPF32[...] / 32768;
+      }
+    }
+
+    return vadScore; // VAD probability 0-1
+  }
+}
+```
+
+**Critical implementation details:**
+- Processor is cached globally (`processorPromise`) - state persists across all audio
+- WASM URL loaded via Vite's `?url` suffix: `import rnnoiseWasmUrl from "@jitsi/rnnoise-wasm/dist/rnnoise.wasm?url"`
+- `locateFile` callback tells Emscripten where to find the WASM binary
+- VAD (Voice Activity Detection) score is returned but not currently used
+
+### API Functions
+
+```typescript
+// Process audio and return WAV blob (handles resampling)
+processRawSamplesWithRNNoise(samples: Float32Array, sampleRate: number): Promise<Blob>
+
+// Convert samples to WAV without processing
+samplesToWav(samples: Float32Array, sampleRate: number): Blob
+
+// Low-level processing (48kHz only)
+processAudioSamples(samples: Float32Array): Promise<Float32Array>
+```
+
+### Real-Time AudioWorklet (Implemented)
+
+Both RNNoise processing and audio recording now use AudioWorklets:
+
+**RNNoise Worklet** (`worklet/rnnoise-processor.worklet.ts`):
+- Runs on separate audio thread (not main thread)
+- Receives 128-sample chunks from Web Audio API
+- Buffers into 480-sample frames for RNNoise (circular buffer, size 1920 = LCM)
+- WASM loaded synchronously using `createRNNWasmModuleSync` (inlined binary)
+- Outputs denoised audio as 128-sample chunks
+- Enable/disable via message port
+
+**Recorder Worklet** (`worklet/recorder-processor.worklet.ts`):
+- Accumulates audio samples in pre-allocated buffer (max 60 seconds)
+- Voice Activity Detection (VAD) with configurable dB threshold
+- 300ms hang time - continues recording briefly after level drops
+- Sends recorded samples to main thread on stop (transferred, not copied)
+
+### Package Comparison
+
+| Package | Maintenance | Exports | Use Case |
+|---------|-------------|---------|----------|
+| `@jitsi/rnnoise-wasm` | Active (Feb 2025) | Flexible | Both offline & real-time ✅ |
+| `@timephy/rnnoise-wasm` | Aug 2024 | Strict (worklet only) | Ready-made AudioWorklet |
+
+We use `@jitsi/rnnoise-wasm` because it's more flexible and actively maintained.
+
+### Settings UI
+
+Voice settings (`VoiceSection.tsx`) include:
+- **Microphone device selection** - Dropdown with available audio input devices
+- **Input volume slider** (0-100%) - GainNode-based, affects both level meter and recording
+- **Echo cancellation toggle** - Browser WebRTC feature, disabled by default
+- **Input sensitivity meter** - Discord-like control:
+  - HeroUI Slider with custom styling (yellow left = ignored, green right = transmitted)
+  - Real-time audio level shown as dark overlay
+  - Threshold in dB (-100 to 0, default -70)
+  - Level calculation: RMS → dB with smoothing
+- **Noise suppression toggle** - Enables/disables RNNoise processing
+- **VoiceRecorderButton** - Test microphone with recording/playback
 
 ---
 
@@ -297,3 +533,98 @@ Branch: `init`
 - SVG countdown uses `pathLength="100"` with `stroke-dashoffset` animation for uniform speed
 - AppToast files are split: `appToast.ts` (queue/function) and `AppToastContainer.tsx` (component) to avoid ESLint fast-refresh warnings
 - Notification type "auto" uses toast when window focused, system notification when not
+- RNNoise processor is cached globally - state persists across all audio (correct for real-time voice chat)
+- RNNoise requires exactly 480 samples at 48kHz - resample and pad as needed
+- AudioWorklets implemented for both RNNoise (real-time) and recording (with VAD)
+- VAD threshold is in dB (-100 to 0), default -70 dB, with 300ms hang time
+- Input volume uses GainNode - changing it affects VAD threshold behavior (may need recalibration)
+- Auto Gain Control removed from settings (interfered with VAD threshold consistency)
+- Echo cancellation disabled by default (only useful without headphones)
+- **CRITICAL**: Never call `navigator.mediaDevices.getUserMedia()` directly - always use `useMediaStream` hook
+- MediaRegistry tracks active streams - orphaned streams are a privacy violation
+- Race condition in useMediaStream was fixed with `startingRef` and post-await stream check
+- All settings sections use `SettingSelect` for row-style dropdowns (generic, type-safe)
+- `SelectDropdown` is now compact-only (removed row variant after DRY consolidation)
+- CSS files are kept for animations Tailwind can't handle (keyframes, mask-image, webkit-app-region)
+- VoiceRecorderButton: VAD is disabled for voice messages (unlike real-time calls) to preserve natural pauses
+- VoiceRecorderButton: `maxDuration` prop controls auto-stop (30s in settings, 60s default for chat)
+- VoiceRecorderButton: Click-to-seek only works while audio is playing (not when paused)
+- VoiceRecorderButton: Waveform bars use `left` positioning (not `translateX`) for proper vertical centering
+
+---
+
+## Media Privacy System
+
+### Overview
+
+The app has a **centralized media access system** that ensures users always know when their microphone, camera, or screen is being accessed. The privacy indicator (presence avatar ring) pulses red when any media is active.
+
+### Architecture
+
+**MediaRegistry Context** (`src/context/MediaRegistryContext.tsx`):
+- Tracks all active media streams globally
+- Provides `registerMedia(id, type, source)` and `unregisterMedia(id)` functions
+- `activeMedia` array contains `{ id, type, source }` for each active stream
+- Types: `microphone`, `camera`, `screen`
+
+**useMediaStream Hook** (`src/hooks/useMediaStream.ts`):
+- **THIS IS THE ONLY APPROVED WAY TO ACCESS MEDIA IN THE APP**
+- Automatically registers/unregisters with MediaRegistry
+- Handles cleanup on unmount
+- Prevents race conditions with concurrent calls
+
+**Privacy Indicator** (`src/components/atoms/PresenceAvatar/`):
+- Presence ring pulses between red and presence color when `mediaActive` prop is true
+- Animation uses CSS `box-shadow` (not ring class) because CSS variables don't interpolate
+- 3-second ease-in-out infinite animation
+- Clicking avatar opens `PrivacyIndicatorModal` showing what's active and where
+
+### Critical Bug Fix (Race Condition)
+
+A critical privacy bug was fixed where the microphone could stay active while the indicator showed inactive:
+
+**The Bug**: In React Strict Mode or rapid remounts:
+1. First `start()` calls `getUserMedia()` (async, pending)
+2. Component unmounts, cleanup runs (`streamRef.current` is still null)
+3. Component remounts, second `start()` calls `getUserMedia()` (another pending)
+4. First `getUserMedia()` resolves → sets `streamRef.current = stream1`
+5. Second `getUserMedia()` resolves → **overwrites** `streamRef.current = stream2`
+6. `stream1` is now orphaned - never stopped, never tracked!
+
+Result: Mic stays on, but indicator shows inactive (false sense of security).
+
+**The Fix** (in `useMediaStream.ts`):
+1. **`startingRef`** - Prevents concurrent `getUserMedia()` calls
+2. **Post-await check** - After `getUserMedia()` resolves, check if another stream was already acquired:
+```typescript
+// Check if another stream was acquired while we were waiting (race condition)
+if (streamRef.current) {
+  mediaStream.getTracks().forEach((track) => track.stop());
+  return streamRef.current;
+}
+```
+
+### Usage
+
+```typescript
+// CORRECT: Use the centralized hook
+const { stream, start, stop, isActive } = useMediaStream({
+  type: "microphone",
+  source: "Voice Message",  // Human-readable, shown in privacy modal
+  constraints: { audio: true },
+});
+
+// WRONG: Never call getUserMedia directly!
+// const stream = await navigator.mediaDevices.getUserMedia(...); // BAD!
+```
+
+### Files
+
+- `src/context/MediaRegistryContext.tsx` - Provider with register/unregister
+- `src/context/MediaRegistryContext.types.ts` - Types (avoids fast-refresh warning)
+- `src/context/useMediaRegistry.ts` - Hook to access registry
+- `src/hooks/useMediaStream.ts` - Centralized media access hook
+- `src/components/atoms/PresenceAvatar/PresenceAvatar.tsx` - Avatar with `mediaActive` prop
+- `src/components/atoms/PresenceAvatar/PresenceAvatar.css` - Pulse animation keyframes
+- `src/components/molecules/PrivacyIndicatorModal/` - Modal showing active media sources
+- `src/utils/media.ts` - DRY utilities: `stopMediaStream()`, `closeAudioContext()`

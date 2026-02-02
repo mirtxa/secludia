@@ -1,0 +1,68 @@
+.presence-avatar--media-active {
+  animation: media-pulse 3s ease-in-out infinite;
+}
+
+/* Hide Tailwind ring, use box-shadow instead for animation */
+.presence-avatar--media-active {
+  --tw-ring-opacity: 0 !important;
+}
+
+/*
+ * Box-shadow to match Tailwind ring classes:
+ * md size: ring-3 (3px) + ring-offset-1 (1px) = 1px offset, 4px total
+ */
+
+/* Override for each presence state */
+.presence-avatar--media-active[data-presence="online"] {
+  animation-name: media-pulse-online;
+}
+
+.presence-avatar--media-active[data-presence="offline"] {
+  animation-name: media-pulse-offline;
+}
+
+.presence-avatar--media-active[data-presence="unavailable"] {
+  animation-name: media-pulse-unavailable;
+}
+
+@keyframes media-pulse-online {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 1px var(--color-background),
+      0 0 0 4px var(--color-danger);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px var(--color-background),
+      0 0 0 4px var(--presence-online);
+  }
+}
+
+@keyframes media-pulse-offline {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 1px var(--color-background),
+      0 0 0 4px var(--color-danger);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px var(--color-background),
+      0 0 0 4px var(--presence-offline);
+  }
+}
+
+@keyframes media-pulse-unavailable {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 1px var(--color-background),
+      0 0 0 4px var(--color-danger);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px var(--color-background),
+      0 0 0 4px var(--presence-unavailable);
+  }
+}

@@ -1,13 +1,28 @@
 import { memo, useState, useCallback, useMemo } from "react";
-import { Bell, Key, Lock, Palette, Person, Smartphone } from "@gravity-ui/icons";
+import {
+  Bell,
+  Display,
+  Key,
+  Lock,
+  Microphone,
+  Palette,
+  Person,
+  Smartphone,
+  Video,
+  Volume,
+} from "@gravity-ui/icons";
 import { Button, Modal, Tooltip } from "@heroui/react";
 import { Scrollbar } from "@/components/atoms";
 import { useAppContext } from "@/context";
 import { useBreakpoint } from "@/hooks";
 import { AccountSection } from "./AccountSection";
 import { AppearanceSection } from "./AppearanceSection";
+import { AudioSection } from "./AudioSection";
 import { NotificationsSection } from "./NotificationsSection";
+import { ScreenSharingSection } from "./ScreenSharingSection";
 import { SessionsSection } from "./SessionsSection";
+import { VideoSection } from "./VideoSection";
+import { VoiceSection } from "./VoiceSection";
 import type { SettingsModalProps, SettingsSection } from "./SettingsModal.types";
 import "./SettingsModal.css";
 
@@ -16,6 +31,10 @@ const SECTIONS: { key: SettingsSection; labelKey: string; icon: React.ReactNode 
   { key: "sessions", labelKey: "SETTINGS_SESSIONS", icon: <Smartphone /> },
   { key: "appearance", labelKey: "SETTINGS_APPEARANCE", icon: <Palette /> },
   { key: "notifications", labelKey: "SETTINGS_NOTIFICATIONS", icon: <Bell /> },
+  { key: "audio", labelKey: "SETTINGS_AUDIO", icon: <Volume /> },
+  { key: "voice", labelKey: "SETTINGS_VOICE", icon: <Microphone /> },
+  { key: "video", labelKey: "SETTINGS_VIDEO", icon: <Video /> },
+  { key: "screenSharing", labelKey: "SETTINGS_SCREEN_SHARING", icon: <Display /> },
   { key: "security", labelKey: "SETTINGS_SECURITY", icon: <Lock /> },
   { key: "encryption", labelKey: "SETTINGS_ENCRYPTION", icon: <Key /> },
 ];
@@ -33,6 +52,11 @@ export const SettingsModal = memo(function SettingsModal({ state }: SettingsModa
     const section = SECTIONS.find((s) => s.key === activeSection);
     return section ? t(section.labelKey as Parameters<typeof t>[0]) : "";
   }, [activeSection, t]);
+
+  // Don't render content when modal is closed (ensures proper cleanup of resources like microphone)
+  if (!state.isOpen) {
+    return null;
+  }
 
   return (
     <Modal.Backdrop isOpen={state.isOpen} onOpenChange={state.setOpen} variant="opaque">
@@ -83,6 +107,10 @@ export const SettingsModal = memo(function SettingsModal({ state }: SettingsModa
                   {activeSection === "sessions" && <SessionsSection />}
                   {activeSection === "appearance" && <AppearanceSection />}
                   {activeSection === "notifications" && <NotificationsSection />}
+                  {activeSection === "audio" && <AudioSection />}
+                  {activeSection === "voice" && <VoiceSection />}
+                  {activeSection === "video" && <VideoSection />}
+                  {activeSection === "screenSharing" && <ScreenSharingSection />}
                 </div>
               </div>
             </Scrollbar>
