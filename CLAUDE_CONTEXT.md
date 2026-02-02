@@ -21,7 +21,7 @@ The app should work both as a **web application** and as a **desktop app** via T
 src/
 ├── components/
 │   ├── atoms/          # Basic UI (NavBarButton, PresenceAvatar, ProfileAvatar, EncryptionChip, Scrollbar, SelectDropdown, AppToast, VoiceRecorderButton, etc.)
-│   ├── molecules/      # Composed components (GhostEmptyState, InputSensitivityMeter, PrivacyIndicatorModal, SettingsControls)
+│   ├── molecules/      # Composed components (GhostEmptyState, InputSensitivityMeter, PermissionAlert, PrivacyIndicatorModal, SettingsControls)
 │   ├── layouts/        # Layout wrappers (ErrorBoundary, ResponsiveCard)
 │   ├── organisms/      # Complex components (DirectMessagesSection, SettingsModal, NotificationsSection)
 │   └── system/         # Tauri-specific (TitleBar, ControlActions, ControlButton)
@@ -195,6 +195,11 @@ Closing reverses with content fading first, then nav sliding out.
 - `PrivacyIndicatorModal/` - Modal showing active media sources:
   - Lists each active stream with type icon and source description
   - Triggered by clicking the pulsing presence avatar
+- `PermissionAlert/` - Reusable permission alert component:
+  - Warning alert for "prompt" state, danger alert for "denied" state
+  - "Allow" button triggers permission request, "Reset & close" for denied (Tauri only)
+  - Responsive: buttons in content on mobile, alongside on desktop
+  - Props: permission state, handlers, translated strings for title/description/buttons
 
 ### Components (Organisms)
 - `DirectMessagesSection.tsx` - DM list with search, skeleton loading, conversation items
@@ -209,16 +214,28 @@ Closing reverses with content fading first, then nav sliding out.
 - `AccountSection.tsx` - Profile editing with avatar upload trigger
 - `AppearanceSection.tsx` - Theme, language, font size settings
 - `SessionsSection.tsx` - Current and other sessions display
-- `NotificationsSection.tsx` - Notification settings with permission status, type selector, duration slider, and test buttons
+- `NotificationsSection.tsx` - Notification settings:
+  - **Permission management**: Alert for prompt/denied states (web only, Tauri uses OS-level permissions)
+  - Notification type selector (Auto/Toast/System)
+  - Toast duration slider
+  - Test notification buttons
 - `VoiceSection.tsx` - Voice/microphone settings (persisted to localStorage):
+  - **Permission management**: PermissionAlert for prompt/denied states, useMediaPermission hook
   - Device selection and input volume (GainNode-based, 0-100%)
   - Echo cancellation toggle (browser WebRTC, disabled by default)
   - Input sensitivity meter with VAD threshold (-100 to 0 dB, default -70)
   - Noise suppression toggle (RNNoise)
   - Audio bitrate slider (TODO: not yet used, for future WebRTC/MatrixRTC)
   - VoiceRecorderButton for testing microphone settings (maxDuration=30s, hideSendButton)
+  - Lazy state initializer for config (reads localStorage once on mount)
 - `AudioSection.tsx` - Audio output settings (speaker selection, volume, test tone)
-- `VideoSection.tsx` - Camera settings with live preview
+- `VideoSection.tsx` - Camera settings with live preview:
+  - **Permission management**: PermissionAlert for prompt/denied states, useMediaPermission hook
+  - Device selection, resolution (720p-4K), frame rate (30/60fps)
+  - Mirror video, low-light adjustment, background blur (platform-dependent)
+  - CameraPreview component with start/stop, auto-restarts on settings change
+  - Advanced: codec selection (VP8/VP9/H.264/AV1), bitrate, hardware acceleration, simulcast
+  - Controls disabled when permission not granted
 - `ScreenSharingSection.tsx` - Screen share quality and capture options
 
 ### Hooks
@@ -232,6 +249,12 @@ Closing reverses with content fading first, then nav sliding out.
 - `useMediaDevices.ts` - Enumerate audio/video devices with auto-refresh on device changes
 - `useMediaStream.ts` - **CRITICAL: Centralized media stream access** (see Media Privacy System below)
 - `usePlatform.ts` - Platform detection (macos/windows/linux/ios/android/web) via Tauri plugin-os
+- `useMediaPermission.ts` - Media permission management (camera/microphone):
+  - Checks permission via Permissions API with getUserMedia fallback
+  - Listens for real-time permission changes with proper cleanup
+  - `requestPermission()` triggers browser permission prompt
+  - `resetPermissions()` creates marker file and exits app (Tauri only)
+  - Returns `permission`, `isRequesting`, `requestPermission`, `resetPermissions`, `isDisabled`
 - `isWindowFocused.ts` - Utility to check if window is focused (for auto notification type)
 
 ### Lib (Audio)
@@ -266,7 +289,8 @@ Closing reverses with content fading first, then nav sliding out.
 ### Config
 - `localStorage.ts` - Config persistence with generic `updateConfig<K>()` helper and schema validation
   - `getVoiceConfig()` / `updateVoiceConfig()` for voice settings
-- `configTypes.ts` - `SecludiaConfig` type (theme, language, notificationPermission, toastDuration, voice)
+- `configTypes.ts` - `SecludiaConfig` type (theme, language, notificationPromptStatus, toastDuration, voice)
+  - `NotificationPromptStatus` type - Tracks if notification prompt was shown ("not_asked" | "asked")
   - `VoiceConfig` type (audioInputDevice, inputVolume, echoCancellation, inputSensitivity, noiseSuppressionEnabled, audioBitrate)
 - `defaultConfig.ts` - Default config values including `DEFAULT_VOICE_CONFIG`
 
@@ -361,18 +385,26 @@ export const ComponentName = memo(function ComponentName(props: Props) {
 
 7. **Additional Translations** - More languages beyond en/es
 
-8. **Permission Reset (Cross-Platform)** - Current implementation doesn't work because WebView locks the data folder while running:
-   - **Proposed solution**: Startup cleanup approach
-     1. "Reset & close" button creates a marker file in app data
-     2. App exits
-     3. On next startup, *before* WebView initializes, check for marker and delete permission data
-     4. Delete marker and continue startup
-   - **Platform-specific data locations**:
-     - Windows: `%APPDATA%\secludia\EBWebView\` (WebView2)
-     - macOS: System-level (WKWebView uses macOS Privacy settings)
-     - Linux: `~/.local/share/secludia/` (WebKitGTK)
-     - Web: Browser settings only - no programmatic reset possible
-   - **Current state**: Rust command `reset_webview_permissions` exists but folder deletion fails due to lock. UI shows "Reset & close" button in Tauri when permission is denied.
+8. **Permission Management System** - Media and notification permissions with cross-platform support:
+   - **useMediaPermission hook** - Handles camera/microphone permission checking, requesting, and reset
+     - Uses Permissions API with getUserMedia fallback for unsupported browsers
+     - Listens for real-time permission changes
+     - Returns: `permission`, `isRequesting`, `requestPermission`, `resetPermissions`, `isDisabled`
+   - **PermissionAlert component** - Reusable molecule for permission UI:
+     - Warning alert for "prompt" state with "Allow" button
+     - Danger alert for "denied" state with "Reset & close" button (Tauri only)
+     - Responsive: action buttons in content on mobile, alongside content on desktop
+   - **Tauri permission reset** (marker file pattern):
+     1. "Reset & close" button creates `.reset_permissions` marker file in app data
+     2. App exits via `std::process::exit(0)`
+     3. On next startup, *before* WebView initializes, Rust checks for marker
+     4. If marker exists: delete WebView data folder, delete marker, continue startup
+   - **Platform-specific WebView data locations** (Local AppData):
+     - Windows: `%LOCALAPPDATA%\{identifier}\EBWebView\` (WebView2)
+     - macOS: `~/Library/Application Support/{identifier}/WebKit\` (WebKitGTK)
+     - Linux: `~/.local/share/{identifier}/WebKit\` (WebKitGTK)
+   - **App identifier**: Read from tauri.conf.json at compile time via `include_str!`
+   - **Web browsers**: No programmatic reset - users must use browser settings
 
 ---
 
@@ -550,6 +582,10 @@ Branch: `init`
 - VoiceRecorderButton: `maxDuration` prop controls auto-stop (30s in settings, 60s default for chat)
 - VoiceRecorderButton: Click-to-seek only works while audio is playing (not when paused)
 - VoiceRecorderButton: Waveform bars use `left` positioning (not `translateX`) for proper vertical centering
+- Permission reset only works in Tauri (desktop) - web browsers require manual settings access
+- useMediaPermission uses lazy initializer pattern to avoid repeated localStorage reads
+- Tauri notification permissions are handled by OS natively, not web-style prompts
+- NotificationPromptStatus renamed from NotificationPermissionStatus for clarity (it tracks prompt shown, not granted/denied)
 
 ---
 
