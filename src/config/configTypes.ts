@@ -11,7 +11,8 @@ export type SecludiaTheme =
 
 export type SecludiaLanguage = AvailableLanguage;
 
-export type NotificationPermissionStatus = "pending" | "granted" | "dismissed";
+/** Status of the app's notification onboarding prompt (not the browser permission) */
+export type NotificationPromptStatus = "pending" | "granted" | "dismissed";
 
 export interface VoiceConfig {
   audioInputDevice: string;
@@ -25,7 +26,8 @@ export interface VoiceConfig {
 export interface SecludiaConfig {
   theme: SecludiaTheme;
   language: SecludiaLanguage;
-  notificationPermission: NotificationPermissionStatus;
+  /** Whether user has seen/interacted with the notification onboarding prompt */
+  notificationPromptStatus: NotificationPromptStatus;
   toastDuration: number;
   voice: VoiceConfig;
 }

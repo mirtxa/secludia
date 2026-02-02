@@ -12,7 +12,7 @@ export const DEFAULT_VOICE_CONFIG: VoiceConfig = {
 export const DEFAULT_CONFIG: SecludiaConfig = {
   theme: "default",
   language: "en",
-  notificationPermission: "pending",
+  notificationPromptStatus: "pending",
   toastDuration: 5,
   voice: DEFAULT_VOICE_CONFIG,
 };

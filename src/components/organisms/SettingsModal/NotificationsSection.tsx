@@ -1,13 +1,13 @@
-import { memo, useCallback, useEffect, useMemo, useState } from "react";
-import { Bell, CircleCheck, CircleXmark } from "@gravity-ui/icons";
-import { Button, Label, Slider } from "@heroui/react";
+import { memo, useCallback, useEffect, useState } from "react";
+import { Alert, Button, Label, Slider } from "@heroui/react";
+import { isTauri } from "@tauri-apps/api/core";
 import { appToast } from "@/components/atoms";
 import { useAppContext } from "@/context";
 import { isWindowFocused, useNotification } from "@/hooks";
 import type { NotificationOptions } from "@/hooks/useNotification";
 import type { TranslationKey } from "@/i18n/types";
 
-type PermissionStatus = "granted" | "not-granted" | "not-supported" | "unknown";
+type PermissionStatus = "granted" | "denied" | "prompt" | "not-supported" | "unknown";
 type NotificationType = "system" | "toast" | "auto";
 
 interface TestNotification {
@@ -61,22 +61,6 @@ const NOTIFICATION_TYPES: {
   },
 ];
 
-const PERMISSION_CONFIG: Record<
-  PermissionStatus,
-  { labelKey?: TranslationKey; icon: React.ReactNode }
-> = {
-  granted: {
-    labelKey: "SETTINGS_NOTIFICATIONS_PERMISSION_GRANTED",
-    icon: <CircleCheck className="text-success" />,
-  },
-  "not-supported": {
-    labelKey: "SETTINGS_NOTIFICATIONS_PERMISSION_NOT_SUPPORTED",
-    icon: <CircleXmark className="text-danger" />,
-  },
-  "not-granted": { labelKey: "SETTINGS_NOTIFICATIONS_PERMISSION_NOT_GRANTED", icon: null },
-  unknown: { icon: null },
-};
-
 const selectButtonClass = "h-auto flex-col items-start gap-0.5 rounded-lg border p-3 text-left";
 const selectButtonActiveClass = "border-accent bg-accent/10";
 const selectButtonInactiveClass = "border-border bg-surface hover:bg-default";
@@ -89,22 +73,31 @@ export const NotificationsSection = memo(function NotificationsSection() {
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [notificationType, setNotificationType] = useState<NotificationType>("auto");
 
-  const permissionLabel = useMemo(() => {
-    const config = PERMISSION_CONFIG[permissionStatus];
-    return config.labelKey ? t(config.labelKey) : "...";
-  }, [permissionStatus, t]);
-
-  const permissionIcon = PERMISSION_CONFIG[permissionStatus].icon;
-
   useEffect(() => {
     const checkPermission = async () => {
+      // Tauri uses native OS notifications - always considered granted
+      if (isTauri()) {
+        setPermissionStatus("granted");
+        return;
+      }
+
       const supported = await isSupported();
       if (!supported) {
         setPermissionStatus("not-supported");
         return;
       }
       const granted = await isPermissionGranted();
-      setPermissionStatus(granted ? "granted" : "not-granted");
+      if (granted) {
+        setPermissionStatus("granted");
+      } else {
+        // Check if explicitly denied or just not asked yet
+        // Web: Notification.permission is "denied" or "default"
+        if (typeof Notification !== "undefined" && Notification.permission === "denied") {
+          setPermissionStatus("denied");
+        } else {
+          setPermissionStatus("prompt");
+        }
+      }
     };
     checkPermission();
   }, [isSupported, isPermissionGranted]);
@@ -112,7 +105,16 @@ export const NotificationsSection = memo(function NotificationsSection() {
   const handleEnableNotifications = useCallback(async () => {
     setLoadingId("enable");
     const granted = await requestPermission();
-    setPermissionStatus(granted ? "granted" : "not-granted");
+    if (granted) {
+      setPermissionStatus("granted");
+    } else {
+      // Check if explicitly denied
+      if (typeof Notification !== "undefined" && Notification.permission === "denied") {
+        setPermissionStatus("denied");
+      } else {
+        setPermissionStatus("prompt");
+      }
+    }
     setLoadingId(null);
   }, [requestPermission]);
 
@@ -139,25 +141,41 @@ export const NotificationsSection = memo(function NotificationsSection() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex w-full items-center gap-3 rounded-xl bg-surface p-3">
-        <div className="flex size-10 shrink-0 items-center justify-center rounded-[10px] bg-default text-foreground">
-          <Bell />
-        </div>
-        <div className="flex min-w-0 flex-1 flex-col items-start">
-          <span className="text-sm font-medium text-foreground">
-            {t("SETTINGS_NOTIFICATIONS_PERMISSION")}
-          </span>
-          <span className="flex items-center gap-1.5 text-[13px] text-muted">
-            {permissionIcon}
-            {permissionLabel}
-          </span>
-        </div>
-      </div>
-
-      {permissionStatus === "not-granted" && (
-        <Button isPending={loadingId === "enable"} onPress={handleEnableNotifications}>
-          {t("SETTINGS_NOTIFICATIONS_ENABLE")}
-        </Button>
+      {/* Permission Alert (web only - Tauri uses native OS notifications) */}
+      {(permissionStatus === "prompt" || permissionStatus === "denied") && (
+        <Alert status={permissionStatus === "denied" ? "danger" : "warning"}>
+          <Alert.Indicator />
+          <Alert.Content>
+            <Alert.Title>{t("SETTINGS_NOTIFICATIONS_PERMISSION_TITLE")}</Alert.Title>
+            <Alert.Description>
+              {permissionStatus === "denied"
+                ? t("SETTINGS_NOTIFICATIONS_PERMISSION_DENIED_DESC")
+                : t("SETTINGS_NOTIFICATIONS_PERMISSION_PROMPT_DESC")}
+            </Alert.Description>
+            {permissionStatus === "prompt" && (
+              <Button
+                className="mt-2 sm:hidden"
+                size="sm"
+                variant="primary"
+                onPress={handleEnableNotifications}
+                isDisabled={loadingId === "enable"}
+              >
+                {t("SETTINGS_NOTIFICATIONS_PERMISSION_BUTTON")}
+              </Button>
+            )}
+          </Alert.Content>
+          {permissionStatus === "prompt" && (
+            <Button
+              className="hidden sm:block"
+              size="sm"
+              variant="primary"
+              onPress={handleEnableNotifications}
+              isDisabled={loadingId === "enable"}
+            >
+              {t("SETTINGS_NOTIFICATIONS_PERMISSION_BUTTON")}
+            </Button>
+          )}
+        </Alert>
       )}
 
       {permissionStatus !== "not-supported" && (

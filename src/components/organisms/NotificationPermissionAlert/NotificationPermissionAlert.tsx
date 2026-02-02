@@ -1,7 +1,8 @@
 import { memo, useCallback, useEffect, useState } from "react";
 import { Bell } from "@gravity-ui/icons";
 import { AlertDialog, Button } from "@heroui/react";
-import { getNotificationPermission, updateNotificationPermission } from "@/config/localStorage";
+import { isTauri } from "@tauri-apps/api/core";
+import { getNotificationPromptStatus, updateNotificationPromptStatus } from "@/config/localStorage";
 import { useAppContext } from "@/context";
 import { useNotification } from "@/hooks";
 
@@ -13,7 +14,12 @@ export const NotificationPermissionAlert = memo(function NotificationPermissionA
 
   useEffect(() => {
     const checkShouldShow = async () => {
-      const storedStatus = getNotificationPermission();
+      // Tauri uses native OS notifications - no permission prompt needed
+      if (isTauri()) {
+        return;
+      }
+
+      const storedStatus = getNotificationPromptStatus();
 
       if (storedStatus === "granted" || storedStatus === "dismissed") {
         return;
@@ -28,7 +34,7 @@ export const NotificationPermissionAlert = memo(function NotificationPermissionA
       if (!granted) {
         setIsOpen(true);
       } else {
-        updateNotificationPermission("granted");
+        updateNotificationPromptStatus("granted");
       }
     };
 
@@ -41,13 +47,13 @@ export const NotificationPermissionAlert = memo(function NotificationPermissionA
     setIsLoading(false);
 
     if (granted) {
-      updateNotificationPermission("granted");
+      updateNotificationPromptStatus("granted");
       setIsOpen(false);
     }
   }, [requestPermission]);
 
   const handleDismiss = useCallback(() => {
-    updateNotificationPermission("dismissed");
+    updateNotificationPromptStatus("dismissed");
     setIsOpen(false);
   }, []);
 

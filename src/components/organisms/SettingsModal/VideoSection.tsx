@@ -1,9 +1,15 @@
 import { memo, useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { Video, Display, CirclePlay, Gear, CircleStop } from "@gravity-ui/icons";
 import { Button } from "@heroui/react";
-import { SectionHeader, SettingSwitch, SettingSlider, SettingSelect } from "@/components/molecules";
+import {
+  PermissionAlert,
+  SectionHeader,
+  SettingSwitch,
+  SettingSlider,
+  SettingSelect,
+} from "@/components/molecules";
 import { useAppContext } from "@/context";
-import { useMediaDevices, usePlatform, useTranslatedOptions } from "@/hooks";
+import { useMediaDevices, useMediaPermission, usePlatform, useTranslatedOptions } from "@/hooks";
 import type { TranslationKey } from "@/i18n/types";
 import { stopMediaStream } from "@/utils";
 
@@ -37,6 +43,17 @@ const VIDEO_CODEC_OPTIONS: readonly { key: VideoCodec; labelKey: TranslationKey 
   { key: "av1", labelKey: "SETTINGS_VIDEO_CODEC_AV1" },
 ] as const;
 
+/** Resolution to video constraints mapping */
+const RESOLUTION_CONSTRAINTS: Record<
+  VideoResolution,
+  { width: { ideal: number }; height: { ideal: number } }
+> = {
+  "720p": { width: { ideal: 1280 }, height: { ideal: 720 } },
+  "1080p": { width: { ideal: 1920 }, height: { ideal: 1080 } },
+  "1440p": { width: { ideal: 2560 }, height: { ideal: 1440 } },
+  "4k": { width: { ideal: 3840 }, height: { ideal: 2160 } },
+};
+
 const CameraPreview = memo(function CameraPreview({
   deviceId,
   isMirrored,
@@ -57,18 +74,17 @@ const CameraPreview = memo(function CameraPreview({
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const getResolutionConstraints = useCallback((res: VideoResolution) => {
-    switch (res) {
-      case "720p":
-        return { width: { ideal: 1280 }, height: { ideal: 720 } };
-      case "1080p":
-        return { width: { ideal: 1920 }, height: { ideal: 1080 } };
-      case "1440p":
-        return { width: { ideal: 2560 }, height: { ideal: 1440 } };
-      case "4k":
-        return { width: { ideal: 3840 }, height: { ideal: 2160 } };
-    }
-  }, []);
+  // Build video constraints from current settings
+  const buildConstraints = useCallback(
+    (): MediaStreamConstraints => ({
+      video: {
+        deviceId: deviceId !== "default" ? { exact: deviceId } : undefined,
+        ...RESOLUTION_CONSTRAINTS[resolution],
+        frameRate: { ideal: parseInt(frameRate) },
+      },
+    }),
+    [deviceId, resolution, frameRate]
+  );
 
   const stopStream = useCallback(() => {
     streamRef.current = stopMediaStream(streamRef.current);
@@ -81,15 +97,7 @@ const CameraPreview = memo(function CameraPreview({
   const startStream = useCallback(async () => {
     setError(null);
     try {
-      const constraints: MediaStreamConstraints = {
-        video: {
-          deviceId: deviceId !== "default" ? { exact: deviceId } : undefined,
-          ...getResolutionConstraints(resolution),
-          frameRate: { ideal: parseInt(frameRate) },
-        },
-      };
-
-      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      const stream = await navigator.mediaDevices.getUserMedia(buildConstraints());
       streamRef.current = stream;
 
       if (videoRef.current) {
@@ -100,7 +108,7 @@ const CameraPreview = memo(function CameraPreview({
       console.error("Failed to access camera:", err);
       setError(err instanceof Error ? err.message : "Failed to access camera");
     }
-  }, [deviceId, resolution, frameRate, getResolutionConstraints]);
+  }, [buildConstraints]);
 
   const toggleStream = useCallback(() => {
     if (isStreaming) {
@@ -131,21 +139,12 @@ const CameraPreview = memo(function CameraPreview({
     prevSettingsRef.current = { deviceId, resolution, frameRate };
 
     if (settingsChanged && streamRef.current) {
-      // Stop current stream
+      // Stop current stream and restart with new settings
       streamRef.current = stopMediaStream(streamRef.current);
 
-      // Restart with new settings
       const restartStream = async () => {
         try {
-          const constraints: MediaStreamConstraints = {
-            video: {
-              deviceId: deviceId !== "default" ? { exact: deviceId } : undefined,
-              ...getResolutionConstraints(resolution),
-              frameRate: { ideal: parseInt(frameRate) },
-            },
-          };
-
-          const stream = await navigator.mediaDevices.getUserMedia(constraints);
+          const stream = await navigator.mediaDevices.getUserMedia(buildConstraints());
           streamRef.current = stream;
 
           if (videoRef.current) {
@@ -158,7 +157,7 @@ const CameraPreview = memo(function CameraPreview({
 
       restartStream();
     }
-  }, [deviceId, resolution, frameRate, getResolutionConstraints]);
+  }, [deviceId, resolution, frameRate, buildConstraints]);
 
   return (
     <div className="flex flex-col gap-3">
@@ -203,6 +202,15 @@ export const VideoSection = memo(function VideoSection() {
   const { t } = useAppContext();
   const { supportsAV1, supportsBackgroundBlur, platform } = usePlatform();
 
+  // Camera permission
+  const {
+    permission: cameraPermission,
+    isRequesting: isRequestingPermission,
+    requestPermission,
+    resetPermissions,
+    isDisabled,
+  } = useMediaPermission("camera");
+
   const { devices: videoInputDevices } = useMediaDevices({
     kind: "videoinput",
     defaultLabel: t("SETTINGS_VIDEO_DEFAULT_DEVICE"),
@@ -235,6 +243,20 @@ export const VideoSection = memo(function VideoSection() {
 
   return (
     <div className="flex flex-col gap-8">
+      {/* Permission Alert */}
+      <PermissionAlert
+        permission={cameraPermission}
+        isRequesting={isRequestingPermission}
+        onRequestPermission={requestPermission}
+        onResetPermissions={resetPermissions}
+        titlePrompt={t("SETTINGS_VIDEO_PERMISSION_TITLE")}
+        titleDenied={t("SETTINGS_VIDEO_PERMISSION_TITLE")}
+        descriptionPrompt={t("SETTINGS_VIDEO_PERMISSION_PROMPT_DESC")}
+        descriptionDenied={t("SETTINGS_VIDEO_PERMISSION_DENIED_DESC")}
+        allowButtonLabel={t("SETTINGS_VIDEO_PERMISSION_BUTTON")}
+        resetButtonLabel={t("SETTINGS_VIDEO_PERMISSION_RESET")}
+      />
+
       {/* Camera */}
       <section className="flex flex-col gap-4">
         <SectionHeader icon={<Video />} title={t("SETTINGS_VIDEO_SECTION_CAMERA")} />
@@ -245,6 +267,7 @@ export const VideoSection = memo(function VideoSection() {
           options={videoInputDevices}
           value={selectedVideoInput}
           onChange={setSelectedVideoInput}
+          isDisabled={isDisabled}
         />
 
         <SettingSelect
@@ -253,6 +276,7 @@ export const VideoSection = memo(function VideoSection() {
           options={resolutionOptions}
           value={videoResolution}
           onChange={setVideoResolution}
+          isDisabled={isDisabled}
         />
 
         <SettingSelect
@@ -261,6 +285,7 @@ export const VideoSection = memo(function VideoSection() {
           options={fpsOptions}
           value={frameRate}
           onChange={setFrameRate}
+          isDisabled={isDisabled}
         />
 
         <SettingSwitch
@@ -268,6 +293,7 @@ export const VideoSection = memo(function VideoSection() {
           description={t("SETTINGS_VIDEO_MIRROR_DESC")}
           isSelected={mirrorVideo}
           onChange={setMirrorVideo}
+          isDisabled={isDisabled}
         />
 
         <SettingSwitch
@@ -275,6 +301,7 @@ export const VideoSection = memo(function VideoSection() {
           description={t("SETTINGS_VIDEO_LOW_LIGHT_DESC")}
           isSelected={lowLightAdjustment}
           onChange={setLowLightAdjustment}
+          isDisabled={isDisabled}
         />
 
         {supportsBackgroundBlur && (
@@ -284,17 +311,20 @@ export const VideoSection = memo(function VideoSection() {
             options={blurOptions}
             value={backgroundBlur}
             onChange={setBackgroundBlur}
+            isDisabled={isDisabled}
           />
         )}
 
-        <CameraPreview
-          deviceId={selectedVideoInput}
-          isMirrored={mirrorVideo}
-          resolution={videoResolution}
-          frameRate={frameRate}
-          startLabel={t("SETTINGS_VIDEO_START_PREVIEW")}
-          stopLabel={t("SETTINGS_VIDEO_STOP_PREVIEW")}
-        />
+        {!isDisabled && (
+          <CameraPreview
+            deviceId={selectedVideoInput}
+            isMirrored={mirrorVideo}
+            resolution={videoResolution}
+            frameRate={frameRate}
+            startLabel={t("SETTINGS_VIDEO_START_PREVIEW")}
+            stopLabel={t("SETTINGS_VIDEO_STOP_PREVIEW")}
+          />
+        )}
       </section>
 
       {/* Advanced */}

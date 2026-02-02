@@ -28,7 +28,7 @@ describe("localStorage config", () => {
       expect(result.theme).toBe("midnight");
       expect(result.language).toBe("es");
       // Missing values filled from defaults
-      expect(result.notificationPermission).toBe("pending");
+      expect(result.notificationPromptStatus).toBe("pending");
       expect(result.toastDuration).toBe(5);
       expect(result.voice).toEqual(DEFAULT_CONFIG.voice);
     });

@@ -2,7 +2,7 @@ import type {
   SecludiaConfig,
   SecludiaTheme,
   SecludiaLanguage,
-  NotificationPermissionStatus,
+  NotificationPromptStatus,
   VoiceConfig,
 } from "./configTypes";
 import { THEME_OPTIONS } from "./configTypes";
@@ -11,8 +11,8 @@ import { AVAILABLE_LANGUAGES } from "@/i18n";
 
 const STORAGE_KEY = "secludia.config";
 
-/** Valid notification permission values */
-const VALID_NOTIFICATION_PERMISSIONS: NotificationPermissionStatus[] = [
+/** Valid notification prompt status values */
+const VALID_NOTIFICATION_PROMPT_STATUSES: NotificationPromptStatus[] = [
   "pending",
   "granted",
   "dismissed",
@@ -79,11 +79,11 @@ function validateConfig(data: unknown): SecludiaConfig {
     language: AVAILABLE_LANGUAGES.includes(config.language as SecludiaLanguage)
       ? (config.language as SecludiaLanguage)
       : DEFAULT_CONFIG.language,
-    notificationPermission: VALID_NOTIFICATION_PERMISSIONS.includes(
-      config.notificationPermission as NotificationPermissionStatus
+    notificationPromptStatus: VALID_NOTIFICATION_PROMPT_STATUSES.includes(
+      config.notificationPromptStatus as NotificationPromptStatus
     )
-      ? (config.notificationPermission as NotificationPermissionStatus)
-      : DEFAULT_CONFIG.notificationPermission,
+      ? (config.notificationPromptStatus as NotificationPromptStatus)
+      : DEFAULT_CONFIG.notificationPromptStatus,
     toastDuration:
       typeof config.toastDuration === "number" &&
       config.toastDuration >= 1 &&
@@ -122,12 +122,12 @@ export function updateLanguage(language: SecludiaLanguage): void {
   updateConfig("language", language);
 }
 
-export function updateNotificationPermission(status: NotificationPermissionStatus): void {
-  updateConfig("notificationPermission", status);
+export function updateNotificationPromptStatus(status: NotificationPromptStatus): void {
+  updateConfig("notificationPromptStatus", status);
 }
 
-export function getNotificationPermission(): NotificationPermissionStatus {
-  return loadConfig().notificationPermission;
+export function getNotificationPromptStatus(): NotificationPromptStatus {
+  return loadConfig().notificationPromptStatus;
 }
 
 export function updateToastDuration(duration: number): void {

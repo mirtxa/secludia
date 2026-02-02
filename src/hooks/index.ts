@@ -1,5 +1,7 @@
 export { useMediaDevices } from "./useMediaDevices";
 export type { MediaDevice } from "./useMediaDevices";
+export { useMediaPermission } from "./useMediaPermission";
+export type { MediaPermissionState, MediaPermissionType } from "./useMediaPermission";
 export { useMediaQuery, useBreakpoint, BREAKPOINTS } from "./useMediaQuery";
 export { useMediaStream } from "./useMediaStream";
 export type { UseMediaStreamOptions, UseMediaStreamResult } from "./useMediaStream";

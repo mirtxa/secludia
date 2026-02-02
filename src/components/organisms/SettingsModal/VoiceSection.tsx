@@ -1,138 +1,50 @@
-import { memo, useState, useCallback, useEffect } from "react";
+import { memo, useState, useCallback } from "react";
 import { Microphone, Sliders, Volume } from "@gravity-ui/icons";
-import { Alert, Button } from "@heroui/react";
-import { isTauri } from "@tauri-apps/api/core";
-import { invoke } from "@tauri-apps/api/core";
 import { useAppContext } from "@/context";
-import { useMediaDevices } from "@/hooks";
+import { useMediaDevices, useMediaPermission } from "@/hooks";
 import { getVoiceConfig, updateVoiceConfig } from "@/config/localStorage";
 import { VoiceRecorderButton } from "@/components/atoms";
 import {
   InputSensitivityMeter,
+  PermissionAlert,
   SectionHeader,
   SettingSelect,
   SettingSwitch,
   SettingSlider,
 } from "@/components/molecules";
 
-type MicrophonePermission = "granted" | "denied" | "prompt";
-
 export const VoiceSection = memo(function VoiceSection() {
   const { t } = useAppContext();
 
-  // Microphone permission state
-  const [micPermission, setMicPermission] = useState<MicrophonePermission>("prompt");
-  const [isRequestingPermission, setIsRequestingPermission] = useState(false);
-
-  // Check and listen to microphone permission status
-  useEffect(() => {
-    let permissionStatus: PermissionStatus | null = null;
-    let mounted = true;
-
-    const checkPermission = async () => {
-      try {
-        permissionStatus = await navigator.permissions.query({
-          name: "microphone" as PermissionName,
-        });
-
-        if (mounted) {
-          setMicPermission(permissionStatus.state as MicrophonePermission);
-        }
-
-        // Listen for changes
-        const handleChange = () => {
-          if (mounted) {
-            setMicPermission(permissionStatus!.state as MicrophonePermission);
-          }
-        };
-        permissionStatus.addEventListener("change", handleChange);
-
-        return () => permissionStatus?.removeEventListener("change", handleChange);
-      } catch {
-        // Permissions API not supported - try getUserMedia to detect actual state
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-          stream.getTracks().forEach((track) => track.stop());
-          if (mounted) setMicPermission("granted");
-        } catch (err) {
-          if (err instanceof DOMException && err.name === "NotAllowedError") {
-            // Could be denied or prompt - we can't tell without trying
-            if (mounted) setMicPermission("prompt");
-          }
-        }
-      }
-    };
-
-    checkPermission();
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  // Request microphone permission
-  const requestPermission = useCallback(async () => {
-    setIsRequestingPermission(true);
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      // Permission granted - stop the stream immediately
-      stream.getTracks().forEach((track) => track.stop());
-      setMicPermission("granted");
-    } catch (err) {
-      if (err instanceof DOMException && err.name === "NotAllowedError") {
-        // Check actual permission state - dismissed (X) stays "prompt", Block becomes "denied"
-        try {
-          const status = await navigator.permissions.query({
-            name: "microphone" as PermissionName,
-          });
-          setMicPermission(status.state as MicrophonePermission);
-        } catch {
-          // Fallback if Permissions API not supported
-          setMicPermission("denied");
-        }
-      }
-    } finally {
-      setIsRequestingPermission(false);
-    }
-  }, []);
-
-  // Reset WebView permissions (Tauri only) - deletes permission data and restarts app
-  const resetPermissions = useCallback(async () => {
-    if (!isTauri()) return;
-    try {
-      await invoke("reset_webview_permissions");
-      // App will restart, so we won't reach here
-    } catch (err) {
-      console.error("Failed to reset permissions:", err);
-    }
-  }, []);
-
-  const isDisabled = micPermission !== "granted";
+  // Microphone permission
+  const {
+    permission: micPermission,
+    isRequesting: isRequestingPermission,
+    requestPermission,
+    resetPermissions,
+    isDisabled,
+  } = useMediaPermission("microphone");
 
   const { devices: audioInputDevices } = useMediaDevices({
     kind: "audioinput",
     defaultLabel: t("SETTINGS_VOICE_DEFAULT_DEVICE"),
   });
 
-  // Load initial values from localStorage
-  const initialConfig = getVoiceConfig();
+  // Load initial config once (lazy initializer reads localStorage only on mount)
+  const [initialConfig] = useState(getVoiceConfig);
 
   // Microphone settings
-  const [selectedAudioInput, setSelectedAudioInput] = useState<string>(
-    initialConfig.audioInputDevice
-  );
-  const [inputVolume, setInputVolume] = useState<number>(initialConfig.inputVolume);
-  const [echoCancellation, setEchoCancellation] = useState<boolean>(initialConfig.echoCancellation);
-  const [inputSensitivity, setInputSensitivity] = useState<number>(initialConfig.inputSensitivity);
+  const [selectedAudioInput, setSelectedAudioInput] = useState(initialConfig.audioInputDevice);
+  const [inputVolume, setInputVolume] = useState(initialConfig.inputVolume);
+  const [echoCancellation, setEchoCancellation] = useState(initialConfig.echoCancellation);
+  const [inputSensitivity, setInputSensitivity] = useState(initialConfig.inputSensitivity);
 
   // Noise suppression settings
-  const [rnnoiseEnabled, setRnnoiseEnabled] = useState<boolean>(
-    initialConfig.noiseSuppressionEnabled
-  );
+  const [rnnoiseEnabled, setRnnoiseEnabled] = useState(initialConfig.noiseSuppressionEnabled);
 
   // Advanced audio settings
   // TODO: audioBitrate is not yet used in actual voice encoding - will be needed for WebRTC/MatrixRTC
-  const [audioBitrate, setAudioBitrate] = useState<number>(initialConfig.audioBitrate);
+  const [audioBitrate, setAudioBitrate] = useState(initialConfig.audioBitrate);
 
   // Persist settings to localStorage
   const handleAudioInputChange = useCallback((value: string) => {
@@ -168,63 +80,18 @@ export const VoiceSection = memo(function VoiceSection() {
   return (
     <div className="flex flex-col gap-8">
       {/* Permission Alert */}
-      {isDisabled && (
-        <Alert status={micPermission === "denied" ? "danger" : "warning"}>
-          <Alert.Indicator />
-          <Alert.Content>
-            <Alert.Title>{t("SETTINGS_VOICE_PERMISSION_TITLE")}</Alert.Title>
-            <Alert.Description>
-              {micPermission === "denied"
-                ? t("SETTINGS_VOICE_PERMISSION_DENIED_DESC")
-                : t("SETTINGS_VOICE_PERMISSION_PROMPT_DESC")}
-            </Alert.Description>
-            {micPermission === "denied" ? (
-              isTauri() && (
-                <Button
-                  className="mt-2 sm:hidden"
-                  size="sm"
-                  variant="danger"
-                  onPress={resetPermissions}
-                >
-                  {t("SETTINGS_VOICE_PERMISSION_RESET")}
-                </Button>
-              )
-            ) : (
-              <Button
-                className="mt-2 sm:hidden"
-                size="sm"
-                variant="primary"
-                onPress={requestPermission}
-                isDisabled={isRequestingPermission}
-              >
-                {t("SETTINGS_VOICE_PERMISSION_BUTTON")}
-              </Button>
-            )}
-          </Alert.Content>
-          {micPermission === "denied" ? (
-            isTauri() && (
-              <Button
-                className="hidden sm:block"
-                size="sm"
-                variant="danger"
-                onPress={resetPermissions}
-              >
-                {t("SETTINGS_VOICE_PERMISSION_RESET")}
-              </Button>
-            )
-          ) : (
-            <Button
-              className="hidden sm:block"
-              size="sm"
-              variant="primary"
-              onPress={requestPermission}
-              isDisabled={isRequestingPermission}
-            >
-              {t("SETTINGS_VOICE_PERMISSION_BUTTON")}
-            </Button>
-          )}
-        </Alert>
-      )}
+      <PermissionAlert
+        permission={micPermission}
+        isRequesting={isRequestingPermission}
+        onRequestPermission={requestPermission}
+        onResetPermissions={resetPermissions}
+        titlePrompt={t("SETTINGS_VOICE_PERMISSION_TITLE")}
+        titleDenied={t("SETTINGS_VOICE_PERMISSION_TITLE")}
+        descriptionPrompt={t("SETTINGS_VOICE_PERMISSION_PROMPT_DESC")}
+        descriptionDenied={t("SETTINGS_VOICE_PERMISSION_DENIED_DESC")}
+        allowButtonLabel={t("SETTINGS_VOICE_PERMISSION_BUTTON")}
+        resetButtonLabel={t("SETTINGS_VOICE_PERMISSION_RESET")}
+      />
 
       {/* Microphone */}
       <section className="flex flex-col gap-5">
