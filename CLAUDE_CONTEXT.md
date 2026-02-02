@@ -189,9 +189,9 @@ Closing reverses with content fading first, then nav sliding out.
   - Uses GainNode for input volume control
 - `SettingsControls/` - Reusable settings components (DRY extraction):
   - `SectionHeader` - Section title with icon
-  - `SettingSwitch` - Toggle switch with label and description
-  - `SettingSlider` - Slider with label, description, and value formatter
-  - `SettingSelect<T>` - Generic select dropdown for settings (icon + label + select on right)
+  - `SettingSwitch` - Toggle switch with label and description (uses HeroUI Label isDisabled + Description)
+  - `SettingSlider` - Slider with label, description, and value formatter (uses HeroUI Label isDisabled + Description)
+  - `SettingSelect<T>` - Generic select dropdown for settings (icon + label + select on right, disabled styling on icon/label)
 - `PrivacyIndicatorModal/` - Modal showing active media sources:
   - Lists each active stream with type icon and source description
   - Triggered by clicking the pulsing presence avatar
@@ -231,19 +231,19 @@ Closing reverses with content fading first, then nav sliding out.
 - `AudioSection.tsx` - Audio output settings (speaker selection, volume, test tone)
 - `VideoSection.tsx` - Camera settings with live preview (persisted to localStorage):
   - **Permission management**: PermissionAlert for prompt/denied states, useMediaPermission hook
-  - Device selection, resolution (720p-4K), frame rate (30/60fps)
-  - Background blur (off/light/strong)
+  - Device selection, resolution (480p-4K), frame rate (15/24/30/60fps)
   - CameraPreview component using HeroUI Card:
     - Uses `useMediaStream` hook (fixes privacy indicator - tracks active camera)
     - Centered start button with video icon (explicit activation for privacy)
-    - Shows actual resolution and frame rate badge when active (e.g., "720p 30fps")
+    - HeroUI Chips with icons showing actual resolution and fps when active
     - Resolution uses `ideal` constraints - camera provides best it can support
     - Stop button with tertiary variant for visibility
-  - Advanced: codec selection (VP8/VP9/H.264/AV1), bitrate, hardware acceleration, simulcast
+  - Advanced settings (disabled until video calls implemented): codec, bitrate, hardware acceleration, simulcast
   - Lazy state initializer for config (reads localStorage once on mount)
   - Controls disabled when permission not granted
   - **Removed**: Mirror setting (video is never mirrored - shows exactly what others see)
   - **Removed**: Low light adjustment (was placeholder, not implemented)
+  - **Removed**: Background blur (was decorative, not implemented)
 - `ScreenSharingSection.tsx` - Screen share quality and capture options
 
 ### Hooks
@@ -301,10 +301,9 @@ Closing reverses with content fading first, then nav sliding out.
 - `configTypes.ts` - `SecludiaConfig` type (theme, language, notificationPromptStatus, toastDuration, voice, video)
   - `NotificationPromptStatus` type - Tracks if notification prompt was shown ("not_asked" | "asked")
   - `VoiceConfig` type (audioInputDevice, inputVolume, echoCancellation, inputSensitivity, noiseSuppressionEnabled, audioBitrate)
-  - `VideoConfig` type (videoInputDevice, resolution, frameRate, backgroundBlur, codec, maxBitrate, hardwareAcceleration, simulcast)
-  - `VideoResolution` type ("720p" | "1080p" | "1440p" | "4k")
-  - `FrameRate` type ("30" | "60")
-  - `BackgroundBlur` type ("off" | "light" | "strong")
+  - `VideoConfig` type (videoInputDevice, resolution, frameRate, codec, maxBitrate, hardwareAcceleration, simulcast)
+  - `VideoResolution` type ("480p" | "720p" | "1080p" | "1440p" | "4k")
+  - `FrameRate` type ("15" | "24" | "30" | "60")
   - `VideoCodec` type ("vp8" | "vp9" | "h264" | "av1")
 - `defaultConfig.ts` - Default config values including `DEFAULT_VOICE_CONFIG` and `DEFAULT_VIDEO_CONFIG`
 
@@ -600,6 +599,10 @@ Branch: `init`
 - useMediaPermission uses lazy initializer pattern to avoid repeated localStorage reads
 - Tauri notification permissions are handled by OS natively, not web-style prompts
 - NotificationPromptStatus renamed from NotificationPermissionStatus for clarity (it tracks prompt shown, not granted/denied)
+- Use `cn()` utility from `@/utils` for conditional class concatenation (cleaner than template literals)
+- SettingsControls use HeroUI v3 `Label` with `isDisabled` prop and `Description` component for proper disabled styling
+- PresenceAvatar CSS pulse animation uses box-shadow instead of ring classes (avoids !important overrides)
+- Always use translation keys for user-visible strings - never hardcode text (e.g., APP_TITLE for app name)
 
 ---
 
@@ -691,21 +694,27 @@ The `CameraPreview` component in `VideoSection.tsx` demonstrates the privacy-fir
 2. **Privacy indicator**: Uses `useMediaStream` hook which registers with MediaRegistry (avatar pulses red when active)
 3. **Actual resolution display**: Shows what the camera is actually providing, not what was requested:
    - Uses `MediaStreamTrack.getSettings()` to get actual width/height/frameRate
-   - Converts height to label (720p, 1080p, etc.) for consistency with dropdown
-   - If camera can't provide requested resolution, badge shows what it actually provides
+   - Converts height to label (480p, 720p, 1080p, etc.) for consistency with dropdown
+   - If camera can't provide requested resolution, shows what it actually provides
+4. **HeroUI Chips**: Resolution and FPS displayed as separate Chips with icons (Display icon, CirclePlay icon)
 
 ### Resolution Constraints
 
 Video settings use `ideal` constraints, meaning the browser will provide the closest match the camera supports:
 ```typescript
 const RESOLUTION_CONSTRAINTS = {
+  "480p": { width: { ideal: 640 }, height: { ideal: 480 } },
   "720p": { width: { ideal: 1280 }, height: { ideal: 720 } },
   "1080p": { width: { ideal: 1920 }, height: { ideal: 1080 } },
   // etc.
 };
 ```
 
-If a user's camera only supports 720p but they select 1080p, the camera will provide 720p and the badge will show "720p" (actual), not "1080p" (requested).
+If a user's camera only supports 720p but they select 1080p, the camera will provide 720p and the Chips will show "720p" (actual), not "1080p" (requested).
+
+### Advanced Settings
+
+Advanced video settings (codec, bitrate, hardware acceleration, simulcast) are stored in config but disabled in the UI with a "coming soon" tooltip. These will take effect when video calls are implemented via MatrixRTC.
 
 ### Why No Mirror Setting
 
@@ -714,3 +723,10 @@ The mirror setting was removed because:
 - This creates confusion - users expect to see what others see
 - Secludia's privacy-first approach: WYSIWYG (What You See Is What You Get)
 - Video is never mirrored - shows exactly what will be transmitted
+
+### Why No Background Blur
+
+Background blur was removed because:
+- It was decorative (stored in config but never applied to video stream)
+- Real implementation requires ML-based segmentation (TensorFlow.js or similar)
+- Will be implemented properly when video calls are built
