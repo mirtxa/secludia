@@ -32,7 +32,7 @@ export const PresenceAvatar = memo(function PresenceAvatar({
 
   const presenceColor = PRESENCE_RING_COLORS[presence];
   const ringClass = mediaActive
-    ? `${ring} ring-offset-background presence-avatar--media-active`
+    ? "ring-offset-background presence-avatar--media-active"
     : `${ring} ${presenceColor} ring-offset-background`;
 
   return (

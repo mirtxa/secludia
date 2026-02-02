@@ -2,11 +2,6 @@
   animation: media-pulse 3s ease-in-out infinite;
 }
 
-/* Hide Tailwind ring, use box-shadow instead for animation */
-.presence-avatar--media-active {
-  --tw-ring-opacity: 0 !important;
-}
-
 /*
  * Box-shadow to match Tailwind ring classes:
  * md size: ring-3 (3px) + ring-offset-1 (1px) = 1px offset, 4px total

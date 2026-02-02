@@ -13,7 +13,7 @@ import { SIDEBAR_WIDTH, SIMULATED_LOADING_DELAY } from "@/constants";
 import { useAppContext, useMediaRegistry, useUserContext, type RoomType } from "@/context";
 import { useBreakpoint, useResizable, useSidebar } from "@/hooks";
 import { MOCK_CONVERSATIONS, MOCK_ROOMS } from "@/mocks";
-import { getInitials } from "@/utils";
+import { cn, getInitials } from "@/utils";
 import type { MainScreenProps } from "./MainScreen.types";
 import "./MainScreen.css";
 
@@ -113,16 +113,15 @@ export const MainScreen = memo(function MainScreen(_: MainScreenProps) {
   }, []);
 
   const isDmEmpty = selectedRoom?.type === "dm" && !isLoading && MOCK_CONVERSATIONS.length === 0;
-  const sidebarClass = [
+  const sidebarClass = cn(
     "sidebar",
     sidebar.isOpen && "sidebar--open",
-    isDmEmpty && "sidebar--dm-empty",
-  ]
-    .filter(Boolean)
-    .join(" ");
-  const resizeHandleClass = resizable.isResizing
-    ? "sidebar__resize-handle sidebar__resize-handle--active"
-    : "sidebar__resize-handle";
+    isDmEmpty && "sidebar--dm-empty"
+  );
+  const resizeHandleClass = cn(
+    "sidebar__resize-handle",
+    resizable.isResizing && "sidebar__resize-handle--active"
+  );
   const contentStyle = useMemo(
     () => (isDesktop ? { width: resizable.width } : undefined),
     [isDesktop, resizable.width]

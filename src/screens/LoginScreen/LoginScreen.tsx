@@ -7,8 +7,6 @@ import { ResponsiveCard } from "@/components/layouts";
 import { validateHomeserver, buildHomeserverUrl } from "@/utils";
 import type { LoginScreenProps } from "./LoginScreen.types";
 
-const TITLE = <h1 className="text-2xl font-bold text-center">Secludia</h1>;
-
 const SELECTORS = (
   <div className="flex justify-center gap-2">
     <ThemeSelector />
@@ -56,8 +54,8 @@ export const LoginScreen = memo(function LoginScreen({
     <ResponsiveCard
       header={
         <>
-          {TITLE}
-          <p className="text-center card__description mt-2">
+          <h1 className="text-center text-2xl font-bold">{t("APP_TITLE")}</h1>
+          <p className="card__description mt-2 text-center">
             <Typewriter phrases={typewriterPhrases} />
           </p>
         </>
