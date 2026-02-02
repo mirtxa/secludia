@@ -244,7 +244,18 @@ Closing reverses with content fading first, then nav sliding out.
   - **Removed**: Mirror setting (video is never mirrored - shows exactly what others see)
   - **Removed**: Low light adjustment (was placeholder, not implemented)
   - **Removed**: Background blur (was decorative, not implemented)
-- `ScreenSharingSection.tsx` - Screen share quality and capture options
+- `ScreenSharingSection.tsx` - Screen share settings (persisted to localStorage):
+  - Resolution (720p-4K), frame rate (15/30/60/120/144 fps with bandwidth hints)
+  - System audio capture toggle (Windows only - uses `usePlatform` for detection)
+  - ScreenSharePreview component using HeroUI Card:
+    - Uses `useMediaStream` hook with `type: "screen"` for `getDisplayMedia()`
+    - HeroUI Chips showing actual resolution and fps
+    - Fullscreen button (tertiary variant, bottom-right corner)
+    - Smart audio toggle: disable = instant (stop tracks), enable = restart stream
+  - Advanced settings (disabled until screen sharing in calls implemented): bandwidth mode, codec
+  - Lazy state initializer for config
+  - Uses shared `VIDEO_CODEC_OPTIONS` from configTypes.ts
+  - Uses shared `getStreamInfo()` from utils/media.ts
 
 ### Hooks
 - `useMediaQuery.ts` - Media query hook with Tailwind breakpoints (sm, md, lg, xl, 2xl)
@@ -256,7 +267,12 @@ Closing reverses with content fading first, then nav sliding out.
 - `useTranslatedOptions.ts` - Hook to create translated dropdown options from config arrays (DRY helper)
 - `useMediaDevices.ts` - Enumerate audio/video devices with auto-refresh on device changes
 - `useMediaStream.ts` - **CRITICAL: Centralized media stream access** (see Media Privacy System below)
-- `usePlatform.ts` - Platform detection (macos/windows/linux/ios/android/web) via Tauri plugin-os
+  - Supports `type: "microphone" | "camera" | "screen"`
+  - Screen type uses `getDisplayMedia()` instead of `getUserMedia()`
+- `usePlatform.ts` - Platform detection and media capabilities:
+  - Platform detection via Tauri plugin-os (macos/windows/linux/ios/android/web)
+  - Media capability flags: `supportsAudioOutputSelection`, `supportsSystemAudioCapture`, `supportsHardwareH264`, `supportsHardwareVP9`, `supportsAV1`
+  - Accounts for Tauri WebView differences (Windows=Chromium, macOS/Linux=WebKit)
 - `useMediaPermission.ts` - Media permission management (camera/microphone):
   - Checks permission via Permissions API with getUserMedia fallback
   - Listens for real-time permission changes with proper cleanup
@@ -298,14 +314,20 @@ Closing reverses with content fading first, then nav sliding out.
 - `localStorage.ts` - Config persistence with generic `updateConfig<K>()` helper and schema validation
   - `getVoiceConfig()` / `updateVoiceConfig()` for voice settings
   - `getVideoConfig()` / `updateVideoConfig()` for video settings
-- `configTypes.ts` - `SecludiaConfig` type (theme, language, notificationPromptStatus, toastDuration, voice, video)
+  - `getScreenConfig()` / `updateScreenConfig()` for screen sharing settings
+- `configTypes.ts` - `SecludiaConfig` type (theme, language, notificationPromptStatus, toastDuration, voice, video, screen)
   - `NotificationPromptStatus` type - Tracks if notification prompt was shown ("not_asked" | "asked")
   - `VoiceConfig` type (audioInputDevice, inputVolume, echoCancellation, inputSensitivity, noiseSuppressionEnabled, audioBitrate)
   - `VideoConfig` type (videoInputDevice, resolution, frameRate, codec, maxBitrate, hardwareAcceleration, simulcast)
+  - `ScreenConfig` type (resolution, frameRate, captureSystemAudio, bandwidthMode, codec)
   - `VideoResolution` type ("480p" | "720p" | "1080p" | "1440p" | "4k")
   - `FrameRate` type ("15" | "24" | "30" | "60")
+  - `ScreenShareResolution` type ("720p" | "1080p" | "1440p" | "4k")
+  - `ScreenShareFrameRate` type ("15" | "30" | "60" | "120" | "144")
+  - `BandwidthMode` type ("conservative" | "balanced" | "aggressive")
   - `VideoCodec` type ("vp8" | "vp9" | "h264" | "av1")
-- `defaultConfig.ts` - Default config values including `DEFAULT_VOICE_CONFIG` and `DEFAULT_VIDEO_CONFIG`
+  - `VIDEO_CODEC_OPTIONS` constant - Shared between VideoSection and ScreenSharingSection
+- `defaultConfig.ts` - Default config values including `DEFAULT_VOICE_CONFIG`, `DEFAULT_VIDEO_CONFIG`, `DEFAULT_SCREEN_CONFIG`
 
 ### Constants
 - `presence.ts` - `PRESENCE_RING_COLORS` mapping for online/offline/unavailable
@@ -603,6 +625,12 @@ Branch: `init`
 - SettingsControls use HeroUI v3 `Label` with `isDisabled` prop and `Description` component for proper disabled styling
 - PresenceAvatar CSS pulse animation uses box-shadow instead of ring classes (avoids !important overrides)
 - Always use translation keys for user-visible strings - never hardcode text (e.g., APP_TITLE for app name)
+- Screen sharing uses `getDisplayMedia()` (not `getUserMedia()`) - settings are "hints", browser may not honor them
+- System audio capture only works on Windows + Chromium (OS-level limitation on macOS/Linux)
+- Screen sharing FPS options include bandwidth hints (e.g., "60 fps (~4-10 Mbps)") for user guidance
+- High FPS (120/144) is valid for game streaming at lower resolutions
+- `VIDEO_CODEC_OPTIONS` is shared between VideoSection and ScreenSharingSection (DRY)
+- `getStreamInfo()` extracts actual resolution/fps from MediaStream (DRY utility)
 
 ---
 
@@ -680,7 +708,7 @@ const { stream, start, stop, isActive } = useMediaStream({
 - `src/components/atoms/PresenceAvatar/PresenceAvatar.tsx` - Avatar with `mediaActive` prop
 - `src/components/atoms/PresenceAvatar/PresenceAvatar.css` - Pulse animation keyframes
 - `src/components/molecules/PrivacyIndicatorModal/` - Modal showing active media sources
-- `src/utils/media.ts` - DRY utilities: `stopMediaStream()`, `closeAudioContext()`
+- `src/utils/media.ts` - DRY utilities: `stopMediaStream()`, `closeAudioContext()`, `heightToResolutionLabel()`, `getStreamInfo()`
 
 ---
 
@@ -730,3 +758,60 @@ Background blur was removed because:
 - It was decorative (stored in config but never applied to video stream)
 - Real implementation requires ML-based segmentation (TensorFlow.js or similar)
 - Will be implemented properly when video calls are built
+
+---
+
+## Screen Sharing Settings Implementation Notes
+
+### ScreenSharePreview Component
+
+The `ScreenSharePreview` component in `ScreenSharingSection.tsx` follows the same privacy-first approach as video:
+
+1. **Explicit activation**: Screen sharing NOT started automatically. User clicks start button.
+2. **Privacy indicator**: Uses `useMediaStream` hook with `type: "screen"` for `getDisplayMedia()`
+3. **Actual resolution display**: Shows what the stream is actually providing (may differ from requested)
+4. **Fullscreen button**: Tertiary variant button in bottom-right corner for full-screen preview
+
+### Screen vs Camera Differences
+
+| Aspect | Camera (`getUserMedia`) | Screen (`getDisplayMedia`) |
+|--------|-------------------------|---------------------------|
+| API | `getUserMedia()` | `getDisplayMedia()` |
+| Device selection | Programmatic via `deviceId` | Browser picker UI |
+| Constraints | Respected | "Hints" only |
+| Audio | Separate permission | Optional, Windows only |
+| Restart needed | On device/settings change | On any constraint change |
+
+### System Audio Capture
+
+System audio capture (including audio from the computer in screen share) only works on:
+- **Windows + Chromium**: Full support via WebView2
+- **macOS**: OS-level restriction - apps can't capture system audio without kernel extension
+- **Linux/WebKitGTK**: Not supported
+
+The `usePlatform` hook detects this capability via `supportsSystemAudioCapture`:
+```typescript
+const supportsSystemAudioCapture = platform === "windows" && effectiveBrowser === "chromium";
+```
+
+The switch is disabled and OFF on non-Windows platforms.
+
+### Smart Audio Toggle
+
+When toggling system audio capture:
+- **Disable audio**: Just stop audio tracks instantly (no restart needed)
+- **Enable audio**: Must restart stream (shows picker again) because `getDisplayMedia()` must be called with new constraints
+
+### High FPS Options
+
+Screen sharing includes higher FPS options than video (up to 144 fps) because:
+- Game streaming benefits from high frame rates at lower resolutions
+- 144 fps at 720p is reasonable (~10-20 Mbps)
+- FPS options include bandwidth hints to help users choose appropriately
+
+### DRY Refactoring
+
+Shared between VideoSection and ScreenSharingSection:
+- `VIDEO_CODEC_OPTIONS` constant in `configTypes.ts`
+- `getStreamInfo()` utility in `utils/media.ts` - extracts resolution/fps from stream
+- `heightToResolutionLabel()` utility - converts height to "720p", "1080p", etc.
