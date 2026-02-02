@@ -31,6 +31,7 @@ describe("localStorage config", () => {
       expect(result.notificationPromptStatus).toBe("pending");
       expect(result.toastDuration).toBe(5);
       expect(result.voice).toEqual(DEFAULT_CONFIG.voice);
+      expect(result.video).toEqual(DEFAULT_CONFIG.video);
     });
 
     it("returns DEFAULT_CONFIG when stored value is invalid JSON", () => {

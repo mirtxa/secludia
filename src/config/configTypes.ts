@@ -23,6 +23,24 @@ export interface VoiceConfig {
   audioBitrate: number; // 32-256 kbps
 }
 
+export type VideoResolution = "720p" | "1080p" | "1440p" | "4k";
+export type FrameRate = "30" | "60";
+export type BackgroundBlur = "off" | "light" | "strong";
+export type VideoCodec = "vp8" | "vp9" | "h264" | "av1";
+
+export interface VideoConfig {
+  videoInputDevice: string;
+  resolution: VideoResolution;
+  frameRate: FrameRate;
+  mirrorVideo: boolean;
+  lowLightAdjustment: boolean;
+  backgroundBlur: BackgroundBlur;
+  codec: VideoCodec;
+  maxBitrate: number; // 500-8000 kbps
+  hardwareAcceleration: boolean;
+  simulcast: boolean;
+}
+
 export interface SecludiaConfig {
   theme: SecludiaTheme;
   language: SecludiaLanguage;
@@ -30,6 +48,7 @@ export interface SecludiaConfig {
   notificationPromptStatus: NotificationPromptStatus;
   toastDuration: number;
   voice: VoiceConfig;
+  video: VideoConfig;
 }
 
 export const THEME_OPTIONS: { key: SecludiaTheme; labelKey: TranslationKey }[] = [

@@ -10,13 +10,10 @@ import {
 } from "@/components/molecules";
 import { useAppContext } from "@/context";
 import { useMediaDevices, useMediaPermission, usePlatform, useTranslatedOptions } from "@/hooks";
+import { getVideoConfig, updateVideoConfig } from "@/config/localStorage";
 import type { TranslationKey } from "@/i18n/types";
+import type { VideoResolution, FrameRate, BackgroundBlur, VideoCodec } from "@/config/configTypes";
 import { stopMediaStream } from "@/utils";
-
-type VideoResolution = "720p" | "1080p" | "1440p" | "4k";
-type FrameRate = "30" | "60";
-type BackgroundBlur = "off" | "light" | "strong";
-type VideoCodec = "vp8" | "vp9" | "h264" | "av1";
 
 const VIDEO_RESOLUTION_OPTIONS: readonly { key: VideoResolution; labelKey: TranslationKey }[] = [
   { key: "720p", labelKey: "SETTINGS_VIDEO_RES_720P" },
@@ -200,7 +197,7 @@ const CameraPreview = memo(function CameraPreview({
 
 export const VideoSection = memo(function VideoSection() {
   const { t } = useAppContext();
-  const { supportsAV1, supportsBackgroundBlur, platform } = usePlatform();
+  const { supportsAV1, supportsBackgroundBlur } = usePlatform();
 
   // Camera permission
   const {
@@ -216,19 +213,75 @@ export const VideoSection = memo(function VideoSection() {
     defaultLabel: t("SETTINGS_VIDEO_DEFAULT_DEVICE"),
   });
 
-  // Camera settings
-  const [selectedVideoInput, setSelectedVideoInput] = useState<string>("default");
-  const [videoResolution, setVideoResolution] = useState<VideoResolution>("1080p");
-  const [frameRate, setFrameRate] = useState<FrameRate>("30");
-  const [mirrorVideo, setMirrorVideo] = useState<boolean>(true);
-  const [lowLightAdjustment, setLowLightAdjustment] = useState<boolean>(false);
-  const [backgroundBlur, setBackgroundBlur] = useState<BackgroundBlur>("off");
+  // Load initial config once (lazy initializer reads localStorage only on mount)
+  const [initialConfig] = useState(getVideoConfig);
 
-  // Advanced video settings - default to H.264 on Mac for better hardware support
-  const [videoCodec, setVideoCodec] = useState<VideoCodec>(platform === "macos" ? "h264" : "vp9");
-  const [maxVideoBitrate, setMaxVideoBitrate] = useState<number>(2500);
-  const [hardwareAcceleration, setHardwareAcceleration] = useState<boolean>(true);
-  const [simulcast, setSimulcast] = useState<boolean>(true);
+  // Camera settings
+  const [selectedVideoInput, setSelectedVideoInput] = useState(initialConfig.videoInputDevice);
+  const [videoResolution, setVideoResolution] = useState(initialConfig.resolution);
+  const [frameRate, setFrameRate] = useState(initialConfig.frameRate);
+  const [mirrorVideo, setMirrorVideo] = useState(initialConfig.mirrorVideo);
+  const [lowLightAdjustment, setLowLightAdjustment] = useState(initialConfig.lowLightAdjustment);
+  const [backgroundBlur, setBackgroundBlur] = useState(initialConfig.backgroundBlur);
+
+  // Advanced video settings
+  const [videoCodec, setVideoCodec] = useState(initialConfig.codec);
+  const [maxVideoBitrate, setMaxVideoBitrate] = useState(initialConfig.maxBitrate);
+  const [hardwareAcceleration, setHardwareAcceleration] = useState(
+    initialConfig.hardwareAcceleration
+  );
+  const [simulcast, setSimulcast] = useState(initialConfig.simulcast);
+
+  // Persist settings to localStorage
+  const handleVideoInputChange = useCallback((value: string) => {
+    setSelectedVideoInput(value);
+    updateVideoConfig("videoInputDevice", value);
+  }, []);
+
+  const handleResolutionChange = useCallback((value: VideoResolution) => {
+    setVideoResolution(value);
+    updateVideoConfig("resolution", value);
+  }, []);
+
+  const handleFrameRateChange = useCallback((value: FrameRate) => {
+    setFrameRate(value);
+    updateVideoConfig("frameRate", value);
+  }, []);
+
+  const handleMirrorVideoChange = useCallback((value: boolean) => {
+    setMirrorVideo(value);
+    updateVideoConfig("mirrorVideo", value);
+  }, []);
+
+  const handleLowLightChange = useCallback((value: boolean) => {
+    setLowLightAdjustment(value);
+    updateVideoConfig("lowLightAdjustment", value);
+  }, []);
+
+  const handleBackgroundBlurChange = useCallback((value: BackgroundBlur) => {
+    setBackgroundBlur(value);
+    updateVideoConfig("backgroundBlur", value);
+  }, []);
+
+  const handleCodecChange = useCallback((value: VideoCodec) => {
+    setVideoCodec(value);
+    updateVideoConfig("codec", value);
+  }, []);
+
+  const handleMaxBitrateChange = useCallback((value: number) => {
+    setMaxVideoBitrate(value);
+    updateVideoConfig("maxBitrate", value);
+  }, []);
+
+  const handleHardwareAccelerationChange = useCallback((value: boolean) => {
+    setHardwareAcceleration(value);
+    updateVideoConfig("hardwareAcceleration", value);
+  }, []);
+
+  const handleSimulcastChange = useCallback((value: boolean) => {
+    setSimulcast(value);
+    updateVideoConfig("simulcast", value);
+  }, []);
 
   const { options: resolutionOptions } = useTranslatedOptions(VIDEO_RESOLUTION_OPTIONS);
   const { options: fpsOptions } = useTranslatedOptions(FRAME_RATE_OPTIONS);
@@ -258,7 +311,7 @@ export const VideoSection = memo(function VideoSection() {
       />
 
       {/* Camera */}
-      <section className="flex flex-col gap-4">
+      <section className="flex flex-col gap-5">
         <SectionHeader icon={<Video />} title={t("SETTINGS_VIDEO_SECTION_CAMERA")} />
 
         <SettingSelect
@@ -266,7 +319,7 @@ export const VideoSection = memo(function VideoSection() {
           label={t("SETTINGS_VIDEO_INPUT_DEVICE")}
           options={videoInputDevices}
           value={selectedVideoInput}
-          onChange={setSelectedVideoInput}
+          onChange={handleVideoInputChange}
           isDisabled={isDisabled}
         />
 
@@ -275,7 +328,7 @@ export const VideoSection = memo(function VideoSection() {
           label={t("SETTINGS_VIDEO_RESOLUTION")}
           options={resolutionOptions}
           value={videoResolution}
-          onChange={setVideoResolution}
+          onChange={handleResolutionChange}
           isDisabled={isDisabled}
         />
 
@@ -284,7 +337,7 @@ export const VideoSection = memo(function VideoSection() {
           label={t("SETTINGS_VIDEO_FRAME_RATE")}
           options={fpsOptions}
           value={frameRate}
-          onChange={setFrameRate}
+          onChange={handleFrameRateChange}
           isDisabled={isDisabled}
         />
 
@@ -292,7 +345,7 @@ export const VideoSection = memo(function VideoSection() {
           label={t("SETTINGS_VIDEO_MIRROR")}
           description={t("SETTINGS_VIDEO_MIRROR_DESC")}
           isSelected={mirrorVideo}
-          onChange={setMirrorVideo}
+          onChange={handleMirrorVideoChange}
           isDisabled={isDisabled}
         />
 
@@ -300,7 +353,7 @@ export const VideoSection = memo(function VideoSection() {
           label={t("SETTINGS_VIDEO_LOW_LIGHT")}
           description={t("SETTINGS_VIDEO_LOW_LIGHT_DESC")}
           isSelected={lowLightAdjustment}
-          onChange={setLowLightAdjustment}
+          onChange={handleLowLightChange}
           isDisabled={isDisabled}
         />
 
@@ -310,7 +363,7 @@ export const VideoSection = memo(function VideoSection() {
             label={t("SETTINGS_VIDEO_BACKGROUND_BLUR")}
             options={blurOptions}
             value={backgroundBlur}
-            onChange={setBackgroundBlur}
+            onChange={handleBackgroundBlurChange}
             isDisabled={isDisabled}
           />
         )}
@@ -328,7 +381,7 @@ export const VideoSection = memo(function VideoSection() {
       </section>
 
       {/* Advanced */}
-      <section className="flex flex-col gap-4">
+      <section className="flex flex-col gap-5">
         <SectionHeader icon={<Gear />} title={t("SETTINGS_VIDEO_SECTION_ADVANCED")} />
 
         <SettingSelect
@@ -336,13 +389,13 @@ export const VideoSection = memo(function VideoSection() {
           label={t("SETTINGS_VIDEO_CODEC")}
           options={codecOptions}
           value={videoCodec}
-          onChange={setVideoCodec}
+          onChange={handleCodecChange}
         />
 
         <SettingSlider
           label={t("SETTINGS_VIDEO_MAX_BITRATE")}
           value={maxVideoBitrate}
-          onChange={setMaxVideoBitrate}
+          onChange={handleMaxBitrateChange}
           minValue={500}
           maxValue={8000}
           step={100}
@@ -353,14 +406,14 @@ export const VideoSection = memo(function VideoSection() {
           label={t("SETTINGS_VIDEO_HARDWARE_ACCEL")}
           description={t("SETTINGS_VIDEO_HARDWARE_ACCEL_DESC")}
           isSelected={hardwareAcceleration}
-          onChange={setHardwareAcceleration}
+          onChange={handleHardwareAccelerationChange}
         />
 
         <SettingSwitch
           label={t("SETTINGS_VIDEO_SIMULCAST")}
           description={t("SETTINGS_VIDEO_SIMULCAST_DESC")}
           isSelected={simulcast}
-          onChange={setSimulcast}
+          onChange={handleSimulcastChange}
         />
       </section>
     </div>

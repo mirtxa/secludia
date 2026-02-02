@@ -4,9 +4,14 @@ import type {
   SecludiaLanguage,
   NotificationPromptStatus,
   VoiceConfig,
+  VideoConfig,
+  VideoResolution,
+  FrameRate,
+  BackgroundBlur,
+  VideoCodec,
 } from "./configTypes";
 import { THEME_OPTIONS } from "./configTypes";
-import { DEFAULT_CONFIG, DEFAULT_VOICE_CONFIG } from "./defaultConfig";
+import { DEFAULT_CONFIG, DEFAULT_VOICE_CONFIG, DEFAULT_VIDEO_CONFIG } from "./defaultConfig";
 import { AVAILABLE_LANGUAGES } from "@/i18n";
 
 const STORAGE_KEY = "secludia.config";
@@ -17,6 +22,64 @@ const VALID_NOTIFICATION_PROMPT_STATUSES: NotificationPromptStatus[] = [
   "granted",
   "dismissed",
 ];
+
+/** Valid video resolution values */
+const VALID_RESOLUTIONS: VideoResolution[] = ["720p", "1080p", "1440p", "4k"];
+
+/** Valid frame rate values */
+const VALID_FRAME_RATES: FrameRate[] = ["30", "60"];
+
+/** Valid background blur values */
+const VALID_BACKGROUND_BLUR: BackgroundBlur[] = ["off", "light", "strong"];
+
+/** Valid video codec values */
+const VALID_CODECS: VideoCodec[] = ["vp8", "vp9", "h264", "av1"];
+
+/**
+ * Validates and sanitizes video config.
+ */
+function validateVideoConfig(data: unknown): VideoConfig {
+  if (!data || typeof data !== "object") {
+    return DEFAULT_VIDEO_CONFIG;
+  }
+
+  const video = data as Record<string, unknown>;
+
+  return {
+    videoInputDevice:
+      typeof video.videoInputDevice === "string" && video.videoInputDevice.length > 0
+        ? video.videoInputDevice
+        : DEFAULT_VIDEO_CONFIG.videoInputDevice,
+    resolution: VALID_RESOLUTIONS.includes(video.resolution as VideoResolution)
+      ? (video.resolution as VideoResolution)
+      : DEFAULT_VIDEO_CONFIG.resolution,
+    frameRate: VALID_FRAME_RATES.includes(video.frameRate as FrameRate)
+      ? (video.frameRate as FrameRate)
+      : DEFAULT_VIDEO_CONFIG.frameRate,
+    mirrorVideo:
+      typeof video.mirrorVideo === "boolean" ? video.mirrorVideo : DEFAULT_VIDEO_CONFIG.mirrorVideo,
+    lowLightAdjustment:
+      typeof video.lowLightAdjustment === "boolean"
+        ? video.lowLightAdjustment
+        : DEFAULT_VIDEO_CONFIG.lowLightAdjustment,
+    backgroundBlur: VALID_BACKGROUND_BLUR.includes(video.backgroundBlur as BackgroundBlur)
+      ? (video.backgroundBlur as BackgroundBlur)
+      : DEFAULT_VIDEO_CONFIG.backgroundBlur,
+    codec: VALID_CODECS.includes(video.codec as VideoCodec)
+      ? (video.codec as VideoCodec)
+      : DEFAULT_VIDEO_CONFIG.codec,
+    maxBitrate:
+      typeof video.maxBitrate === "number" && video.maxBitrate >= 500 && video.maxBitrate <= 8000
+        ? video.maxBitrate
+        : DEFAULT_VIDEO_CONFIG.maxBitrate,
+    hardwareAcceleration:
+      typeof video.hardwareAcceleration === "boolean"
+        ? video.hardwareAcceleration
+        : DEFAULT_VIDEO_CONFIG.hardwareAcceleration,
+    simulcast:
+      typeof video.simulcast === "boolean" ? video.simulcast : DEFAULT_VIDEO_CONFIG.simulcast,
+  };
+}
 
 /**
  * Validates and sanitizes voice config.
@@ -91,6 +154,7 @@ function validateConfig(data: unknown): SecludiaConfig {
         ? config.toastDuration
         : DEFAULT_CONFIG.toastDuration,
     voice: validateVoiceConfig(config.voice),
+    video: validateVideoConfig(config.video),
   };
 }
 
@@ -151,5 +215,21 @@ export function updateVoiceConfig<K extends keyof VoiceConfig>(
   saveConfig({
     ...config,
     voice: { ...config.voice, [key]: value },
+  });
+}
+
+// Video config helpers
+export function getVideoConfig(): VideoConfig {
+  return loadConfig().video;
+}
+
+export function updateVideoConfig<K extends keyof VideoConfig>(
+  key: K,
+  value: VideoConfig[K]
+): void {
+  const config = loadConfig();
+  saveConfig({
+    ...config,
+    video: { ...config.video, [key]: value },
   });
 }
