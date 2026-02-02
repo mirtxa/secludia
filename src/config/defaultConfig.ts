@@ -1,4 +1,4 @@
-import type { SecludiaConfig, VoiceConfig, VideoConfig } from "./configTypes";
+import type { SecludiaConfig, VoiceConfig, VideoConfig, ScreenConfig } from "./configTypes";
 
 export const DEFAULT_VOICE_CONFIG: VoiceConfig = {
   audioInputDevice: "default",
@@ -19,6 +19,14 @@ export const DEFAULT_VIDEO_CONFIG: VideoConfig = {
   simulcast: true,
 };
 
+export const DEFAULT_SCREEN_CONFIG: ScreenConfig = {
+  resolution: "1080p",
+  frameRate: "60",
+  captureSystemAudio: true,
+  bandwidthMode: "balanced",
+  codec: "vp9",
+};
+
 export const DEFAULT_CONFIG: SecludiaConfig = {
   theme: "default",
   language: "en",
@@ -26,4 +34,5 @@ export const DEFAULT_CONFIG: SecludiaConfig = {
   toastDuration: 5,
   voice: DEFAULT_VOICE_CONFIG,
   video: DEFAULT_VIDEO_CONFIG,
+  screen: DEFAULT_SCREEN_CONFIG,
 };

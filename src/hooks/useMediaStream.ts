@@ -113,7 +113,12 @@ export function useMediaStream({
     try {
       // Evaluate constraints if it's a function (allows reading fresh config)
       const resolvedConstraints = typeof constraints === "function" ? constraints() : constraints;
-      const mediaStream = await navigator.mediaDevices.getUserMedia(resolvedConstraints);
+
+      // Screen sharing uses getDisplayMedia, others use getUserMedia
+      const mediaStream =
+        type === "screen"
+          ? await navigator.mediaDevices.getDisplayMedia(resolvedConstraints)
+          : await navigator.mediaDevices.getUserMedia(resolvedConstraints);
 
       // Check if component unmounted while waiting
       if (!mountedRef.current) {

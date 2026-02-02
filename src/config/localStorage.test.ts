@@ -32,6 +32,7 @@ describe("localStorage config", () => {
       expect(result.toastDuration).toBe(5);
       expect(result.voice).toEqual(DEFAULT_CONFIG.voice);
       expect(result.video).toEqual(DEFAULT_CONFIG.video);
+      expect(result.screen).toEqual(DEFAULT_CONFIG.screen);
     });
 
     it("returns DEFAULT_CONFIG when stored value is invalid JSON", () => {
@@ -46,6 +47,25 @@ describe("localStorage config", () => {
       });
 
       expect(loadConfig()).toEqual(DEFAULT_CONFIG);
+    });
+
+    it("sanitizes invalid screen config values to defaults", () => {
+      const invalidConfig = {
+        theme: "midnight",
+        screen: {
+          resolution: "invalid-resolution",
+          frameRate: "invalid-fps",
+          captureSystemAudio: "not-a-boolean",
+          bandwidthMode: "invalid-mode",
+        },
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(invalidConfig));
+
+      const result = loadConfig();
+      expect(result.screen.resolution).toBe(DEFAULT_CONFIG.screen.resolution);
+      expect(result.screen.frameRate).toBe(DEFAULT_CONFIG.screen.frameRate);
+      expect(result.screen.captureSystemAudio).toBe(DEFAULT_CONFIG.screen.captureSystemAudio);
+      expect(result.screen.bandwidthMode).toBe(DEFAULT_CONFIG.screen.bandwidthMode);
     });
   });
 

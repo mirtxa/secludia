@@ -8,9 +8,18 @@ import type {
   VideoResolution,
   FrameRate,
   VideoCodec,
+  ScreenConfig,
+  ScreenShareResolution,
+  ScreenShareFrameRate,
+  BandwidthMode,
 } from "./configTypes";
 import { THEME_OPTIONS } from "./configTypes";
-import { DEFAULT_CONFIG, DEFAULT_VOICE_CONFIG, DEFAULT_VIDEO_CONFIG } from "./defaultConfig";
+import {
+  DEFAULT_CONFIG,
+  DEFAULT_VOICE_CONFIG,
+  DEFAULT_VIDEO_CONFIG,
+  DEFAULT_SCREEN_CONFIG,
+} from "./defaultConfig";
 import { AVAILABLE_LANGUAGES } from "@/i18n";
 
 const STORAGE_KEY = "secludia.config";
@@ -30,6 +39,15 @@ const VALID_FRAME_RATES: FrameRate[] = ["15", "24", "30", "60"];
 
 /** Valid video codec values */
 const VALID_CODECS: VideoCodec[] = ["vp8", "vp9", "h264", "av1"];
+
+/** Valid screen share resolution values */
+const VALID_SCREEN_RESOLUTIONS: ScreenShareResolution[] = ["720p", "1080p", "1440p", "4k"];
+
+/** Valid screen share frame rate values */
+const VALID_SCREEN_FRAME_RATES: ScreenShareFrameRate[] = ["15", "30", "60", "120", "144"];
+
+/** Valid bandwidth mode values */
+const VALID_BANDWIDTH_MODES: BandwidthMode[] = ["conservative", "balanced", "aggressive"];
 
 /**
  * Validates and sanitizes video config.
@@ -65,6 +83,36 @@ function validateVideoConfig(data: unknown): VideoConfig {
         : DEFAULT_VIDEO_CONFIG.hardwareAcceleration,
     simulcast:
       typeof video.simulcast === "boolean" ? video.simulcast : DEFAULT_VIDEO_CONFIG.simulcast,
+  };
+}
+
+/**
+ * Validates and sanitizes screen config.
+ */
+function validateScreenConfig(data: unknown): ScreenConfig {
+  if (!data || typeof data !== "object") {
+    return DEFAULT_SCREEN_CONFIG;
+  }
+
+  const screen = data as Record<string, unknown>;
+
+  return {
+    resolution: VALID_SCREEN_RESOLUTIONS.includes(screen.resolution as ScreenShareResolution)
+      ? (screen.resolution as ScreenShareResolution)
+      : DEFAULT_SCREEN_CONFIG.resolution,
+    frameRate: VALID_SCREEN_FRAME_RATES.includes(screen.frameRate as ScreenShareFrameRate)
+      ? (screen.frameRate as ScreenShareFrameRate)
+      : DEFAULT_SCREEN_CONFIG.frameRate,
+    captureSystemAudio:
+      typeof screen.captureSystemAudio === "boolean"
+        ? screen.captureSystemAudio
+        : DEFAULT_SCREEN_CONFIG.captureSystemAudio,
+    bandwidthMode: VALID_BANDWIDTH_MODES.includes(screen.bandwidthMode as BandwidthMode)
+      ? (screen.bandwidthMode as BandwidthMode)
+      : DEFAULT_SCREEN_CONFIG.bandwidthMode,
+    codec: VALID_CODECS.includes(screen.codec as VideoCodec)
+      ? (screen.codec as VideoCodec)
+      : DEFAULT_SCREEN_CONFIG.codec,
   };
 }
 
@@ -142,6 +190,7 @@ function validateConfig(data: unknown): SecludiaConfig {
         : DEFAULT_CONFIG.toastDuration,
     voice: validateVoiceConfig(config.voice),
     video: validateVideoConfig(config.video),
+    screen: validateScreenConfig(config.screen),
   };
 }
 
@@ -218,5 +267,21 @@ export function updateVideoConfig<K extends keyof VideoConfig>(
   saveConfig({
     ...config,
     video: { ...config.video, [key]: value },
+  });
+}
+
+// Screen config helpers
+export function getScreenConfig(): ScreenConfig {
+  return loadConfig().screen;
+}
+
+export function updateScreenConfig<K extends keyof ScreenConfig>(
+  key: K,
+  value: ScreenConfig[K]
+): void {
+  const config = loadConfig();
+  saveConfig({
+    ...config,
+    screen: { ...config.screen, [key]: value },
   });
 }

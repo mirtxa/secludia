@@ -17,6 +17,8 @@ import {
   useTranslatedOptions,
 } from "@/hooks";
 import { getVideoConfig, updateVideoConfig } from "@/config/localStorage";
+import { VIDEO_CODEC_OPTIONS } from "@/config/configTypes";
+import { getStreamInfo } from "@/utils/media";
 import type { TranslationKey } from "@/i18n/types";
 import type { VideoResolution, FrameRate, VideoCodec } from "@/config/configTypes";
 
@@ -35,13 +37,6 @@ const FRAME_RATE_OPTIONS: readonly { key: FrameRate; labelKey: TranslationKey }[
   { key: "60", labelKey: "SETTINGS_VIDEO_FPS_60" },
 ] as const;
 
-const VIDEO_CODEC_OPTIONS: readonly { key: VideoCodec; labelKey: TranslationKey }[] = [
-  { key: "vp8", labelKey: "SETTINGS_VIDEO_CODEC_VP8" },
-  { key: "vp9", labelKey: "SETTINGS_VIDEO_CODEC_VP9" },
-  { key: "h264", labelKey: "SETTINGS_VIDEO_CODEC_H264" },
-  { key: "av1", labelKey: "SETTINGS_VIDEO_CODEC_AV1" },
-] as const;
-
 /** Resolution to video constraints mapping */
 const RESOLUTION_CONSTRAINTS: Record<
   VideoResolution,
@@ -53,33 +48,6 @@ const RESOLUTION_CONSTRAINTS: Record<
   "1440p": { width: { ideal: 2560 }, height: { ideal: 1440 } },
   "4k": { width: { ideal: 3840 }, height: { ideal: 2160 } },
 };
-
-/** Convert height to resolution label (e.g., 720 -> "720p", 1080 -> "1080p") */
-function heightToResolutionLabel(height: number): string {
-  if (height >= 2160) return "4K";
-  if (height >= 1440) return "1440p";
-  if (height >= 1080) return "1080p";
-  if (height >= 720) return "720p";
-  if (height >= 480) return "480p";
-  return `${height}p`;
-}
-
-/** Get actual resolution and frame rate from a MediaStream */
-function getStreamInfo(
-  stream: MediaStream | null
-): { resolution: string; fps: number | null } | null {
-  if (!stream) return null;
-  const videoTrack = stream.getVideoTracks()[0];
-  if (!videoTrack) return null;
-  const settings = videoTrack.getSettings();
-  if (settings.height) {
-    return {
-      resolution: heightToResolutionLabel(settings.height),
-      fps: settings.frameRate ? Math.round(settings.frameRate) : null,
-    };
-  }
-  return null;
-}
 
 const CameraPreview = memo(function CameraPreview({
   deviceId,
