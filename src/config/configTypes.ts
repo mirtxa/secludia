@@ -23,18 +23,14 @@ export interface VoiceConfig {
   audioBitrate: number; // 32-256 kbps
 }
 
-export type VideoResolution = "720p" | "1080p" | "1440p" | "4k";
-export type FrameRate = "30" | "60";
-export type BackgroundBlur = "off" | "light" | "strong";
+export type VideoResolution = "480p" | "720p" | "1080p" | "1440p" | "4k";
+export type FrameRate = "15" | "24" | "30" | "60";
 export type VideoCodec = "vp8" | "vp9" | "h264" | "av1";
 
 export interface VideoConfig {
   videoInputDevice: string;
   resolution: VideoResolution;
   frameRate: FrameRate;
-  mirrorVideo: boolean;
-  lowLightAdjustment: boolean;
-  backgroundBlur: BackgroundBlur;
   codec: VideoCodec;
   maxBitrate: number; // 500-8000 kbps
   hardwareAcceleration: boolean;

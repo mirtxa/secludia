@@ -22,8 +22,6 @@ export interface PlatformInfo {
   supportsHardwareVP9: boolean;
   /** AV1 codec support */
   supportsAV1: boolean;
-  /** Background blur (GPU-intensive, needs good hardware) */
-  supportsBackgroundBlur: boolean;
 }
 
 /**
@@ -113,19 +111,12 @@ function getMediaCapabilities(
   // - Safari: Limited (macOS 14+)
   const supportsAV1 = effectiveBrowser === "chromium" || effectiveBrowser === "firefox";
 
-  // Background blur (GPU-intensive)
-  // - Desktop platforms generally support it
-  // - Performance varies by hardware
-  const supportsBackgroundBlur =
-    platform === "windows" || platform === "macos" || platform === "linux";
-
   return {
     supportsAudioOutputSelection,
     supportsSystemAudioCapture,
     supportsHardwareH264,
     supportsHardwareVP9,
     supportsAV1,
-    supportsBackgroundBlur,
   };
 }
 

@@ -229,13 +229,21 @@ Closing reverses with content fading first, then nav sliding out.
   - VoiceRecorderButton for testing microphone settings (maxDuration=30s, hideSendButton)
   - Lazy state initializer for config (reads localStorage once on mount)
 - `AudioSection.tsx` - Audio output settings (speaker selection, volume, test tone)
-- `VideoSection.tsx` - Camera settings with live preview:
+- `VideoSection.tsx` - Camera settings with live preview (persisted to localStorage):
   - **Permission management**: PermissionAlert for prompt/denied states, useMediaPermission hook
   - Device selection, resolution (720p-4K), frame rate (30/60fps)
-  - Mirror video, low-light adjustment, background blur (platform-dependent)
-  - CameraPreview component with start/stop, auto-restarts on settings change
+  - Background blur (off/light/strong)
+  - CameraPreview component using HeroUI Card:
+    - Uses `useMediaStream` hook (fixes privacy indicator - tracks active camera)
+    - Centered start button with video icon (explicit activation for privacy)
+    - Shows actual resolution and frame rate badge when active (e.g., "720p 30fps")
+    - Resolution uses `ideal` constraints - camera provides best it can support
+    - Stop button with tertiary variant for visibility
   - Advanced: codec selection (VP8/VP9/H.264/AV1), bitrate, hardware acceleration, simulcast
+  - Lazy state initializer for config (reads localStorage once on mount)
   - Controls disabled when permission not granted
+  - **Removed**: Mirror setting (video is never mirrored - shows exactly what others see)
+  - **Removed**: Low light adjustment (was placeholder, not implemented)
 - `ScreenSharingSection.tsx` - Screen share quality and capture options
 
 ### Hooks
@@ -289,10 +297,16 @@ Closing reverses with content fading first, then nav sliding out.
 ### Config
 - `localStorage.ts` - Config persistence with generic `updateConfig<K>()` helper and schema validation
   - `getVoiceConfig()` / `updateVoiceConfig()` for voice settings
-- `configTypes.ts` - `SecludiaConfig` type (theme, language, notificationPromptStatus, toastDuration, voice)
+  - `getVideoConfig()` / `updateVideoConfig()` for video settings
+- `configTypes.ts` - `SecludiaConfig` type (theme, language, notificationPromptStatus, toastDuration, voice, video)
   - `NotificationPromptStatus` type - Tracks if notification prompt was shown ("not_asked" | "asked")
   - `VoiceConfig` type (audioInputDevice, inputVolume, echoCancellation, inputSensitivity, noiseSuppressionEnabled, audioBitrate)
-- `defaultConfig.ts` - Default config values including `DEFAULT_VOICE_CONFIG`
+  - `VideoConfig` type (videoInputDevice, resolution, frameRate, backgroundBlur, codec, maxBitrate, hardwareAcceleration, simulcast)
+  - `VideoResolution` type ("720p" | "1080p" | "1440p" | "4k")
+  - `FrameRate` type ("30" | "60")
+  - `BackgroundBlur` type ("off" | "light" | "strong")
+  - `VideoCodec` type ("vp8" | "vp9" | "h264" | "av1")
+- `defaultConfig.ts` - Default config values including `DEFAULT_VOICE_CONFIG` and `DEFAULT_VIDEO_CONFIG`
 
 ### Constants
 - `presence.ts` - `PRESENCE_RING_COLORS` mapping for online/offline/unavailable
@@ -664,3 +678,39 @@ const { stream, start, stop, isActive } = useMediaStream({
 - `src/components/atoms/PresenceAvatar/PresenceAvatar.css` - Pulse animation keyframes
 - `src/components/molecules/PrivacyIndicatorModal/` - Modal showing active media sources
 - `src/utils/media.ts` - DRY utilities: `stopMediaStream()`, `closeAudioContext()`
+
+---
+
+## Video Settings Implementation Notes
+
+### CameraPreview Component
+
+The `CameraPreview` component in `VideoSection.tsx` demonstrates the privacy-first approach:
+
+1. **Explicit activation**: Camera is NOT started automatically. User must click the start button.
+2. **Privacy indicator**: Uses `useMediaStream` hook which registers with MediaRegistry (avatar pulses red when active)
+3. **Actual resolution display**: Shows what the camera is actually providing, not what was requested:
+   - Uses `MediaStreamTrack.getSettings()` to get actual width/height/frameRate
+   - Converts height to label (720p, 1080p, etc.) for consistency with dropdown
+   - If camera can't provide requested resolution, badge shows what it actually provides
+
+### Resolution Constraints
+
+Video settings use `ideal` constraints, meaning the browser will provide the closest match the camera supports:
+```typescript
+const RESOLUTION_CONSTRAINTS = {
+  "720p": { width: { ideal: 1280 }, height: { ideal: 720 } },
+  "1080p": { width: { ideal: 1920 }, height: { ideal: 1080 } },
+  // etc.
+};
+```
+
+If a user's camera only supports 720p but they select 1080p, the camera will provide 720p and the badge will show "720p" (actual), not "1080p" (requested).
+
+### Why No Mirror Setting
+
+The mirror setting was removed because:
+- CSS `scaleX(-1)` only affects the local preview, not what others see
+- This creates confusion - users expect to see what others see
+- Secludia's privacy-first approach: WYSIWYG (What You See Is What You Get)
+- Video is never mirrored - shows exactly what will be transmitted

@@ -7,7 +7,6 @@ import type {
   VideoConfig,
   VideoResolution,
   FrameRate,
-  BackgroundBlur,
   VideoCodec,
 } from "./configTypes";
 import { THEME_OPTIONS } from "./configTypes";
@@ -24,13 +23,10 @@ const VALID_NOTIFICATION_PROMPT_STATUSES: NotificationPromptStatus[] = [
 ];
 
 /** Valid video resolution values */
-const VALID_RESOLUTIONS: VideoResolution[] = ["720p", "1080p", "1440p", "4k"];
+const VALID_RESOLUTIONS: VideoResolution[] = ["480p", "720p", "1080p", "1440p", "4k"];
 
 /** Valid frame rate values */
-const VALID_FRAME_RATES: FrameRate[] = ["30", "60"];
-
-/** Valid background blur values */
-const VALID_BACKGROUND_BLUR: BackgroundBlur[] = ["off", "light", "strong"];
+const VALID_FRAME_RATES: FrameRate[] = ["15", "24", "30", "60"];
 
 /** Valid video codec values */
 const VALID_CODECS: VideoCodec[] = ["vp8", "vp9", "h264", "av1"];
@@ -56,15 +52,6 @@ function validateVideoConfig(data: unknown): VideoConfig {
     frameRate: VALID_FRAME_RATES.includes(video.frameRate as FrameRate)
       ? (video.frameRate as FrameRate)
       : DEFAULT_VIDEO_CONFIG.frameRate,
-    mirrorVideo:
-      typeof video.mirrorVideo === "boolean" ? video.mirrorVideo : DEFAULT_VIDEO_CONFIG.mirrorVideo,
-    lowLightAdjustment:
-      typeof video.lowLightAdjustment === "boolean"
-        ? video.lowLightAdjustment
-        : DEFAULT_VIDEO_CONFIG.lowLightAdjustment,
-    backgroundBlur: VALID_BACKGROUND_BLUR.includes(video.backgroundBlur as BackgroundBlur)
-      ? (video.backgroundBlur as BackgroundBlur)
-      : DEFAULT_VIDEO_CONFIG.backgroundBlur,
     codec: VALID_CODECS.includes(video.codec as VideoCodec)
       ? (video.codec as VideoCodec)
       : DEFAULT_VIDEO_CONFIG.codec,
