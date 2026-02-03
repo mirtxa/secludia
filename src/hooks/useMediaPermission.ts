@@ -1,6 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { isTauri } from "@tauri-apps/api/core";
-import { invoke } from "@tauri-apps/api/core";
+import { usePlatform } from "@/platforms";
 
 export type MediaPermissionState = "granted" | "denied" | "prompt";
 export type MediaPermissionType = "microphone" | "camera";
@@ -15,9 +14,10 @@ interface UseMediaPermissionResult {
 
 /**
  * Hook for managing media permissions (microphone, camera)
- * Handles permission checking, requesting, and resetting (Tauri only)
+ * Handles permission checking, requesting, and resetting
  */
 export function useMediaPermission(type: MediaPermissionType): UseMediaPermissionResult {
+  const platform = usePlatform();
   const [permission, setPermission] = useState<MediaPermissionState>("prompt");
   const [isRequesting, setIsRequesting] = useState(false);
 
@@ -97,16 +97,15 @@ export function useMediaPermission(type: MediaPermissionType): UseMediaPermissio
     }
   }, [type]);
 
-  // Reset WebView permissions (Tauri only)
+  // Reset WebView permissions (uses platform abstraction)
   const resetPermissions = useCallback(async () => {
-    if (!isTauri()) return;
     try {
-      await invoke("reset_webview_permissions");
-      // App will close, so we won't reach here
+      await platform.permissions.resetWebViewPermissions();
+      // App will close on Tauri, so we won't reach here
     } catch (err) {
       console.error("Failed to reset permissions:", err);
     }
-  }, []);
+  }, [platform.permissions]);
 
   return {
     permission,

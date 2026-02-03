@@ -29,7 +29,11 @@ export const GhostEmptyState = memo(function GhostEmptyState({
       </Button>
       <p className="ghost-wave-text px-4 text-center text-sm">
         {words.map((word, index) => (
-          <span key={index} className="inline-block" style={{ animationDelay: `${index * 0.15}s` }}>
+          <span
+            key={index}
+            className="inline-block"
+            style={{ "--wave-delay": `${index * 0.15}s` } as React.CSSProperties}
+          >
             {word}
             {index < words.length - 1 && "\u00A0"}
           </span>

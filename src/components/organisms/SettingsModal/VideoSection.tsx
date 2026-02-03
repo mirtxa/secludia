@@ -13,6 +13,7 @@ import {
   useMediaDevices,
   useMediaPermission,
   useMediaStream,
+  usePersistedSetting,
   usePlatform,
   useTranslatedOptions,
 } from "@/hooks";
@@ -194,54 +195,37 @@ export const VideoSection = memo(function VideoSection() {
   // Load initial config once (lazy initializer reads localStorage only on mount)
   const [initialConfig] = useState(getVideoConfig);
 
-  // Camera settings
-  const [selectedVideoInput, setSelectedVideoInput] = useState(initialConfig.videoInputDevice);
-  const [videoResolution, setVideoResolution] = useState(initialConfig.resolution);
-  const [frameRate, setFrameRate] = useState(initialConfig.frameRate);
-
-  // Advanced video settings
-  const [videoCodec, setVideoCodec] = useState(initialConfig.codec);
-  const [maxVideoBitrate, setMaxVideoBitrate] = useState(initialConfig.maxBitrate);
-  const [hardwareAcceleration, setHardwareAcceleration] = useState(
-    initialConfig.hardwareAcceleration
+  // Camera settings with persistence
+  const [selectedVideoInput, setSelectedVideoInput] = usePersistedSetting(
+    initialConfig.videoInputDevice,
+    useCallback((v: string) => updateVideoConfig("videoInputDevice", v), [])
   );
-  const [simulcast, setSimulcast] = useState(initialConfig.simulcast);
+  const [videoResolution, setVideoResolution] = usePersistedSetting(
+    initialConfig.resolution,
+    useCallback((v: VideoResolution) => updateVideoConfig("resolution", v), [])
+  );
+  const [frameRate, setFrameRate] = usePersistedSetting(
+    initialConfig.frameRate,
+    useCallback((v: FrameRate) => updateVideoConfig("frameRate", v), [])
+  );
 
-  // Persist settings to localStorage
-  const handleVideoInputChange = useCallback((value: string) => {
-    setSelectedVideoInput(value);
-    updateVideoConfig("videoInputDevice", value);
-  }, []);
-
-  const handleResolutionChange = useCallback((value: VideoResolution) => {
-    setVideoResolution(value);
-    updateVideoConfig("resolution", value);
-  }, []);
-
-  const handleFrameRateChange = useCallback((value: FrameRate) => {
-    setFrameRate(value);
-    updateVideoConfig("frameRate", value);
-  }, []);
-
-  const handleCodecChange = useCallback((value: VideoCodec) => {
-    setVideoCodec(value);
-    updateVideoConfig("codec", value);
-  }, []);
-
-  const handleMaxBitrateChange = useCallback((value: number) => {
-    setMaxVideoBitrate(value);
-    updateVideoConfig("maxBitrate", value);
-  }, []);
-
-  const handleHardwareAccelerationChange = useCallback((value: boolean) => {
-    setHardwareAcceleration(value);
-    updateVideoConfig("hardwareAcceleration", value);
-  }, []);
-
-  const handleSimulcastChange = useCallback((value: boolean) => {
-    setSimulcast(value);
-    updateVideoConfig("simulcast", value);
-  }, []);
+  // Advanced video settings with persistence
+  const [videoCodec, setVideoCodec] = usePersistedSetting(
+    initialConfig.codec,
+    useCallback((v: VideoCodec) => updateVideoConfig("codec", v), [])
+  );
+  const [maxVideoBitrate, setMaxVideoBitrate] = usePersistedSetting(
+    initialConfig.maxBitrate,
+    useCallback((v: number) => updateVideoConfig("maxBitrate", v), [])
+  );
+  const [hardwareAcceleration, setHardwareAcceleration] = usePersistedSetting(
+    initialConfig.hardwareAcceleration,
+    useCallback((v: boolean) => updateVideoConfig("hardwareAcceleration", v), [])
+  );
+  const [simulcast, setSimulcast] = usePersistedSetting(
+    initialConfig.simulcast,
+    useCallback((v: boolean) => updateVideoConfig("simulcast", v), [])
+  );
 
   const { options: resolutionOptions } = useTranslatedOptions(VIDEO_RESOLUTION_OPTIONS);
   const { options: fpsOptions } = useTranslatedOptions(FRAME_RATE_OPTIONS);
@@ -278,7 +262,7 @@ export const VideoSection = memo(function VideoSection() {
           label={t("SETTINGS_VIDEO_INPUT_DEVICE")}
           options={videoInputDevices}
           value={selectedVideoInput}
-          onChange={handleVideoInputChange}
+          onChange={setSelectedVideoInput}
           isDisabled={isDisabled}
         />
 
@@ -295,7 +279,7 @@ export const VideoSection = memo(function VideoSection() {
           label={t("SETTINGS_VIDEO_RESOLUTION")}
           options={resolutionOptions}
           value={videoResolution}
-          onChange={handleResolutionChange}
+          onChange={setVideoResolution}
           isDisabled={isDisabled}
         />
 
@@ -304,7 +288,7 @@ export const VideoSection = memo(function VideoSection() {
           label={t("SETTINGS_VIDEO_FRAME_RATE")}
           options={fpsOptions}
           value={frameRate}
-          onChange={handleFrameRateChange}
+          onChange={setFrameRate}
           isDisabled={isDisabled}
         />
       </section>
@@ -319,14 +303,14 @@ export const VideoSection = memo(function VideoSection() {
           label={t("SETTINGS_VIDEO_CODEC")}
           options={codecOptions}
           value={videoCodec}
-          onChange={handleCodecChange}
+          onChange={setVideoCodec}
           isDisabled
         />
 
         <SettingSlider
           label={t("SETTINGS_VIDEO_MAX_BITRATE")}
           value={maxVideoBitrate}
-          onChange={handleMaxBitrateChange}
+          onChange={setMaxVideoBitrate}
           minValue={500}
           maxValue={8000}
           step={100}
@@ -338,7 +322,7 @@ export const VideoSection = memo(function VideoSection() {
           label={t("SETTINGS_VIDEO_HARDWARE_ACCEL")}
           description={t("SETTINGS_VIDEO_HARDWARE_ACCEL_DESC")}
           isSelected={hardwareAcceleration}
-          onChange={handleHardwareAccelerationChange}
+          onChange={setHardwareAcceleration}
           isDisabled
         />
 
@@ -346,7 +330,7 @@ export const VideoSection = memo(function VideoSection() {
           label={t("SETTINGS_VIDEO_SIMULCAST")}
           description={t("SETTINGS_VIDEO_SIMULCAST_DESC")}
           isSelected={simulcast}
-          onChange={handleSimulcastChange}
+          onChange={setSimulcast}
           isDisabled
         />
       </section>

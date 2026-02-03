@@ -1,10 +1,7 @@
 .ghost-wave,
 .ghost-wave-text span {
   animation: ghost-wave 2.5s ease-in-out infinite;
-}
-
-.ghost-wave-text span {
-  display: inline-block;
+  animation-delay: var(--wave-delay, 0s);
 }
 
 @keyframes ghost-wave {

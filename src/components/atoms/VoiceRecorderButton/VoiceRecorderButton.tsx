@@ -260,7 +260,7 @@ const PlaybackWaveform = memo(function PlaybackWaveform({
   );
 });
 
-const FLIP_STYLE = { transform: "scaleX(-1)" } as const;
+const FLIP_CLASS = "-scale-x-100";
 
 // Memoized time display component
 const TimeDisplay = memo(function TimeDisplay({
@@ -299,11 +299,7 @@ const VoiceIndicator = memo(function VoiceIndicator({
   }
 
   return (
-    <svg
-      viewBox="0 0 100 100"
-      className="voice-indicator size-4"
-      style={facingLeft ? FLIP_STYLE : undefined}
-    >
+    <svg viewBox="0 0 100 100" className={`voice-indicator size-4 ${facingLeft ? FLIP_CLASS : ""}`}>
       {pathD ? (
         <path d={pathD} fill="currentColor" />
       ) : (

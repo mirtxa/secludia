@@ -1,13 +1,18 @@
 use log::{info, warn};
 use std::fs;
+use std::sync::Mutex;
 use tauri::{
     menu::{Menu, MenuItem},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
-    AppHandle, Manager, RunEvent, WindowEvent,
+    webview::PageLoadEvent,
+    AppHandle, Manager, RunEvent, WebviewUrl, WebviewWindowBuilder, WindowEvent,
 };
 
 /// Marker file name for permission reset
 const RESET_MARKER_FILE: &str = ".reset_permissions";
+
+/// OAuth redirect URI prefix (navigation intercepted before load)
+const OAUTH_REDIRECT_PREFIX: &str = "http://localhost/oauth/callback";
 
 /// App identifier from tauri.conf.json (embedded at compile time)
 fn get_app_identifier() -> String {
@@ -101,6 +106,105 @@ async fn reset_webview_permissions(app: AppHandle) -> Result<(), String> {
     std::process::exit(0);
 }
 
+/// State for OAuth window result communication
+struct OAuthState {
+    /// Result of the OAuth flow (URL with code, or error message)
+    result: Mutex<Option<Result<String, String>>>,
+}
+
+/// Open an OAuth authentication window that intercepts the redirect callback.
+/// Returns the full callback URL (with code and state) on success.
+#[tauri::command]
+async fn open_oauth_window(app: AppHandle, url: String) -> Result<String, String> {
+    info!("Opening OAuth window for URL: {}", url);
+
+    // Parse and validate URL
+    let parsed_url: url::Url = url.parse().map_err(|e| format!("Invalid URL: {}", e))?;
+
+    // Security: Only allow https:// URLs (or http://localhost for development)
+    match parsed_url.scheme() {
+        "https" => {}
+        "http" if parsed_url.host_str() == Some("localhost") => {}
+        _ => return Err("OAuth URL must use HTTPS".to_string()),
+    }
+
+    // Create state for communication between window event and command
+    let oauth_state = std::sync::Arc::new(OAuthState {
+        result: Mutex::new(None),
+    });
+    let state_for_handler = oauth_state.clone();
+
+    // Create the OAuth window
+    let oauth_window = WebviewWindowBuilder::new(
+        &app,
+        "oauth",
+        WebviewUrl::External(parsed_url),
+    )
+    .title("Sign in")
+    .inner_size(500.0, 700.0)
+    .center()
+    .resizable(true)
+    .on_page_load(move |window, payload| {
+        // Intercept navigation to the redirect URI
+        if let PageLoadEvent::Started = payload.event() {
+            let url = payload.url().to_string();
+            info!("OAuth window navigating to: {}", url);
+
+            if url.starts_with(OAUTH_REDIRECT_PREFIX) {
+                info!("OAuth callback intercepted");
+
+                // Store the result
+                if let Ok(mut result) = state_for_handler.result.lock() {
+                    *result = Some(Ok(url));
+                }
+
+                // Close the window
+                let _ = window.close();
+            }
+        }
+    })
+    .build()
+    .map_err(|e| format!("Failed to create OAuth window: {}", e))?;
+
+    // Listen for window close event
+    let state_for_close = oauth_state.clone();
+    let _close_handler = oauth_window.on_window_event(move |event| {
+        if let WindowEvent::CloseRequested { .. } | WindowEvent::Destroyed = event {
+            // If window is closed without a result, set error
+            if let Ok(mut result) = state_for_close.result.lock() {
+                if result.is_none() {
+                    *result = Some(Err("OAUTH_CANCELLED".to_string()));
+                }
+            }
+        }
+    });
+
+    // Wait for result with timeout
+    let timeout = std::time::Duration::from_secs(300); // 5 minute timeout
+    let start = std::time::Instant::now();
+
+    loop {
+        // Check if we have a result
+        if let Ok(result) = oauth_state.result.lock() {
+            if let Some(ref r) = *result {
+                return r.clone();
+            }
+        }
+
+        // Check timeout
+        if start.elapsed() > timeout {
+            // Close window if still open
+            if let Some(w) = app.get_webview_window("oauth") {
+                let _ = w.close();
+            }
+            return Err("OAUTH_TIMEOUT".to_string());
+        }
+
+        // Small delay to avoid busy waiting
+        tokio::time::sleep(std::time::Duration::from_millis(100)).await;
+    }
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info")).init();
@@ -115,7 +219,29 @@ pub fn run() {
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![reset_webview_permissions])
+        .plugin(tauri_plugin_stronghold::Builder::new(|password| {
+            // Derive key from password using argon2
+            use argon2::{Argon2, password_hash::SaltString, PasswordHasher};
+
+            // Use a fixed salt for deterministic key derivation
+            // This is acceptable since the password is used as a key derivation input
+            let salt = SaltString::encode_b64(b"secludia-stronghold").expect("Invalid salt");
+            let argon2 = Argon2::default();
+
+            let hash = argon2
+                .hash_password(password.as_bytes(), &salt)
+                .expect("Failed to hash password");
+
+            // Extract the hash output (32 bytes)
+            hash.hash
+                .expect("Hash output missing")
+                .as_bytes()
+                .to_vec()
+        }).build())
+        .invoke_handler(tauri::generate_handler![
+            reset_webview_permissions,
+            open_oauth_window
+        ])
         .setup(|app| {
             // Create tray menu with just "Quit"
             let quit = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
@@ -160,11 +286,13 @@ pub fn run() {
             event: WindowEvent::CloseRequested { api, .. },
             ..
         } => {
-            // Prevent window from closing, hide it instead
-            api.prevent_close();
-            if let Some(window) = app_handle.get_webview_window(&label) {
-                let _ = window.hide();
-                info!("Window hidden to tray");
+            // Only hide to tray for the main window, not OAuth windows
+            if label == "main" {
+                api.prevent_close();
+                if let Some(window) = app_handle.get_webview_window(&label) {
+                    let _ = window.hide();
+                    info!("Window hidden to tray");
+                }
             }
         }
         RunEvent::ExitRequested { api, .. } => {

@@ -2,7 +2,7 @@ import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { ArrowsExpand, CirclePlay, Display, Gear, Speedometer } from "@gravity-ui/icons";
 import { Button, Card, Chip } from "@heroui/react";
 import { useAppContext } from "@/context";
-import { usePlatform, useTranslatedOptions, useMediaStream } from "@/hooks";
+import { usePersistedSetting, usePlatform, useTranslatedOptions, useMediaStream } from "@/hooks";
 import { SectionHeader, SettingSwitch, SettingSelect } from "@/components/molecules";
 import { getScreenConfig, updateScreenConfig } from "@/config/localStorage";
 import { VIDEO_CODEC_OPTIONS } from "@/config/configTypes";
@@ -201,49 +201,34 @@ export const ScreenSharingSection = memo(function ScreenSharingSection() {
   const { supportsSystemAudioCapture } = usePlatform();
 
   // Load config once on mount (lazy initializer)
-  const [resolution, setResolution] = useState<ScreenShareResolution>(
-    () => getScreenConfig().resolution
+  const [initialConfig] = useState(getScreenConfig);
+
+  // Settings with persistence
+  const [resolution, setResolution] = usePersistedSetting(
+    initialConfig.resolution,
+    useCallback((v: ScreenShareResolution) => updateScreenConfig("resolution", v), [])
   );
-  const [frameRate, setFrameRate] = useState<ScreenShareFrameRate>(
-    () => getScreenConfig().frameRate
+  const [frameRate, setFrameRate] = usePersistedSetting(
+    initialConfig.frameRate,
+    useCallback((v: ScreenShareFrameRate) => updateScreenConfig("frameRate", v), [])
   );
-  const [captureSystemAudio, setCaptureSystemAudio] = useState<boolean>(
-    () => getScreenConfig().captureSystemAudio
+  const [captureSystemAudio, setCaptureSystemAudio] = usePersistedSetting(
+    initialConfig.captureSystemAudio,
+    useCallback((v: boolean) => updateScreenConfig("captureSystemAudio", v), [])
   );
-  const [bandwidthMode, setBandwidthMode] = useState<BandwidthMode>(
-    () => getScreenConfig().bandwidthMode
+  const [bandwidthMode, setBandwidthMode] = usePersistedSetting(
+    initialConfig.bandwidthMode,
+    useCallback((v: BandwidthMode) => updateScreenConfig("bandwidthMode", v), [])
   );
-  const [codec, setCodec] = useState<VideoCodec>(() => getScreenConfig().codec);
+  const [codec, setCodec] = usePersistedSetting(
+    initialConfig.codec,
+    useCallback((v: VideoCodec) => updateScreenConfig("codec", v), [])
+  );
 
   const { options: resolutionOptions } = useTranslatedOptions(SCREEN_RESOLUTION_OPTIONS);
   const { options: frameRateOptions } = useTranslatedOptions(SCREEN_FRAME_RATE_OPTIONS);
   const { options: bandwidthOptions } = useTranslatedOptions(BANDWIDTH_MODE_OPTIONS);
   const { options: codecOptions } = useTranslatedOptions(VIDEO_CODEC_OPTIONS);
-
-  const handleResolutionChange = useCallback((value: ScreenShareResolution) => {
-    setResolution(value);
-    updateScreenConfig("resolution", value);
-  }, []);
-
-  const handleFrameRateChange = useCallback((value: ScreenShareFrameRate) => {
-    setFrameRate(value);
-    updateScreenConfig("frameRate", value);
-  }, []);
-
-  const handleCaptureAudioChange = useCallback((value: boolean) => {
-    setCaptureSystemAudio(value);
-    updateScreenConfig("captureSystemAudio", value);
-  }, []);
-
-  const handleBandwidthModeChange = useCallback((value: BandwidthMode) => {
-    setBandwidthMode(value);
-    updateScreenConfig("bandwidthMode", value);
-  }, []);
-
-  const handleCodecChange = useCallback((value: VideoCodec) => {
-    setCodec(value);
-    updateScreenConfig("codec", value);
-  }, []);
 
   return (
     <div className="flex flex-col gap-8">
@@ -262,7 +247,7 @@ export const ScreenSharingSection = memo(function ScreenSharingSection() {
           label={t("SETTINGS_SCREEN_RESOLUTION")}
           options={resolutionOptions}
           value={resolution}
-          onChange={handleResolutionChange}
+          onChange={setResolution}
         />
 
         <SettingSelect
@@ -270,14 +255,14 @@ export const ScreenSharingSection = memo(function ScreenSharingSection() {
           label={t("SETTINGS_SCREEN_FRAME_RATE")}
           options={frameRateOptions}
           value={frameRate}
-          onChange={handleFrameRateChange}
+          onChange={setFrameRate}
         />
 
         <SettingSwitch
           label={t("SETTINGS_SCREEN_CAPTURE_AUDIO")}
           description={t("SETTINGS_SCREEN_CAPTURE_AUDIO_DESC")}
           isSelected={supportsSystemAudioCapture && captureSystemAudio}
-          onChange={handleCaptureAudioChange}
+          onChange={setCaptureSystemAudio}
           isDisabled={!supportsSystemAudioCapture}
         />
       </section>
@@ -292,7 +277,7 @@ export const ScreenSharingSection = memo(function ScreenSharingSection() {
           label={t("SETTINGS_SCREEN_BANDWIDTH_MODE")}
           options={bandwidthOptions}
           value={bandwidthMode}
-          onChange={handleBandwidthModeChange}
+          onChange={setBandwidthMode}
           isDisabled
         />
 
@@ -301,7 +286,7 @@ export const ScreenSharingSection = memo(function ScreenSharingSection() {
           label={t("SETTINGS_SCREEN_CODEC")}
           options={codecOptions}
           value={codec}
-          onChange={handleCodecChange}
+          onChange={setCodec}
           isDisabled
         />
       </section>

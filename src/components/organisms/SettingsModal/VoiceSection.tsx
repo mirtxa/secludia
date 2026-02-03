@@ -1,7 +1,7 @@
 import { memo, useState, useCallback } from "react";
 import { Microphone, Sliders, Volume } from "@gravity-ui/icons";
 import { useAppContext } from "@/context";
-import { useMediaDevices, useMediaPermission } from "@/hooks";
+import { useMediaDevices, useMediaPermission, usePersistedSetting } from "@/hooks";
 import { getVoiceConfig, updateVoiceConfig } from "@/config/localStorage";
 import { VoiceRecorderButton } from "@/components/atoms";
 import {
@@ -33,49 +33,36 @@ export const VoiceSection = memo(function VoiceSection() {
   // Load initial config once (lazy initializer reads localStorage only on mount)
   const [initialConfig] = useState(getVoiceConfig);
 
-  // Microphone settings
-  const [selectedAudioInput, setSelectedAudioInput] = useState(initialConfig.audioInputDevice);
-  const [inputVolume, setInputVolume] = useState(initialConfig.inputVolume);
-  const [echoCancellation, setEchoCancellation] = useState(initialConfig.echoCancellation);
-  const [inputSensitivity, setInputSensitivity] = useState(initialConfig.inputSensitivity);
+  // Microphone settings with persistence
+  const [selectedAudioInput, setSelectedAudioInput] = usePersistedSetting(
+    initialConfig.audioInputDevice,
+    useCallback((v: string) => updateVoiceConfig("audioInputDevice", v), [])
+  );
+  const [inputVolume, setInputVolume] = usePersistedSetting(
+    initialConfig.inputVolume,
+    useCallback((v: number) => updateVoiceConfig("inputVolume", v), [])
+  );
+  const [echoCancellation, setEchoCancellation] = usePersistedSetting(
+    initialConfig.echoCancellation,
+    useCallback((v: boolean) => updateVoiceConfig("echoCancellation", v), [])
+  );
+  const [inputSensitivity, setInputSensitivity] = usePersistedSetting(
+    initialConfig.inputSensitivity,
+    useCallback((v: number) => updateVoiceConfig("inputSensitivity", v), [])
+  );
 
   // Noise suppression settings
-  const [rnnoiseEnabled, setRnnoiseEnabled] = useState(initialConfig.noiseSuppressionEnabled);
+  const [rnnoiseEnabled, setRnnoiseEnabled] = usePersistedSetting(
+    initialConfig.noiseSuppressionEnabled,
+    useCallback((v: boolean) => updateVoiceConfig("noiseSuppressionEnabled", v), [])
+  );
 
   // Advanced audio settings
   // TODO: audioBitrate is not yet used in actual voice encoding - will be needed for WebRTC/MatrixRTC
-  const [audioBitrate, setAudioBitrate] = useState(initialConfig.audioBitrate);
-
-  // Persist settings to localStorage
-  const handleAudioInputChange = useCallback((value: string) => {
-    setSelectedAudioInput(value);
-    updateVoiceConfig("audioInputDevice", value);
-  }, []);
-
-  const handleInputVolumeChange = useCallback((value: number) => {
-    setInputVolume(value);
-    updateVoiceConfig("inputVolume", value);
-  }, []);
-
-  const handleEchoCancellationChange = useCallback((value: boolean) => {
-    setEchoCancellation(value);
-    updateVoiceConfig("echoCancellation", value);
-  }, []);
-
-  const handleInputSensitivityChange = useCallback((value: number) => {
-    setInputSensitivity(value);
-    updateVoiceConfig("inputSensitivity", value);
-  }, []);
-
-  const handleRnnoiseEnabledChange = useCallback((value: boolean) => {
-    setRnnoiseEnabled(value);
-    updateVoiceConfig("noiseSuppressionEnabled", value);
-  }, []);
-
-  const handleAudioBitrateChange = useCallback((value: number) => {
-    setAudioBitrate(value);
-    updateVoiceConfig("audioBitrate", value);
-  }, []);
+  const [audioBitrate, setAudioBitrate] = usePersistedSetting(
+    initialConfig.audioBitrate,
+    useCallback((v: number) => updateVoiceConfig("audioBitrate", v), [])
+  );
 
   return (
     <div className="flex flex-col gap-8">
@@ -103,14 +90,14 @@ export const VoiceSection = memo(function VoiceSection() {
           description={t("SETTINGS_VOICE_INPUT_DEVICE_DESC")}
           options={audioInputDevices}
           value={selectedAudioInput}
-          onChange={handleAudioInputChange}
+          onChange={setSelectedAudioInput}
           isDisabled={isDisabled}
         />
 
         <SettingSlider
           label={t("SETTINGS_VOICE_INPUT_VOLUME")}
           value={inputVolume}
-          onChange={handleInputVolumeChange}
+          onChange={setInputVolume}
           minValue={0}
           maxValue={100}
           step={1}
@@ -123,7 +110,7 @@ export const VoiceSection = memo(function VoiceSection() {
             label={t("SETTINGS_VOICE_INPUT_SENSITIVITY")}
             description={t("SETTINGS_VOICE_INPUT_SENSITIVITY_DESC")}
             threshold={inputSensitivity}
-            onThresholdChange={handleInputSensitivityChange}
+            onThresholdChange={setInputSensitivity}
             minDb={-100}
             maxDb={0}
             deviceId={selectedAudioInput}
@@ -136,7 +123,7 @@ export const VoiceSection = memo(function VoiceSection() {
           label={t("SETTINGS_VOICE_ECHO_CANCELLATION")}
           description={t("SETTINGS_VOICE_ECHO_CANCELLATION_DESC")}
           isSelected={echoCancellation}
-          onChange={handleEchoCancellationChange}
+          onChange={setEchoCancellation}
           isDisabled={isDisabled}
         />
 
@@ -161,7 +148,7 @@ export const VoiceSection = memo(function VoiceSection() {
           label={t("SETTINGS_VOICE_RNNOISE_ENABLE")}
           description={t("SETTINGS_VOICE_RNNOISE_ENABLE_DESC")}
           isSelected={rnnoiseEnabled}
-          onChange={handleRnnoiseEnabledChange}
+          onChange={setRnnoiseEnabled}
           isDisabled={isDisabled}
         />
       </section>
@@ -175,7 +162,7 @@ export const VoiceSection = memo(function VoiceSection() {
           label={t("SETTINGS_VOICE_AUDIO_BITRATE")}
           description={t("SETTINGS_VOICE_AUDIO_BITRATE_DESC")}
           value={audioBitrate}
-          onChange={handleAudioBitrateChange}
+          onChange={setAudioBitrate}
           minValue={32}
           maxValue={256}
           step={16}

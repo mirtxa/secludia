@@ -1,6 +1,6 @@
 import { memo } from "react";
 import { Alert, Button } from "@heroui/react";
-import { isTauri } from "@tauri-apps/api/core";
+import { usePlatform } from "@/platforms";
 import type { MediaPermissionState } from "@/hooks/useMediaPermission";
 
 interface PermissionAlertProps {
@@ -28,6 +28,8 @@ export const PermissionAlert = memo(function PermissionAlert({
   allowButtonLabel,
   resetButtonLabel,
 }: PermissionAlertProps) {
+  const platform = usePlatform();
+
   if (permission === "granted") return null;
 
   const isDenied = permission === "denied";
@@ -38,7 +40,7 @@ export const PermissionAlert = memo(function PermissionAlert({
   const renderActionButton = (className: string) => {
     if (isDenied) {
       // Only show reset button in Tauri (desktop app)
-      if (!isTauri()) return null;
+      if (!platform.isTauri) return null;
       return (
         <Button className={className} size="sm" variant="danger" onPress={onResetPermissions}>
           {resetButtonLabel}

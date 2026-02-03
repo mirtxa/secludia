@@ -19,13 +19,13 @@ export const AccountSection = memo(function AccountSection() {
   }, []);
 
   const handleManageAccount = useCallback(() => {
-    if (user) {
-      safeOpenUrl(`${user.homeserverUrl}/_matrix/client/v3/account`);
+    if (user?.accountManagementUrl) {
+      safeOpenUrl(user.accountManagementUrl);
     }
   }, [user]);
 
   const handleLogout = useCallback(() => {
-    // TODO: Implement logout
+    console.log("Logout clicked");
   }, []);
 
   if (!user) {
@@ -36,7 +36,14 @@ export const AccountSection = memo(function AccountSection() {
     <div className="flex flex-col gap-8">
       <div className="flex flex-col items-center gap-6 md:flex-row md:items-start">
         <div className="flex flex-col items-center gap-3">
-          <ProfileAvatar size="lg" showEditButton onEditClick={handleAvatarClick} />
+          <ProfileAvatar
+            name={user.displayName}
+            avatarUrl={user.avatarUrl ?? undefined}
+            presence={presence}
+            size="lg"
+            showEditButton
+            onEditClick={handleAvatarClick}
+          />
           <input
             ref={fileInputRef}
             type="file"
@@ -78,7 +85,11 @@ export const AccountSection = memo(function AccountSection() {
       </div>
 
       <div className="flex flex-col gap-3 md:flex-row">
-        <Button variant="secondary" onPress={handleManageAccount}>
+        <Button
+          variant="secondary"
+          onPress={handleManageAccount}
+          isDisabled={!user?.accountManagementUrl}
+        >
           <ArrowUpRightFromSquare />
           {t("SETTINGS_MANAGE_ACCOUNT")}
         </Button>

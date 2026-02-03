@@ -1,6 +1,5 @@
 import { memo } from "react";
 import { Pencil } from "@gravity-ui/icons";
-import { useUserContext } from "@/context";
 import { PresenceAvatar } from "../PresenceAvatar";
 import type { ProfileAvatarProps } from "./ProfileAvatar.types";
 
@@ -11,23 +10,15 @@ const EDIT_BUTTON_CLASSES = {
 } as const;
 
 export const ProfileAvatar = memo(function ProfileAvatar({
+  name,
+  avatarUrl,
+  presence,
   size = "md",
   showEditButton = false,
   onEditClick,
 }: ProfileAvatarProps) {
-  const { user, presence } = useUserContext();
-
-  if (!user) {
-    return <PresenceAvatar name="?" presence="offline" size={size} />;
-  }
-
   const avatar = (
-    <PresenceAvatar
-      name={user.displayName}
-      avatarUrl={user.avatarUrl ?? undefined}
-      presence={presence}
-      size={size}
-    />
+    <PresenceAvatar name={name} avatarUrl={avatarUrl} presence={presence} size={size} />
   );
 
   if (!showEditButton || !onEditClick) {

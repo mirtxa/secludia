@@ -24,7 +24,6 @@ import { SessionsSection } from "./SessionsSection";
 import { VideoSection } from "./VideoSection";
 import { VoiceSection } from "./VoiceSection";
 import type { SettingsModalProps, SettingsSection } from "./SettingsModal.types";
-import "./SettingsModal.css";
 
 const SECTIONS: { key: SettingsSection; labelKey: string; icon: React.ReactNode }[] = [
   { key: "account", labelKey: "SETTINGS_ACCOUNT", icon: <Person /> },
@@ -64,7 +63,7 @@ export const SettingsModal = memo(function SettingsModal({ state }: SettingsModa
         <Modal.Dialog className="settings-modal h-full max-h-full overflow-hidden p-0 md:max-w-6xl">
           <Modal.CloseTrigger className="z-10" />
           <div className="flex h-full">
-            <nav className="settings-modal__nav flex shrink-0 flex-col gap-1 border-r border-border bg-surface p-4">
+            <nav className="flex w-[72px] shrink-0 flex-col gap-1 border-r border-border bg-surface px-4 py-3 md:w-[200px] md:p-4">
               {SECTIONS.map((section) => {
                 const label = t(section.labelKey as Parameters<typeof t>[0]);
                 const isActive = activeSection === section.key;
@@ -73,7 +72,7 @@ export const SettingsModal = memo(function SettingsModal({ state }: SettingsModa
                   <Button
                     aria-label={label}
                     variant="ghost"
-                    className={`settings-modal__nav-item justify-start gap-3 rounded-lg px-3 py-2.5 text-sm ${
+                    className={`justify-center gap-3 rounded-lg p-3 text-sm md:justify-start md:px-3 md:py-2.5 ${
                       isActive
                         ? "bg-accent text-accent-foreground"
                         : "text-foreground hover:bg-default"
@@ -81,7 +80,7 @@ export const SettingsModal = memo(function SettingsModal({ state }: SettingsModa
                     onPress={() => handleSectionChange(section.key)}
                   >
                     {section.icon}
-                    <span>{label}</span>
+                    <span className="hidden md:inline">{label}</span>
                   </Button>
                 );
 

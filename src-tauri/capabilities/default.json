@@ -26,6 +26,11 @@
     "core:app:allow-default-window-icon",
     "opener:allow-open-url",
     "notification:default",
-    "os:default"
+    "os:default",
+    "stronghold:default",
+    "stronghold:allow-remove-store-record",
+    "core:window:allow-create",
+    "core:path:allow-resolve-directory",
+    "core:path:allow-join"
   ]
 }
