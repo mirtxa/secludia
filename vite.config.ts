@@ -1,13 +1,15 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
+import wasm from "vite-plugin-wasm";
+import topLevelAwait from "vite-plugin-top-level-await";
 import path from "path";
 
 const host = process.env.TAURI_DEV_HOST;
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [react(), tailwindcss(), wasm(), topLevelAwait()],
 
   clearScreen: false,
 
@@ -34,7 +36,7 @@ export default defineConfig({
   },
 
   optimizeDeps: {
-    exclude: ["@jitsi/rnnoise-wasm"],
+    exclude: ["@jitsi/rnnoise-wasm", "@matrix-org/matrix-sdk-crypto-wasm"],
   },
 
   build: {

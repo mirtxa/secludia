@@ -1,5 +1,6 @@
 {
   "APP_TITLE": "Secludia",
+  "CANCEL": "Cancelar",
   "LANGUAGE_DISPLAY_NAME": "Español",
   "NAV_DIRECT_MESSAGES": "Mensajes Directos",
   "NAV_ADD_ROOM": "Añadir sala o espacio",
@@ -261,5 +262,16 @@
   "SETUP_KEY_WARNING": "Si pierdes esta clave, no podrás recuperar tus mensajes cifrados.",
   "SETUP_KEY_SAVED_CHECKBOX": "He guardado mi clave de recuperación",
   "SETUP_CONTINUE": "Continuar",
-  "SETUP_BACK": "Volver"
+
+  "CRYPTO_INIT_FAILED": "Error al inicializar el cifrado",
+  "CRYPTO_STORAGE_ERROR": "Error de almacenamiento",
+  "CRYPTO_NOT_INITIALIZED": "Cifrado no inicializado",
+  "CRYPTO_CROSS_SIGNING_FAILED": "Error al configurar el cifrado",
+  "CRYPTO_SECRET_STORAGE_FAILED": "Error al crear la clave de recuperación",
+  "CRYPTO_INVALID_RECOVERY_KEY": "Clave de recuperación inválida",
+  "CRYPTO_SYNC_NOT_READY": "Error de conexión",
+  "CRYPTO_POPUP_BLOCKED": "Por favor, permite las ventanas emergentes para este sitio e inténtalo de nuevo",
+  "CRYPTO_RESET_NOT_APPROVED": "El restablecimiento del cifrado no fue aprobado. Inténtalo de nuevo y aprueba el restablecimiento en tu servidor.",
+  "CRYPTO_AWAITING_APPROVAL": "Esperando aprobación en tu servidor...",
+  "VERIFY_ERROR_INVALID_KEY": "Clave de recuperación inválida"
 }

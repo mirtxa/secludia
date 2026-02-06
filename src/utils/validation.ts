@@ -1,5 +1,13 @@
 /** Suspicious patterns to block in URLs */
-const SUSPICIOUS_PATTERNS = [/javascript:/i, /data:/i, /<script/i, /\.\./, /[<>"'`]/];
+const SUSPICIOUS_PATTERNS = [
+  /javascript:/i,
+  /data:/i,
+  /blob:/i,
+  /file:/i,
+  /<script/i,
+  /\.\./,
+  /[<>"'`]/,
+];
 
 /**
  * Validates an IP address (each octet must be 0-255)
@@ -79,28 +87,25 @@ export function buildHomeserverUrl(hostname: string): string {
 }
 
 /**
+ * Checks if a URL uses http/https and has no suspicious patterns.
+ */
+function isValidHttpUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return false;
+    return !SUSPICIOUS_PATTERNS.some((p) => p.test(url));
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Validates an image URL (only allows http/https protocols)
  * Returns true if the URL is safe to use as an image source
  */
 export function isValidImageUrl(url: string | undefined | null): boolean {
   if (!url) return false;
-
-  try {
-    const parsed = new URL(url);
-    // Only allow http and https protocols
-    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
-      return false;
-    }
-    // Block suspicious patterns
-    for (const pattern of SUSPICIOUS_PATTERNS) {
-      if (pattern.test(url)) {
-        return false;
-      }
-    }
-    return true;
-  } catch {
-    return false;
-  }
+  return isValidHttpUrl(url);
 }
 
 /**
@@ -108,21 +113,7 @@ export function isValidImageUrl(url: string | undefined | null): boolean {
  * Only opens http/https URLs and adds noopener/noreferrer
  */
 export function safeOpenUrl(url: string): boolean {
-  try {
-    const parsed = new URL(url);
-    // Only allow http and https protocols
-    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
-      return false;
-    }
-    // Block suspicious patterns
-    for (const pattern of SUSPICIOUS_PATTERNS) {
-      if (pattern.test(url)) {
-        return false;
-      }
-    }
-    window.open(url, "_blank", "noopener,noreferrer");
-    return true;
-  } catch {
-    return false;
-  }
+  if (!isValidHttpUrl(url)) return false;
+  window.open(url, "_blank", "noopener,noreferrer");
+  return true;
 }

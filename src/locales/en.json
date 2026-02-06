@@ -1,5 +1,6 @@
 {
   "APP_TITLE": "Secludia",
+  "CANCEL": "Cancel",
   "LANGUAGE_DISPLAY_NAME": "English",
   "NAV_DIRECT_MESSAGES": "Direct Messages",
   "NAV_ADD_ROOM": "Add room or space",
@@ -261,5 +262,16 @@
   "SETUP_KEY_WARNING": "If you lose this key, you won't be able to recover your encrypted messages.",
   "SETUP_KEY_SAVED_CHECKBOX": "I've saved my recovery key",
   "SETUP_CONTINUE": "Continue",
-  "SETUP_BACK": "Back"
+
+  "CRYPTO_INIT_FAILED": "Failed to initialize encryption",
+  "CRYPTO_STORAGE_ERROR": "Storage error occurred",
+  "CRYPTO_NOT_INITIALIZED": "Encryption not initialized",
+  "CRYPTO_CROSS_SIGNING_FAILED": "Failed to set up encryption",
+  "CRYPTO_SECRET_STORAGE_FAILED": "Failed to create recovery key",
+  "CRYPTO_INVALID_RECOVERY_KEY": "Invalid recovery key",
+  "CRYPTO_SYNC_NOT_READY": "Connection failed",
+  "CRYPTO_POPUP_BLOCKED": "Please allow popups for this site and try again",
+  "CRYPTO_RESET_NOT_APPROVED": "The encryption reset was not approved. Please try again and approve the reset on your homeserver.",
+  "CRYPTO_AWAITING_APPROVAL": "Waiting for approval on your homeserver...",
+  "VERIFY_ERROR_INVALID_KEY": "Invalid recovery key"
 }

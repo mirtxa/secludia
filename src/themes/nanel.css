@@ -1,0 +1,70 @@
+@layer theme {
+  [data-theme="nanel"] {
+    color-scheme: dark;
+
+    /* Tritanopia-friendly dark theme */
+    /* Avoids blue/yellow confusion, uses red/pink/cyan contrast */
+
+    /* Base Colors */
+    --background: oklch(0.16 0.015 360);
+    --foreground: oklch(0.95 0.01 360);
+
+    /* Surface */
+    --surface: oklch(0.2 0.02 360);
+    --surface-foreground: var(--foreground);
+
+    /* Overlay */
+    --overlay: oklch(0.22 0.025 360);
+    --overlay-foreground: var(--foreground);
+
+    /* Muted */
+    --muted: oklch(0.6 0.015 360);
+
+    /* Accent: Magenta/Pink instead of blue */
+    --accent: oklch(0.65 0.2 330);
+    --accent-foreground: oklch(0.98 0 0);
+
+    /* Default */
+    --default: oklch(0.3 0.02 360);
+    --default-foreground: var(--foreground);
+
+    /* Form Fields */
+    --field-background: oklch(0.13 0.01 360);
+    --field-foreground: var(--foreground);
+    --field-placeholder: var(--muted);
+    --field-border: transparent;
+
+    /* Status Colors - Tritanopia safe */
+    --success: oklch(0.7 0.18 160); /* Green - safe for tritanopia */
+    --success-foreground: oklch(0.15 0 0);
+    --warning: oklch(0.7 0.18 45); /* Orange instead of yellow */
+    --warning-foreground: oklch(0.15 0 0);
+    --danger: #d93d42;
+    --danger-foreground: #ffffff;
+
+    /* Segment */
+    --segment: oklch(0.26 0.02 360);
+    --segment-foreground: var(--foreground);
+
+    /* Borders */
+    --border: oklch(0.3 0.015 360);
+    --separator: oklch(0.24 0.015 360);
+
+    /* Focus & Links */
+    --focus: var(--accent);
+    --link: oklch(0.72 0.18 330);
+
+    /* Scrollbar */
+    --scrollbar: oklch(0.35 0.02 360);
+
+    /* Presence Colors - Tritanopia safe */
+    --presence-online: oklch(0.7 0.18 160); /* Green */
+    --presence-offline: oklch(0.55 0.015 360); /* Neutral grey */
+    --presence-unavailable: oklch(0.7 0.18 45); /* Orange */
+
+    /* Shadows */
+    --surface-shadow: 0 2px 8px 0 rgba(20, 0, 20, 0.3);
+    --overlay-shadow: 0 4px 20px 0 rgba(20, 0, 20, 0.4);
+    --field-shadow: none;
+  }
+}

@@ -1,0 +1,70 @@
+@layer theme {
+  [data-theme="ien"] {
+    color-scheme: dark;
+
+    /* Protanopia-friendly dark theme */
+    /* Uses blue/yellow contrast pair, avoids red/green confusion */
+
+    /* Base Colors */
+    --background: oklch(0.16 0.02 250); /* Deep blue-grey */
+    --foreground: oklch(0.95 0.01 90); /* Warm white */
+
+    /* Surface */
+    --surface: oklch(0.2 0.025 250);
+    --surface-foreground: var(--foreground);
+
+    /* Overlay */
+    --overlay: oklch(0.22 0.03 250);
+    --overlay-foreground: var(--foreground);
+
+    /* Muted */
+    --muted: oklch(0.6 0.02 250);
+
+    /* Accent: Vibrant blue */
+    --accent: oklch(0.65 0.2 250);
+    --accent-foreground: oklch(0.98 0 0);
+
+    /* Default */
+    --default: oklch(0.3 0.025 250);
+    --default-foreground: var(--foreground);
+
+    /* Form Fields */
+    --field-background: oklch(0.13 0.015 250);
+    --field-foreground: var(--foreground);
+    --field-placeholder: var(--muted);
+    --field-border: transparent;
+
+    /* Status Colors - Protanopia safe */
+    --success: oklch(0.75 0.15 200); /* Cyan-blue instead of green */
+    --success-foreground: oklch(0.15 0 0);
+    --warning: oklch(0.82 0.16 85); /* Amber/yellow - safe */
+    --warning-foreground: oklch(0.15 0 0);
+    --danger: #d93d42;
+    --danger-foreground: #ffffff;
+
+    /* Segment */
+    --segment: oklch(0.26 0.025 250);
+    --segment-foreground: var(--foreground);
+
+    /* Borders */
+    --border: oklch(0.3 0.02 250);
+    --separator: oklch(0.24 0.02 250);
+
+    /* Focus & Links */
+    --focus: var(--accent);
+    --link: oklch(0.72 0.18 250);
+
+    /* Scrollbar */
+    --scrollbar: oklch(0.35 0.03 250);
+
+    /* Presence Colors - Protanopia safe */
+    --presence-online: oklch(0.75 0.15 200); /* Cyan-blue */
+    --presence-offline: oklch(0.55 0.02 250); /* Neutral grey */
+    --presence-unavailable: oklch(0.82 0.16 85); /* Amber */
+
+    /* Shadows */
+    --surface-shadow: 0 2px 8px 0 rgba(0, 10, 40, 0.3);
+    --overlay-shadow: 0 4px 20px 0 rgba(0, 10, 40, 0.4);
+    --field-shadow: none;
+  }
+}

@@ -7,6 +7,8 @@
 @import "./themes/midnight.css" layer(theme);
 @import "./themes/sunset.css" layer(theme);
 @import "./themes/mint.css" layer(theme);
+@import "./themes/ien.css" layer(theme);
+@import "./themes/nanel.css" layer(theme);
 
 /* Custom scrollbar theme - CSS variables required by overlayscrollbars */
 .os-scrollbar {
