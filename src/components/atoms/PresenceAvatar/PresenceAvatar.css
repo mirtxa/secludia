@@ -5,22 +5,24 @@
 /*
  * Box-shadow to match Tailwind ring classes:
  * md size: ring-3 (3px) + ring-offset-1 (1px) = 1px offset, 4px total
+ *
+ * Uses --presence-color CSS variable set per presence state to avoid duplicate keyframes.
  */
 
-/* Override for each presence state */
+/* Set presence color per state */
 .presence-avatar--media-active[data-presence="online"] {
-  animation-name: media-pulse-online;
+  --presence-color: var(--presence-online);
 }
 
 .presence-avatar--media-active[data-presence="offline"] {
-  animation-name: media-pulse-offline;
+  --presence-color: var(--presence-offline);
 }
 
 .presence-avatar--media-active[data-presence="unavailable"] {
-  animation-name: media-pulse-unavailable;
+  --presence-color: var(--presence-unavailable);
 }
 
-@keyframes media-pulse-online {
+@keyframes media-pulse {
   0%,
   100% {
     box-shadow:
@@ -30,34 +32,6 @@
   50% {
     box-shadow:
       0 0 0 1px var(--color-background),
-      0 0 0 4px var(--presence-online);
-  }
-}
-
-@keyframes media-pulse-offline {
-  0%,
-  100% {
-    box-shadow:
-      0 0 0 1px var(--color-background),
-      0 0 0 4px var(--color-danger);
-  }
-  50% {
-    box-shadow:
-      0 0 0 1px var(--color-background),
-      0 0 0 4px var(--presence-offline);
-  }
-}
-
-@keyframes media-pulse-unavailable {
-  0%,
-  100% {
-    box-shadow:
-      0 0 0 1px var(--color-background),
-      0 0 0 4px var(--color-danger);
-  }
-  50% {
-    box-shadow:
-      0 0 0 1px var(--color-background),
-      0 0 0 4px var(--presence-unavailable);
+      0 0 0 4px var(--presence-color, var(--color-danger));
   }
 }

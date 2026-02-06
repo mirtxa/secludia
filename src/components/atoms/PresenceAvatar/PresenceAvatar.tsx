@@ -2,7 +2,7 @@ import { memo } from "react";
 import { Avatar } from "@heroui/react";
 import { PRESENCE_RING_COLORS } from "@/constants";
 import type { Presence } from "@/context";
-import { getInitials } from "@/utils";
+import { cn, getInitials } from "@/utils";
 import "./PresenceAvatar.css";
 
 export interface PresenceAvatarProps {
@@ -33,10 +33,10 @@ export const PresenceAvatar = memo(function PresenceAvatar({
   const presenceColor = PRESENCE_RING_COLORS[presence];
   const ringClass = mediaActive
     ? "ring-offset-background presence-avatar--media-active"
-    : `${ring} ${presenceColor} ring-offset-background`;
+    : cn(ring, presenceColor, "ring-offset-background");
 
   return (
-    <Avatar className={`${avatar} ${ringClass}`} data-presence={presence}>
+    <Avatar className={cn(avatar, ringClass)} data-presence={presence}>
       {avatarUrl && <Avatar.Image alt={name} src={avatarUrl} />}
       <Avatar.Fallback>{initials}</Avatar.Fallback>
     </Avatar>

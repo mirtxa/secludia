@@ -1,5 +1,6 @@
 import { memo } from "react";
 import { Pencil } from "@gravity-ui/icons";
+import { cn } from "@/utils";
 import { PresenceAvatar } from "../PresenceAvatar";
 import type { ProfileAvatarProps } from "./ProfileAvatar.types";
 
@@ -32,7 +33,11 @@ export const ProfileAvatar = memo(function ProfileAvatar({
       {avatar}
       <button
         type="button"
-        className={`absolute right-0 bottom-0 ${button} flex cursor-pointer items-center justify-center rounded-full border-none bg-accent text-on-accent ring-2 ring-background transition-transform hover:scale-125 focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2`}
+        className={cn(
+          "absolute right-0 bottom-0",
+          button,
+          "flex cursor-pointer items-center justify-center rounded-full border-none bg-accent text-on-accent ring-2 ring-background transition-transform hover:scale-125 focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2"
+        )}
         onClick={onEditClick}
       >
         <Pencil className={icon} />

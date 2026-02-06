@@ -507,7 +507,7 @@ export const VoiceRecorderButton = memo(function VoiceRecorderButton({
 
             setAudioBlob(blob);
           } catch (err) {
-            console.error("Failed to process audio:", err);
+            if (import.meta.env.DEV) console.error("Failed to process audio:", err);
             const blob = samplesToWav(samples, sampleRate);
             setAudioBlob(blob);
           } finally {
@@ -515,7 +515,7 @@ export const VoiceRecorderButton = memo(function VoiceRecorderButton({
           }
         }
       } catch (err) {
-        console.error("Failed to get recorded samples:", err);
+        if (import.meta.env.DEV) console.error("Failed to get recorded samples:", err);
       }
     }
 
@@ -626,7 +626,7 @@ export const VoiceRecorderButton = memo(function VoiceRecorderButton({
           onSend(blob);
         }
       } catch (err) {
-        console.error("Failed to get recorded samples:", err);
+        if (import.meta.env.DEV) console.error("Failed to get recorded samples:", err);
         setIsProcessing(false);
       }
 

@@ -5,6 +5,13 @@ import { cn } from "@/utils";
 import type { ScrollbarProps } from "./Scrollbar.types";
 import "./Scrollbar.css";
 
+const SCROLLBAR_OPTIONS = {
+  scrollbars: {
+    autoHide: "leave" as const,
+    autoHideDelay: 500,
+  },
+};
+
 export const Scrollbar = memo(function Scrollbar({
   children,
   className,
@@ -47,12 +54,7 @@ export const Scrollbar = memo(function Scrollbar({
         showTopShadow && "scrollbar--shadow-top",
         showBottomShadow && "scrollbar--shadow-bottom"
       )}
-      options={{
-        scrollbars: {
-          autoHide: "leave",
-          autoHideDelay: 500,
-        },
-      }}
+      options={SCROLLBAR_OPTIONS}
       events={{
         initialized: handleInitialized,
         scroll: handleScroll,

@@ -1,23 +1,29 @@
 import { memo } from "react";
-import { Spinner } from "@heroui/react";
+import { Button, Spinner, cn } from "@heroui/react";
+import { useAppContext } from "@/context";
 import type { LoadingStateProps } from "./LoadingState.types";
 
-export const LoadingState = memo(function LoadingState({ message, fullscreen }: LoadingStateProps) {
-  if (fullscreen) {
-    return (
-      <div className="h-screen w-screen flex items-center justify-center bg-surface">
-        <div className="text-center">
-          <Spinner size="lg" />
-          {message && <p className="mt-4 text-muted">{message}</p>}
-        </div>
-      </div>
-    );
-  }
+export const LoadingState = memo(function LoadingState({
+  message,
+  fullscreen,
+  onCancel,
+}: LoadingStateProps) {
+  const { t } = useAppContext();
 
   return (
-    <div className="flex flex-col items-center justify-center py-8 gap-4">
+    <div
+      className={cn(
+        "flex flex-col items-center justify-center gap-4",
+        fullscreen ? "h-screen w-screen bg-surface" : "py-8"
+      )}
+    >
       <Spinner size="lg" />
       {message && <p className="text-muted">{message}</p>}
+      {onCancel && (
+        <Button variant="ghost" size="sm" onPress={onCancel}>
+          {t("CANCEL")}
+        </Button>
+      )}
     </div>
   );
 });
