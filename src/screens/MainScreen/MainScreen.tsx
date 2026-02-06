@@ -14,7 +14,6 @@ import { useAppContext, useMediaRegistry, useUserContext, type RoomType } from "
 import { useBreakpoint, useResizable, useSidebar } from "@/hooks";
 import { MOCK_CONVERSATIONS, MOCK_ROOMS } from "@/mocks";
 import { cn, getInitials } from "@/utils";
-import type { MainScreenProps } from "./MainScreen.types";
 import "./MainScreen.css";
 
 const SIDEBAR_WIDTH_OPTIONS = {
@@ -23,7 +22,7 @@ const SIDEBAR_WIDTH_OPTIONS = {
   defaultWidth: SIDEBAR_WIDTH.default,
 };
 
-export const MainScreen = memo(function MainScreen(_: MainScreenProps) {
+export const MainScreen = memo(function MainScreen() {
   const { selectedRoom, setSelectedRoom, t } = useAppContext();
   const { user, presence } = useUserContext();
   const { hasActiveMedia } = useMediaRegistry();

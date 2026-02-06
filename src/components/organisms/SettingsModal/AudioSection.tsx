@@ -26,8 +26,14 @@ const SpeakerTest = memo(function SpeakerTest({
   const oscillatorRef = useRef<OscillatorNode | null>(null);
   const gainNodeRef = useRef<GainNode | null>(null);
   const audioElementRef = useRef<HTMLAudioElement | null>(null);
+  const autoStopTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const stopTest = useCallback(() => {
+    // Clear auto-stop timeout
+    if (autoStopTimeoutRef.current) {
+      clearTimeout(autoStopTimeoutRef.current);
+      autoStopTimeoutRef.current = null;
+    }
     if (oscillatorRef.current) {
       oscillatorRef.current.stop();
       oscillatorRef.current.disconnect();
@@ -90,11 +96,11 @@ const SpeakerTest = memo(function SpeakerTest({
       setIsPlaying(true);
 
       // Auto-stop after 3 seconds
-      setTimeout(() => {
+      autoStopTimeoutRef.current = setTimeout(() => {
         stopTest();
       }, 3000);
     } catch (err) {
-      console.error("Failed to play test tone:", err);
+      if (import.meta.env.DEV) console.error("Failed to play test tone:", err);
       setError(err instanceof Error ? err.message : "Failed to play test tone");
       stopTest();
     }
@@ -111,6 +117,9 @@ const SpeakerTest = memo(function SpeakerTest({
   // Cleanup on unmount
   useEffect(() => {
     return () => {
+      if (autoStopTimeoutRef.current) {
+        clearTimeout(autoStopTimeoutRef.current);
+      }
       if (oscillatorRef.current) {
         oscillatorRef.current.stop();
         oscillatorRef.current.disconnect();

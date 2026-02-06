@@ -1,23 +1,17 @@
 import { memo, useState, useMemo, useCallback } from "react";
-import { Button, FieldError, InputGroup, Label, Spinner, Text, TextField } from "@heroui/react";
+import { Button, FieldError, InputGroup, Label, Spinner, TextField } from "@heroui/react";
 import { CircleExclamationFill } from "@gravity-ui/icons";
 import { useAppContext } from "@/context";
-import { LanguageSelector, ThemeSelector, Typewriter } from "@/components/atoms";
+import { AuthSelectors, LoadingState, Typewriter } from "@/components/atoms";
 import { ResponsiveCard } from "@/components/layouts";
 import { validateHomeserver, buildHomeserverUrl } from "@/utils";
 import type { LoginScreenProps } from "./LoginScreen.types";
-
-const SELECTORS = (
-  <div className="flex justify-center gap-2">
-    <ThemeSelector />
-    <LanguageSelector />
-  </div>
-);
 
 export const LoginScreen = memo(function LoginScreen({
   onLogin,
   error,
   isLoading,
+  loadingMessage,
 }: LoginScreenProps) {
   const [homeserver, setHomeserver] = useState("");
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
@@ -35,10 +29,9 @@ export const LoginScreen = memo(function LoginScreen({
     }
   }, [validatedHomeserver, onLogin]);
 
-  const handleHomeserverChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => setHomeserver(event.target.value),
-    []
-  );
+  const handleHomeserverChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    setHomeserver(event.target.value);
+  }, []);
 
   const typewriterPhrases = useMemo(
     () => [
@@ -50,12 +43,17 @@ export const LoginScreen = memo(function LoginScreen({
     [t]
   );
 
+  // Show loading state without card
+  if (isLoading && loadingMessage) {
+    return <LoadingState message={loadingMessage} fullscreen />;
+  }
+
   return (
     <ResponsiveCard
       header={
         <>
           <h1 className="text-center text-2xl font-bold">{t("APP_TITLE")}</h1>
-          <p className="card__description mt-2 text-center">
+          <p className="mt-2 text-center">
             <Typewriter phrases={typewriterPhrases} />
           </p>
         </>
@@ -78,9 +76,7 @@ export const LoginScreen = memo(function LoginScreen({
               </FieldError>
             )}
           </TextField>
-          <div className="text-center mt-4 mx-6">
-            <Text className="card__description text-muted">{t("LOGIN_DISCLAIMER")}</Text>
-          </div>
+          <p className="mx-6 mt-4 text-center text-muted">{t("LOGIN_DISCLAIMER")}</p>
         </>
       }
       footer={
@@ -96,7 +92,7 @@ export const LoginScreen = memo(function LoginScreen({
           }
         </Button>
       }
-      bottomBar={SELECTORS}
+      bottomBar={<AuthSelectors />}
     />
   );
 });

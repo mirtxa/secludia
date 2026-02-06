@@ -1,7 +1,7 @@
-import { memo, useState, useEffect, useMemo, useRef, useCallback } from "react";
+import { memo, useState, useMemo, useCallback } from "react";
 import { Video, Display, CirclePlay, Gear } from "@gravity-ui/icons";
-import { Button, Card, Chip } from "@heroui/react";
 import {
+  MediaPreview,
   PermissionAlert,
   SectionHeader,
   SettingSwitch,
@@ -12,14 +12,12 @@ import { useAppContext } from "@/context";
 import {
   useMediaDevices,
   useMediaPermission,
-  useMediaStream,
   usePersistedSetting,
   usePlatform,
   useTranslatedOptions,
 } from "@/hooks";
 import { getVideoConfig, updateVideoConfig } from "@/config/localStorage";
 import { VIDEO_CODEC_OPTIONS } from "@/config/configTypes";
-import { getStreamInfo } from "@/utils/media";
 import type { TranslationKey } from "@/i18n/types";
 import type { VideoResolution, FrameRate, VideoCodec } from "@/config/configTypes";
 
@@ -49,130 +47,6 @@ const RESOLUTION_CONSTRAINTS: Record<
   "1440p": { width: { ideal: 2560 }, height: { ideal: 1440 } },
   "4k": { width: { ideal: 3840 }, height: { ideal: 2160 } },
 };
-
-const CameraPreview = memo(function CameraPreview({
-  deviceId,
-  resolution,
-  frameRate,
-}: {
-  deviceId: string;
-  resolution: VideoResolution;
-  frameRate: FrameRate;
-}) {
-  const { t } = useAppContext();
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  // Store latest settings in ref so constraints function always reads fresh values
-  const settingsRef = useRef({ deviceId, resolution, frameRate });
-  useEffect(() => {
-    settingsRef.current = { deviceId, resolution, frameRate };
-  }, [deviceId, resolution, frameRate]);
-
-  // Use centralized media access hook - registers with MediaRegistry for privacy indicator
-  const { stream, isActive, error, start, stop } = useMediaStream({
-    type: "camera",
-    source: "Video Settings",
-    constraints: useCallback(
-      () => ({
-        video: {
-          deviceId:
-            settingsRef.current.deviceId !== "default"
-              ? { exact: settingsRef.current.deviceId }
-              : undefined,
-          ...RESOLUTION_CONSTRAINTS[settingsRef.current.resolution],
-          frameRate: { ideal: parseInt(settingsRef.current.frameRate) },
-        },
-      }),
-      []
-    ),
-  });
-
-  // Sync stream to video element
-  useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.srcObject = stream;
-    }
-  }, [stream]);
-
-  // Derive actual resolution and frame rate from stream (computed during render)
-  const streamInfo = getStreamInfo(stream);
-
-  // Track whether stream was active to know if we need to restart
-  const wasActiveRef = useRef(false);
-  useEffect(() => {
-    wasActiveRef.current = isActive;
-  }, [isActive]);
-
-  // Track previous settings to detect changes
-  const prevSettingsRef = useRef({ deviceId, resolution, frameRate });
-
-  // Restart stream when settings change (only if currently active)
-  useEffect(() => {
-    const prev = prevSettingsRef.current;
-    const changed =
-      prev.deviceId !== deviceId || prev.resolution !== resolution || prev.frameRate !== frameRate;
-
-    prevSettingsRef.current = { deviceId, resolution, frameRate };
-
-    // Restart with new settings if stream was active
-    if (changed && wasActiveRef.current) {
-      stop();
-      start();
-    }
-  }, [deviceId, resolution, frameRate, stop, start]);
-
-  const handleClick = useCallback(() => {
-    if (isActive) {
-      stop();
-    } else {
-      start();
-    }
-  }, [isActive, start, stop]);
-
-  return (
-    <Card className="overflow-hidden p-0" variant="secondary">
-      <Card.Content className="relative aspect-video p-0">
-        <video ref={videoRef} autoPlay playsInline muted className="h-full w-full object-cover" />
-        {!isActive && (
-          <div className="absolute inset-0 flex items-center justify-center bg-surface-secondary">
-            <Button variant="primary" onPress={handleClick}>
-              <Video className="size-4" />
-              {t("SETTINGS_VIDEO_START_PREVIEW")}
-            </Button>
-          </div>
-        )}
-        {isActive && (
-          <>
-            {streamInfo && (
-              <div className="absolute top-2 left-2 flex gap-2">
-                <Chip size="sm" className="px-2">
-                  <Display className="size-3" />
-                  {streamInfo.resolution}
-                </Chip>
-                {streamInfo.fps && (
-                  <Chip size="sm" className="px-2">
-                    <CirclePlay className="size-3" />
-                    {streamInfo.fps} fps
-                  </Chip>
-                )}
-              </div>
-            )}
-            <div className="absolute inset-x-0 bottom-3 flex justify-center">
-              <Button variant="tertiary" size="sm" onPress={handleClick}>
-                {t("SETTINGS_VIDEO_STOP_PREVIEW")}
-              </Button>
-            </div>
-          </>
-        )}
-        {error && (
-          <div className="absolute inset-0 flex items-center justify-center bg-surface-secondary/90">
-            <span className="text-sm text-danger">{error.message}</span>
-          </div>
-        )}
-      </Card.Content>
-    </Card>
-  );
-});
 
 export const VideoSection = memo(function VideoSection() {
   const { t } = useAppContext();
@@ -237,6 +111,24 @@ export const VideoSection = memo(function VideoSection() {
     return allCodecOptions.filter((opt) => opt.key !== "av1");
   }, [allCodecOptions, supportsAV1]);
 
+  // Camera constraints for MediaPreview
+  const cameraConstraints = useCallback(
+    () => ({
+      video: {
+        deviceId: selectedVideoInput !== "default" ? { exact: selectedVideoInput } : undefined,
+        ...RESOLUTION_CONSTRAINTS[videoResolution],
+        frameRate: { ideal: parseInt(frameRate) },
+      },
+    }),
+    [selectedVideoInput, videoResolution, frameRate]
+  );
+
+  // Restart deps for camera preview
+  const cameraRestartDeps = useMemo(
+    () => [selectedVideoInput, videoResolution, frameRate],
+    [selectedVideoInput, videoResolution, frameRate]
+  );
+
   return (
     <div className="flex flex-col gap-8">
       {/* Permission Alert */}
@@ -267,10 +159,15 @@ export const VideoSection = memo(function VideoSection() {
         />
 
         {!isDisabled && (
-          <CameraPreview
-            deviceId={selectedVideoInput}
-            resolution={videoResolution}
-            frameRate={frameRate}
+          <MediaPreview
+            type="camera"
+            source="Video Settings"
+            constraints={cameraConstraints}
+            restartDeps={cameraRestartDeps}
+            startLabel="SETTINGS_VIDEO_START_PREVIEW"
+            stopLabel="SETTINGS_VIDEO_STOP_PREVIEW"
+            startIcon={<Video className="size-4" />}
+            objectFit="cover"
           />
         )}
 

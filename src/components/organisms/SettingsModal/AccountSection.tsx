@@ -1,6 +1,7 @@
 import { memo, useCallback, useRef } from "react";
 import { ArrowUpRightFromSquare } from "@gravity-ui/icons";
 import { Button, Input, Label, Tabs, TextField } from "@heroui/react";
+import { appToast } from "@/components/atoms";
 import { useAppContext, useUserContext, type Presence } from "@/context";
 import { ProfileAvatar } from "@/components/atoms";
 import { safeOpenUrl } from "@/utils";
@@ -18,6 +19,16 @@ export const AccountSection = memo(function AccountSection() {
     // TODO: Implement avatar upload
   }, []);
 
+  const handlePresenceChange = useCallback(
+    async (key: string | number) => {
+      const success = await setPresence(key as Presence);
+      if (!success) {
+        appToast(t("SETTINGS_PRESENCE_NOT_SUPPORTED"), { variant: "danger", silent: true });
+      }
+    },
+    [setPresence, t]
+  );
+
   const handleManageAccount = useCallback(() => {
     if (user?.accountManagementUrl) {
       safeOpenUrl(user.accountManagementUrl);
@@ -25,7 +36,7 @@ export const AccountSection = memo(function AccountSection() {
   }, [user]);
 
   const handleLogout = useCallback(() => {
-    console.log("Logout clicked");
+    // TODO: Implement logout
   }, []);
 
   if (!user) {
@@ -51,7 +62,7 @@ export const AccountSection = memo(function AccountSection() {
             className="sr-only"
             onChange={handleAvatarChange}
           />
-          <Tabs selectedKey={presence} onSelectionChange={(key) => setPresence(key as Presence)}>
+          <Tabs selectedKey={presence} onSelectionChange={handlePresenceChange}>
             <Tabs.ListContainer>
               <Tabs.List aria-label={t("SETTINGS_PRESENCE")}>
                 <Tabs.Tab id="online">
@@ -79,7 +90,7 @@ export const AccountSection = memo(function AccountSection() {
 
           <TextField className="w-full" isReadOnly>
             <Label>{t("SETTINGS_USERNAME")}</Label>
-            <Input value={user.username} />
+            <Input value={user.userId} />
           </TextField>
         </div>
       </div>

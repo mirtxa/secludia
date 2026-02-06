@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { Alert, Button, Label, Slider } from "@heroui/react";
 import { isTauri } from "@tauri-apps/api/core";
 import { appToast } from "@/components/atoms";
@@ -72,6 +72,16 @@ export const NotificationsSection = memo(function NotificationsSection() {
   const [permissionStatus, setPermissionStatus] = useState<PermissionStatus>("unknown");
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [notificationType, setNotificationType] = useState<NotificationType>("auto");
+  const loadingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (loadingTimeoutRef.current) {
+        clearTimeout(loadingTimeoutRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const checkPermission = async () => {
@@ -125,6 +135,11 @@ export const NotificationsSection = memo(function NotificationsSection() {
       type: NotificationType,
       avatarUrl?: string
     ) => {
+      // Clear any existing timeout
+      if (loadingTimeoutRef.current) {
+        clearTimeout(loadingTimeoutRef.current);
+      }
+
       setLoadingId(`test-${index}`);
       const shouldUseToast = type === "toast" || (type === "auto" && isWindowFocused());
 
@@ -134,7 +149,7 @@ export const NotificationsSection = memo(function NotificationsSection() {
         const success = await sendNotification(options);
         if (success) setPermissionStatus("granted");
       }
-      setTimeout(() => setLoadingId(null), 2000);
+      loadingTimeoutRef.current = setTimeout(() => setLoadingId(null), 2000);
     },
     [sendNotification]
   );
