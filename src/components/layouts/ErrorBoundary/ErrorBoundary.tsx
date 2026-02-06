@@ -38,9 +38,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       const title = <h1 className="text-2xl font-bold text-center">{t(lang, "ERROR_TITLE")}</h1>;
 
       const description = (
-        <p className="text-center card__description mt-2 text-muted">
-          {t(lang, "ERROR_DESCRIPTION")}
-        </p>
+        <p className="text-center mt-2 text-muted">{t(lang, "ERROR_DESCRIPTION")}</p>
       );
 
       const errorDetails = import.meta.env.DEV && this.state.error && (

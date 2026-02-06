@@ -1,6 +1,7 @@
 import { memo } from "react";
 import { CircleCheckFill } from "@gravity-ui/icons";
 import { Description, Label, ListBox, Select, Slider, Switch } from "@heroui/react";
+import { LabeledItem } from "@/components/atoms";
 
 export const SectionHeader = memo(function SectionHeader({
   icon,
@@ -117,20 +118,7 @@ function SettingSelectInner<T extends string>({
   isDisabled = false,
 }: SettingSelectProps<T>) {
   return (
-    <div className="flex w-full items-center justify-between gap-3">
-      {icon && (
-        <div
-          className={`hidden size-10 shrink-0 items-center justify-center rounded-[10px] md:flex ${
-            isDisabled ? "bg-default/50 text-muted" : "bg-default text-foreground"
-          }`}
-        >
-          {icon}
-        </div>
-      )}
-      <div className="flex min-w-0 flex-1 flex-col">
-        <Label isDisabled={isDisabled}>{label}</Label>
-        {description && <Description>{description}</Description>}
-      </div>
+    <LabeledItem icon={icon} label={label} description={description} isDisabled={isDisabled}>
       <Select
         className="w-1/2 shrink-0"
         value={value}
@@ -161,7 +149,7 @@ function SettingSelectInner<T extends string>({
           </ListBox>
         </Select.Popover>
       </Select>
-    </div>
+    </LabeledItem>
   );
 }
 
