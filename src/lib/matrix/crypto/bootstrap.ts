@@ -3,6 +3,7 @@
  */
 
 import type { MatrixClient } from "matrix-js-sdk";
+import type { CryptoApi } from "matrix-js-sdk/lib/crypto-api";
 import type { BootstrapResult, CryptoError } from "./types";
 import { decodeUserRecoveryKey, setPendingSecretStorageKey } from "./callbacks";
 
@@ -225,6 +226,21 @@ export async function verifyWithRecoveryKey(
     // Always clear the pending key
     setPendingSecretStorageKey(null);
   }
+}
+
+/**
+ * Wait for the OlmMachine to have the user's cross-signing public keys.
+ * After on-demand crypto init + sync restart, the crypto backend processes
+ * /keys/query asynchronously via onSyncCompleted → processOutgoingRequests.
+ * This waits for that processing to complete.
+ */
+export async function waitForCrossSigningKeys(crypto: CryptoApi, timeoutMs = 30000): Promise<void> {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (await crypto.userHasCrossSigningKeys()) return;
+    await new Promise((r) => setTimeout(r, 500));
+  }
+  throw new Error("Timed out waiting for cross-signing keys");
 }
 
 /**

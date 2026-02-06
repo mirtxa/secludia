@@ -1,7 +1,7 @@
 import { memo } from "react";
 import { Microphone, Video, Display } from "@gravity-ui/icons";
 import { Popover, Button } from "@heroui/react";
-import { useAppContext, useMediaRegistry, type MediaType } from "@/context";
+import { useAppContext, useMediaRegistryContext, type MediaType } from "@/context";
 
 export interface PrivacyIndicatorModalProps {
   children: React.ReactNode;
@@ -23,7 +23,7 @@ export const PrivacyIndicatorModal = memo(function PrivacyIndicatorModal({
   children,
 }: PrivacyIndicatorModalProps) {
   const { t } = useAppContext();
-  const { activeMedia, hasActiveMedia } = useMediaRegistry();
+  const { activeMedia, hasActiveMedia } = useMediaRegistryContext();
 
   return (
     <Popover>

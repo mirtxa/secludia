@@ -1,15 +1,19 @@
-export { AppContextProvider } from "./AppContext";
-export { useAppContext } from "./useAppContext";
-export type { AppContextValue, RoomType, SelectedRoom } from "./AppContext.types";
+export { AppProvider } from "./app";
+export { useAppContext } from "./app";
+export type { AppContextValue, RoomType, SelectedRoom } from "./app";
 
-export { UserContextProvider } from "./UserContext";
-export { useUserContext } from "./useUserContext";
-export type { UserContextValue, UserProfile, Presence } from "./UserContext.types";
+export { UserProvider } from "./user";
+export { useUserContext } from "./user";
+export type { UserContextValue, UserProfile, Presence } from "./user";
 
-export { MediaRegistryProvider } from "./MediaRegistryContext";
-export { useMediaRegistry, useMediaRegistration } from "./useMediaRegistry";
-export type {
-  MediaType,
-  MediaUsage,
-  MediaRegistryContextValue,
-} from "./MediaRegistryContext.types";
+export { MediaRegistryProvider } from "./media";
+export { useMediaRegistryContext, useMediaRegistration } from "./media";
+export type { MediaType, MediaUsage, MediaRegistryContextValue } from "./media";
+
+export { AuthProvider } from "./auth";
+export { useAuthContext } from "./auth";
+export type { AuthContextValue, AuthStatus, AuthError } from "./auth";
+
+export { CryptoProvider } from "./crypto";
+export { useCryptoContext } from "./crypto";
+export type { CryptoContextValue, CryptoStatus, CryptoError, BootstrapResult } from "./crypto";

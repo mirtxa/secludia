@@ -3,6 +3,6 @@ import { UserContext, type UserContextValue } from "./UserContext.types";
 
 export function useUserContext(): UserContextValue {
   const ctx = useContext(UserContext);
-  if (!ctx) throw new Error("useUserContext must be used inside UserContextProvider");
+  if (!ctx) throw new Error("useUserContext must be used inside UserProvider");
   return ctx;
 }

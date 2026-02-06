@@ -6,8 +6,8 @@ import {
   type UserProfile,
   type Presence,
 } from "./UserContext.types";
-import { useAuthContext } from "./useAuthContext";
-import { useCryptoContext } from "./useCryptoContext";
+import { useAuthContext } from "../auth";
+import { useCryptoContext } from "../crypto";
 import {
   getMatrixClient,
   getProfile,
@@ -16,7 +16,7 @@ import {
   setPresenceWithVerification,
 } from "@/lib/matrix";
 
-export function UserContextProvider({ children }: { children: ReactNode }) {
+export function UserProvider({ children }: { children: ReactNode }) {
   const { status, session } = useAuthContext();
   const { status: cryptoStatus } = useCryptoContext();
   const [user, setUserState] = useState<UserProfile | null>(null);

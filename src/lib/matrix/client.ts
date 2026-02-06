@@ -213,6 +213,19 @@ export function createMinimalSyncFilter(userId: string): Filter {
 }
 
 /**
+ * Build sync options for the pre-verification minimal sync.
+ * Skips room timelines, presence, and ephemeral events.
+ */
+export function buildMinimalSyncOpts(userId: string): IStartClientOpts {
+  return {
+    filter: createMinimalSyncFilter(userId),
+    initialSyncLimit: 0,
+    disablePresence: true,
+    pollTimeout: 10000,
+  };
+}
+
+/**
  * Get user profile from the Matrix server.
  */
 export async function getProfile(

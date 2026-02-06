@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useId, useRef, useState } from "react";
-import { useMediaRegistry, type MediaType } from "@/context";
+import { useMediaRegistryContext, type MediaType } from "@/context";
 
 export interface UseMediaStreamOptions {
   /** Type of media being accessed */
@@ -68,7 +68,7 @@ export function useMediaStream({
   autoStart = false,
 }: UseMediaStreamOptions): UseMediaStreamResult {
   const id = useId();
-  const { registerMedia, unregisterMedia } = useMediaRegistry();
+  const { registerMedia, unregisterMedia } = useMediaRegistryContext();
 
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [isLoading, setIsLoading] = useState(false);

@@ -22,4 +22,4 @@ export interface MediaRegistryContextValue {
   isMediaTypeActive: (type: MediaType) => boolean;
 }
 
-export const MediaRegistryContext = createContext<MediaRegistryContextValue | null>(null);
+export const MediaRegistryContext = createContext<MediaRegistryContextValue | undefined>(undefined);

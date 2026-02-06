@@ -9,10 +9,10 @@ import {
  * Hook to access the MediaRegistry context.
  * Provides methods to register/unregister media usage and check active media.
  */
-export function useMediaRegistry(): MediaRegistryContextValue {
+export function useMediaRegistryContext(): MediaRegistryContextValue {
   const context = useContext(MediaRegistryContext);
   if (!context) {
-    throw new Error("useMediaRegistry must be used within a MediaRegistryProvider");
+    throw new Error("useMediaRegistryContext must be used within a MediaRegistryProvider");
   }
   return context;
 }
@@ -34,7 +34,7 @@ export function useMediaRegistry(): MediaRegistryContextValue {
  * ```
  */
 export function useMediaRegistration(type: MediaType, source: string, isActive: boolean): void {
-  const { registerMedia, unregisterMedia } = useMediaRegistry();
+  const { registerMedia, unregisterMedia } = useMediaRegistryContext();
   const id = useId();
 
   useEffect(() => {

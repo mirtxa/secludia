@@ -96,6 +96,7 @@ export {
   createMinimalSyncFilter,
   getProfile,
 } from "./client";
+export { buildMinimalSyncOpts } from "./client";
 export type { CreateMatrixClientOptions } from "./client";
 
 // Presence
@@ -113,7 +114,9 @@ export {
   clearCryptoDatabase,
   decodeUserRecoveryKey,
   initializeClientCrypto,
+  ensureCrypto,
   verifyWithRecoveryKey,
   validateRecoveryKey,
   checkCrossSigningStatus,
+  waitForCrossSigningKeys,
 } from "./crypto";

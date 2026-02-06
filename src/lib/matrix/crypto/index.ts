@@ -22,9 +22,14 @@ export {
 } from "./callbacks";
 
 // Initialization
-export { initializeClientCrypto } from "./init";
+export { initializeClientCrypto, ensureCrypto } from "./init";
 export type { CryptoInitResult } from "./init";
 
 // Bootstrap
-export { verifyWithRecoveryKey, validateRecoveryKey, checkCrossSigningStatus } from "./bootstrap";
+export {
+  verifyWithRecoveryKey,
+  validateRecoveryKey,
+  checkCrossSigningStatus,
+  waitForCrossSigningKeys,
+} from "./bootstrap";
 export type { CrossSigningStatus } from "./bootstrap";

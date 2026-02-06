@@ -6,7 +6,7 @@ import type { InterpolationValues } from "@/i18n";
 import { t as translate } from "@/i18n";
 import { AppContext, type AppContextValue, type SelectedRoom } from "./AppContext.types";
 
-export function AppContextProvider({ children }: { children: ReactNode }) {
+export function AppProvider({ children }: { children: ReactNode }) {
   const [config, setConfig] = useState<SecludiaConfig>(() => Storage.loadConfig());
   const [selectedRoom, setSelectedRoom] = useState<SelectedRoom | null>(null);
 
@@ -55,6 +55,7 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
       setTheme,
       setLanguage,
       selectedRoom,
+      setSelectedRoom,
       config.toastDuration,
       setToastDuration,
     ]

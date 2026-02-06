@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { render, screen, act } from "@testing-library/react";
-import { AppContextProvider, useAppContext } from ".";
+import { AppProvider, useAppContext } from ".";
 
 // Test component that uses the context
 function TestConsumer() {
@@ -29,9 +29,9 @@ describe("AppContext", () => {
 
   it("provides default values", () => {
     render(
-      <AppContextProvider>
+      <AppProvider>
         <TestConsumer />
-      </AppContextProvider>
+      </AppProvider>
     );
 
     expect(screen.getByTestId("theme").textContent).toBe("default");
@@ -40,9 +40,9 @@ describe("AppContext", () => {
 
   it("provides translation function", () => {
     render(
-      <AppContextProvider>
+      <AppProvider>
         <TestConsumer />
-      </AppContextProvider>
+      </AppProvider>
     );
 
     expect(screen.getByTestId("translation").textContent).toBe("Log in");
@@ -50,9 +50,9 @@ describe("AppContext", () => {
 
   it("updates theme when setTheme is called", () => {
     render(
-      <AppContextProvider>
+      <AppProvider>
         <TestConsumer />
-      </AppContextProvider>
+      </AppProvider>
     );
 
     act(() => {
@@ -65,9 +65,9 @@ describe("AppContext", () => {
 
   it("updates language when setLanguage is called", () => {
     render(
-      <AppContextProvider>
+      <AppProvider>
         <TestConsumer />
-      </AppContextProvider>
+      </AppProvider>
     );
 
     act(() => {
@@ -84,16 +84,16 @@ describe("AppContext", () => {
 
     expect(() => {
       render(<TestConsumer />);
-    }).toThrow("useAppContext must be used inside AppContextProvider");
+    }).toThrow("useAppContext must be used inside AppProvider");
 
     consoleSpy.mockRestore();
   });
 
   it("persists theme to localStorage", () => {
     render(
-      <AppContextProvider>
+      <AppProvider>
         <TestConsumer />
-      </AppContextProvider>
+      </AppProvider>
     );
 
     act(() => {
@@ -106,9 +106,9 @@ describe("AppContext", () => {
 
   it("persists language to localStorage", () => {
     render(
-      <AppContextProvider>
+      <AppProvider>
         <TestConsumer />
-      </AppContextProvider>
+      </AppProvider>
     );
 
     act(() => {

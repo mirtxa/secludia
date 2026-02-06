@@ -10,7 +10,7 @@ import {
   type Conversation,
 } from "@/components/organisms";
 import { SIDEBAR_WIDTH, SIMULATED_LOADING_DELAY } from "@/constants";
-import { useAppContext, useMediaRegistry, useUserContext, type RoomType } from "@/context";
+import { useAppContext, useMediaRegistryContext, useUserContext, type RoomType } from "@/context";
 import { useBreakpoint, useResizable, useSidebar } from "@/hooks";
 import { MOCK_CONVERSATIONS, MOCK_ROOMS } from "@/mocks";
 import { cn, getInitials } from "@/utils";
@@ -25,7 +25,7 @@ const SIDEBAR_WIDTH_OPTIONS = {
 export const MainScreen = memo(function MainScreen() {
   const { selectedRoom, setSelectedRoom, t } = useAppContext();
   const { user, presence } = useUserContext();
-  const { hasActiveMedia } = useMediaRegistry();
+  const { hasActiveMedia } = useMediaRegistryContext();
   const sidebar = useSidebar();
   const isDesktop = useBreakpoint("md");
   const resizable = useResizable(SIDEBAR_WIDTH_OPTIONS);
