@@ -51,7 +51,7 @@ export function useMediaDevices({
 
         setDevices(filteredDevices);
       } catch (error) {
-        console.error("Failed to enumerate media devices:", error);
+        if (import.meta.env.DEV) console.error("Failed to enumerate media devices:", error);
       }
     };
 

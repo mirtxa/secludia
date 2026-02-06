@@ -13,3 +13,6 @@ export { useSidebar } from "./useSidebar";
 export { useTauriWindow } from "./useTauriWindow";
 export { useTranslatedOptions } from "./useTranslatedOptions";
 export { useWindowFocus, isWindowFocused } from "./useWindowFocus";
+export { useMatrixClient } from "./useMatrixClient";
+export type { UseMatrixClientResult } from "./useMatrixClient";
+export { usePersistedSetting } from "./usePersistedSetting";

@@ -83,12 +83,19 @@ export function useMediaStream({
   // Store unregisterMedia in ref to avoid stale closure in cleanup
   const unregisterMediaRef = useRef(unregisterMedia);
   unregisterMediaRef.current = unregisterMedia;
+  // Store track ended handler so it can be removed on stop/unmount
+  const trackEndedHandlerRef = useRef<(() => void) | null>(null);
 
   // Stop stream and cleanup
   const stop = useCallback(() => {
     if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => track.stop());
+      const handler = trackEndedHandlerRef.current;
+      streamRef.current.getTracks().forEach((track) => {
+        if (handler) track.removeEventListener("ended", handler);
+        track.stop();
+      });
       streamRef.current = null;
+      trackEndedHandlerRef.current = null;
     }
     setStream(null);
     unregisterMedia(id);
@@ -139,12 +146,14 @@ export function useMediaStream({
       registerMedia(id, type, source);
 
       // Listen for track ended events (e.g., user revokes permission)
+      const handleTrackEnded = () => {
+        if (mountedRef.current) {
+          stop();
+        }
+      };
+      trackEndedHandlerRef.current = handleTrackEnded;
       mediaStream.getTracks().forEach((track) => {
-        track.addEventListener("ended", () => {
-          if (mountedRef.current) {
-            stop();
-          }
-        });
+        track.addEventListener("ended", handleTrackEnded);
       });
 
       return mediaStream;
@@ -178,10 +187,15 @@ export function useMediaStream({
       mountedRef.current = false;
       startingRef.current = false;
 
-      // Stop all tracks and unregister
+      // Remove listeners, stop all tracks, and unregister
       if (streamRef.current) {
-        streamRef.current.getTracks().forEach((track) => track.stop());
+        const handler = trackEndedHandlerRef.current;
+        streamRef.current.getTracks().forEach((track) => {
+          if (handler) track.removeEventListener("ended", handler);
+          track.stop();
+        });
         streamRef.current = null;
+        trackEndedHandlerRef.current = null;
       }
       unregisterMediaRef.current(id);
     };

@@ -103,7 +103,7 @@ export function useMediaPermission(type: MediaPermissionType): UseMediaPermissio
       await platform.permissions.resetWebViewPermissions();
       // App will close on Tauri, so we won't reach here
     } catch (err) {
-      console.error("Failed to reset permissions:", err);
+      if (import.meta.env.DEV) console.error("Failed to reset permissions:", err);
     }
   }, [platform.permissions]);
 

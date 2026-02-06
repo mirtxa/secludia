@@ -28,8 +28,6 @@ export function MediaRegistryProvider({ children }: { children: ReactNode }) {
     setActiveMedia((prev) => prev.filter((m) => m.id !== id));
   }, []);
 
-  const hasActiveMedia = activeMedia.length > 0;
-
   const isMediaTypeActive = useCallback(
     (type: MediaType) => activeMedia.some((m) => m.type === type),
     [activeMedia]
@@ -40,10 +38,10 @@ export function MediaRegistryProvider({ children }: { children: ReactNode }) {
       activeMedia,
       registerMedia,
       unregisterMedia,
-      hasActiveMedia,
+      hasActiveMedia: activeMedia.length > 0,
       isMediaTypeActive,
     }),
-    [activeMedia, registerMedia, unregisterMedia, hasActiveMedia, isMediaTypeActive]
+    [activeMedia, registerMedia, unregisterMedia, isMediaTypeActive]
   );
 
   return <MediaRegistryContext.Provider value={value}>{children}</MediaRegistryContext.Provider>;
