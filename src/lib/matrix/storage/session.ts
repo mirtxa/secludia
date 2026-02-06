@@ -40,4 +40,11 @@ export function clearSessionMetadata(): void {
 export function clearLocalStorageAuthData(): void {
   clearSessionMetadata();
   sessionStorage.removeItem(STORAGE_KEYS.PKCE);
+  localStorage.removeItem(STORAGE_KEYS.VERIFICATION_SKIPPED);
+
+  // Clear matrix-js-sdk MemoryStore entries (cached sync filters, etc.)
+  const sdkKeys = Object.keys(localStorage).filter((k) => k.startsWith("mxjssdk_"));
+  for (const key of sdkKeys) {
+    localStorage.removeItem(key);
+  }
 }

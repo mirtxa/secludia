@@ -5,7 +5,8 @@
  * - types/     - Type definitions (OAuth, session, errors)
  * - auth/      - Authentication (PKCE, tokens, registration, refresh)
  * - storage/   - localStorage operations (session, PKCE state)
- * - discovery  - Homeserver and OAuth metadata discovery
+ * - discovery/ - Homeserver and OAuth metadata discovery
+ * - presence/  - Presence management and support detection
  * - client     - Matrix SDK wrapper
  * - constants  - Configuration constants
  */
@@ -90,6 +91,29 @@ export {
   updateClientRefreshToken,
   stopMatrixClient,
   startMatrixClient,
+  restartMatrixClient,
+  restartMatrixClientAndWaitForSync,
+  createMinimalSyncFilter,
   getProfile,
 } from "./client";
 export type { CreateMatrixClientOptions } from "./client";
+
+// Presence
+export type { Presence, SetPresenceResult } from "./presence";
+export { getPresence, setPresenceWithVerification } from "./presence";
+
+// Devices
+export type { Device, DeviceType, VerificationStatus } from "./devices";
+export { toDevice, inferDeviceType, getDevices, updateDeviceDisplayName } from "./devices";
+
+// Crypto
+export type { CryptoError, BootstrapResult, CryptoInitResult, CrossSigningStatus } from "./crypto";
+export {
+  CRYPTO_DB_PREFIX,
+  clearCryptoDatabase,
+  decodeUserRecoveryKey,
+  initializeClientCrypto,
+  verifyWithRecoveryKey,
+  validateRecoveryKey,
+  checkCrossSigningStatus,
+} from "./crypto";

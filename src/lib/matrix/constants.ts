@@ -120,4 +120,5 @@ export const RETRY_BASE_DELAY_MS = 1000;
 export const STORAGE_KEYS = {
   SESSION: "secludia.matrix.session",
   PKCE: "secludia.matrix.pkce",
+  VERIFICATION_SKIPPED: "secludia.crypto.verification_skipped",
 } as const;
