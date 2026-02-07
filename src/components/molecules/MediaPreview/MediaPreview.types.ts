@@ -20,6 +20,7 @@ export interface MediaPreviewProps {
   objectFit?: "cover" | "contain";
   /** Whether to show fullscreen button (screen share only) */
   showFullscreenButton?: boolean;
-  /** Custom handler for audio track changes (screen share only) */
-  onAudioTrackChange?: (stream: MediaStream, enabled: boolean) => void;
+  /** Custom handler for audio track changes (screen share only).
+   *  Return true if the change was handled (skip restart), false to trigger a full restart. */
+  onAudioTrackChange?: (stream: MediaStream, enabled: boolean) => boolean;
 }

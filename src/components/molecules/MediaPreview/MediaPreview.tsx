@@ -68,9 +68,8 @@ export const MediaPreview = memo(function MediaPreview({
         const otherChanged = restartDeps.slice(0, -1).some((dep, i) => dep !== prev[i]);
 
         if (audioChanged && !otherChanged) {
-          // Only audio changed - use callback instead of full restart
-          onAudioTrackChange(stream, Boolean(restartDeps[audioIndex]));
-          return;
+          const handled = onAudioTrackChange(stream, Boolean(restartDeps[audioIndex]));
+          if (handled) return;
         }
       }
 

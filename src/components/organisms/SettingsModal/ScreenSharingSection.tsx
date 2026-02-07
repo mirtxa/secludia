@@ -1,12 +1,10 @@
-import { memo, useCallback, useEffect, useRef, useState } from "react";
-import { ArrowsExpand, CirclePlay, Display, Gear, Speedometer } from "@gravity-ui/icons";
-import { Button, Card, Chip } from "@heroui/react";
+import { memo, useCallback, useMemo, useState } from "react";
+import { CirclePlay, Display, Gear, Speedometer } from "@gravity-ui/icons";
 import { useAppContext } from "@/context";
-import { usePersistedSetting, usePlatform, useTranslatedOptions, useMediaStream } from "@/hooks";
-import { SectionHeader, SettingSwitch, SettingSelect } from "@/components/molecules";
+import { usePersistedSetting, usePlatform, useTranslatedOptions } from "@/hooks";
+import { MediaPreview, SectionHeader, SettingSwitch, SettingSelect } from "@/components/molecules";
 import { getScreenConfig, updateScreenConfig } from "@/config/localStorage";
 import { VIDEO_CODEC_OPTIONS } from "@/config/configTypes";
-import { getStreamInfo } from "@/utils/media";
 import type {
   ScreenShareResolution,
   ScreenShareFrameRate,
@@ -53,149 +51,6 @@ const RESOLUTION_CONSTRAINTS: Record<
   "4k": { width: { ideal: 3840 }, height: { ideal: 2160 } },
 };
 
-const ScreenSharePreview = memo(function ScreenSharePreview({
-  resolution,
-  frameRate,
-  captureAudio,
-}: {
-  resolution: ScreenShareResolution;
-  frameRate: ScreenShareFrameRate;
-  captureAudio: boolean;
-}) {
-  const { t } = useAppContext();
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  // Store latest settings in ref so constraints function always reads fresh values
-  const settingsRef = useRef({ resolution, frameRate, captureAudio });
-  useEffect(() => {
-    settingsRef.current = { resolution, frameRate, captureAudio };
-  }, [resolution, frameRate, captureAudio]);
-
-  // Use centralized media access hook with screen type
-  const { stream, isActive, error, start, stop } = useMediaStream({
-    type: "screen",
-    source: "Screen Sharing Settings",
-    constraints: useCallback(
-      () => ({
-        video: {
-          ...RESOLUTION_CONSTRAINTS[settingsRef.current.resolution],
-          frameRate: { ideal: parseInt(settingsRef.current.frameRate) },
-        },
-        audio: settingsRef.current.captureAudio,
-      }),
-      []
-    ),
-  });
-
-  // Sync stream to video element
-  useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.srcObject = stream;
-    }
-  }, [stream]);
-
-  // Derive actual resolution and frame rate from stream
-  const streamInfo = getStreamInfo(stream);
-
-  // Track whether stream was active to know if we need to restart
-  const wasActiveRef = useRef(false);
-  useEffect(() => {
-    wasActiveRef.current = isActive;
-  }, [isActive]);
-
-  // Track previous settings to detect changes
-  const prevSettingsRef = useRef({ resolution, frameRate, captureAudio });
-
-  // Restart stream when settings change (only if currently active)
-  useEffect(() => {
-    const prev = prevSettingsRef.current;
-    const videoChanged = prev.resolution !== resolution || prev.frameRate !== frameRate;
-    const audioEnabled = !prev.captureAudio && captureAudio;
-    const audioDisabled = prev.captureAudio && !captureAudio;
-
-    prevSettingsRef.current = { resolution, frameRate, captureAudio };
-
-    if (!wasActiveRef.current || !stream) return;
-
-    // Video settings changed or audio enabled: must restart (shows picker)
-    if (videoChanged || audioEnabled) {
-      stop();
-      start();
-    }
-    // Audio disabled: just stop audio tracks, no restart needed
-    else if (audioDisabled) {
-      stream.getAudioTracks().forEach((track) => track.stop());
-    }
-  }, [resolution, frameRate, captureAudio, stop, start, stream]);
-
-  const handleClick = useCallback(() => {
-    if (isActive) {
-      stop();
-    } else {
-      start();
-    }
-  }, [isActive, start, stop]);
-
-  const handleFullscreen = useCallback(() => {
-    if (videoRef.current) {
-      if (document.fullscreenElement) {
-        document.exitFullscreen();
-      } else {
-        videoRef.current.requestFullscreen();
-      }
-    }
-  }, []);
-
-  return (
-    <Card className="overflow-hidden p-0" variant="secondary">
-      <Card.Content className="relative aspect-video p-0">
-        <video ref={videoRef} autoPlay playsInline muted className="h-full w-full object-contain" />
-        {!isActive && (
-          <div className="absolute inset-0 flex items-center justify-center bg-surface-secondary">
-            <Button variant="primary" onPress={handleClick}>
-              <Display className="size-4" />
-              {t("SETTINGS_SCREEN_START_PREVIEW")}
-            </Button>
-          </div>
-        )}
-        {isActive && (
-          <>
-            {streamInfo && (
-              <div className="absolute top-2 left-2 flex gap-2">
-                <Chip size="sm" className="px-2">
-                  <Display className="size-3" />
-                  {streamInfo.resolution}
-                </Chip>
-                {streamInfo.fps && (
-                  <Chip size="sm" className="px-2">
-                    <CirclePlay className="size-3" />
-                    {streamInfo.fps} fps
-                  </Chip>
-                )}
-              </div>
-            )}
-            <div className="absolute inset-x-0 bottom-3 flex justify-center">
-              <Button variant="tertiary" size="sm" onPress={handleClick}>
-                {t("SETTINGS_SCREEN_STOP_PREVIEW")}
-              </Button>
-            </div>
-            <div className="absolute right-2 bottom-2">
-              <Button variant="tertiary" size="sm" isIconOnly onPress={handleFullscreen}>
-                <ArrowsExpand className="size-4" />
-              </Button>
-            </div>
-          </>
-        )}
-        {error && (
-          <div className="absolute inset-0 flex items-center justify-center bg-surface-secondary/90">
-            <span className="text-sm text-danger">{error.message}</span>
-          </div>
-        )}
-      </Card.Content>
-    </Card>
-  );
-});
-
 export const ScreenSharingSection = memo(function ScreenSharingSection() {
   const { t } = useAppContext();
   const { supportsSystemAudioCapture } = usePlatform();
@@ -230,16 +85,54 @@ export const ScreenSharingSection = memo(function ScreenSharingSection() {
   const { options: bandwidthOptions } = useTranslatedOptions(BANDWIDTH_MODE_OPTIONS);
   const { options: codecOptions } = useTranslatedOptions(VIDEO_CODEC_OPTIONS);
 
+  const effectiveCaptureAudio = supportsSystemAudioCapture && captureSystemAudio;
+
+  // Screen share constraints
+  const screenConstraints = useCallback(
+    () => ({
+      video: {
+        ...RESOLUTION_CONSTRAINTS[resolution],
+        frameRate: { ideal: parseInt(frameRate) },
+      },
+      audio: effectiveCaptureAudio,
+    }),
+    [resolution, frameRate, effectiveCaptureAudio]
+  );
+
+  // Restart deps for screen share preview
+  const screenRestartDeps = useMemo(
+    () => [resolution, frameRate, effectiveCaptureAudio],
+    [resolution, frameRate, effectiveCaptureAudio]
+  );
+
+  // Handle audio track changes without full restart (avoids re-showing screen picker)
+  const handleAudioTrackChange = useCallback((stream: MediaStream, enabled: boolean) => {
+    if (!enabled) {
+      // Audio disabled: just stop audio tracks, no restart needed
+      stream.getAudioTracks().forEach((track) => track.stop());
+      return true;
+    }
+    // Audio enabled: need full restart (getDisplayMedia must be called with audio)
+    return false;
+  }, []);
+
   return (
     <div className="flex flex-col gap-8">
       {/* Capture Settings */}
       <section className="flex flex-col gap-5">
         <SectionHeader icon={<Display />} title={t("SETTINGS_SCREEN_SECTION_CAPTURE")} />
 
-        <ScreenSharePreview
-          resolution={resolution}
-          frameRate={frameRate}
-          captureAudio={supportsSystemAudioCapture && captureSystemAudio}
+        <MediaPreview
+          type="screen"
+          source="Screen Sharing Settings"
+          constraints={screenConstraints}
+          restartDeps={screenRestartDeps}
+          startLabel="SETTINGS_SCREEN_START_PREVIEW"
+          stopLabel="SETTINGS_SCREEN_STOP_PREVIEW"
+          startIcon={<Display className="size-4" />}
+          objectFit="contain"
+          showFullscreenButton
+          onAudioTrackChange={handleAudioTrackChange}
         />
 
         <SettingSelect

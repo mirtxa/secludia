@@ -1,9 +1,8 @@
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { Alert, Button, Label, Slider } from "@heroui/react";
-import { isTauri } from "@tauri-apps/api/core";
 import { appToast } from "@/components/atoms";
 import { useAppContext } from "@/context";
-import { isWindowFocused, useNotification } from "@/hooks";
+import { isWindowFocused, useNotification, usePlatform } from "@/hooks";
 import type { NotificationOptions } from "@/hooks/useNotification";
 import type { TranslationKey } from "@/i18n/types";
 
@@ -67,6 +66,7 @@ const selectButtonInactiveClass = "border-border bg-surface hover:bg-default";
 
 export const NotificationsSection = memo(function NotificationsSection() {
   const { t, toastDuration, setToastDuration } = useAppContext();
+  const { isTauri } = usePlatform();
   const { isSupported, isPermissionGranted, requestPermission, sendNotification } =
     useNotification();
   const [permissionStatus, setPermissionStatus] = useState<PermissionStatus>("unknown");
@@ -86,7 +86,7 @@ export const NotificationsSection = memo(function NotificationsSection() {
   useEffect(() => {
     const checkPermission = async () => {
       // Tauri uses native OS notifications - always considered granted
-      if (isTauri()) {
+      if (isTauri) {
         setPermissionStatus("granted");
         return;
       }
@@ -110,7 +110,7 @@ export const NotificationsSection = memo(function NotificationsSection() {
       }
     };
     checkPermission();
-  }, [isSupported, isPermissionGranted]);
+  }, [isTauri, isSupported, isPermissionGranted]);
 
   const handleEnableNotifications = useCallback(async () => {
     setLoadingId("enable");

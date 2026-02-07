@@ -20,6 +20,7 @@ import {
   type DeviceType,
 } from "@/lib/matrix";
 import { SectionHeader } from "@/components/molecules";
+import { safeOpenUrl } from "@/utils";
 import type { TranslationFunction } from "@/i18n/types";
 
 /**
@@ -121,7 +122,7 @@ const DeviceAccordionItem = memo(function DeviceAccordionItem({
 
   const handleManageDevice = useCallback(() => {
     if (deviceManagementUrl) {
-      window.open(deviceManagementUrl, "_blank", "noopener,noreferrer");
+      safeOpenUrl(deviceManagementUrl);
     }
   }, [deviceManagementUrl]);
 

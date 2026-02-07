@@ -1,13 +1,13 @@
 import { memo, useCallback, useEffect, useState } from "react";
 import { Bell } from "@gravity-ui/icons";
 import { AlertDialog, Button } from "@heroui/react";
-import { isTauri } from "@tauri-apps/api/core";
 import { getNotificationPromptStatus, updateNotificationPromptStatus } from "@/config/localStorage";
 import { useAppContext } from "@/context";
-import { useNotification } from "@/hooks";
+import { useNotification, usePlatform } from "@/hooks";
 
 export const NotificationPermissionAlert = memo(function NotificationPermissionAlert() {
   const { t } = useAppContext();
+  const { isTauri } = usePlatform();
   const { isSupported, isPermissionGranted, requestPermission } = useNotification();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -15,7 +15,7 @@ export const NotificationPermissionAlert = memo(function NotificationPermissionA
   useEffect(() => {
     const checkShouldShow = async () => {
       // Tauri uses native OS notifications - no permission prompt needed
-      if (isTauri()) {
+      if (isTauri) {
         return;
       }
 
@@ -39,7 +39,7 @@ export const NotificationPermissionAlert = memo(function NotificationPermissionA
     };
 
     checkShouldShow();
-  }, [isSupported, isPermissionGranted]);
+  }, [isTauri, isSupported, isPermissionGranted]);
 
   const handleEnable = useCallback(async () => {
     setIsLoading(true);

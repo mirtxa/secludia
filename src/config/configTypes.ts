@@ -7,7 +7,9 @@ export type SecludiaTheme =
   | "familiar"
   | "midnight"
   | "sunset"
-  | "mint";
+  | "mint"
+  | "ien"
+  | "nanel";
 
 export type SecludiaLanguage = AvailableLanguage;
 
@@ -67,6 +69,8 @@ export const THEME_OPTIONS: { key: SecludiaTheme; labelKey: TranslationKey }[] =
   { key: "midnight", labelKey: "SETTINGS_THEME_MIDNIGHT" },
   { key: "sunset", labelKey: "SETTINGS_THEME_SUNSET" },
   { key: "mint", labelKey: "SETTINGS_THEME_MINT" },
+  { key: "ien", labelKey: "SETTINGS_THEME_IEN" },
+  { key: "nanel", labelKey: "SETTINGS_THEME_NANEL" },
 ];
 
 export const VIDEO_CODEC_OPTIONS: readonly { key: VideoCodec; labelKey: TranslationKey }[] = [
