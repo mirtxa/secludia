@@ -20,8 +20,6 @@ const RNNOISE_SAMPLE_LENGTH = 480;
 const RNNOISE_SAMPLE_RATE = 48000;
 const SHIFT_16_BIT = 32768;
 
-export { RNNOISE_SAMPLE_LENGTH };
-
 // WASM module interface
 interface IRnnoiseModule {
   _rnnoise_create: () => number;
@@ -146,9 +144,7 @@ async function getProcessor(): Promise<RnnoiseProcessor> {
  * @param samples - Raw audio samples in [-1, 1] range at 48kHz
  * @returns Denoised audio samples
  */
-export async function processAudioSamples(
-  samples: Float32Array<ArrayBufferLike>
-): Promise<Float32Array> {
+async function processAudioSamples(samples: Float32Array<ArrayBufferLike>): Promise<Float32Array> {
   if (samples.length === 0) {
     return new Float32Array(0);
   }

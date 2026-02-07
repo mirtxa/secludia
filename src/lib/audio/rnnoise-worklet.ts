@@ -54,10 +54,12 @@ export async function createRnnoiseNode(audioContext: AudioContext): Promise<Rnn
 
   // Warn if sample rate is not 48kHz
   if (audioContext.sampleRate !== 48000) {
-    console.warn(
-      `[RNNoise] AudioContext sample rate is ${audioContext.sampleRate}Hz. ` +
-        `RNNoise is optimized for 48000Hz. Audio quality may be affected.`
-    );
+    if (import.meta.env.DEV) {
+      console.warn(
+        `[RNNoise] AudioContext sample rate is ${audioContext.sampleRate}Hz. ` +
+          `RNNoise is optimized for 48000Hz. Audio quality may be affected.`
+      );
+    }
   }
 
   // Load the worklet module

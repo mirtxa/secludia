@@ -89,9 +89,11 @@ class RnnoiseWorkletProcessor extends AudioWorkletProcessor {
 
     // Verify sample rate matches RNNoise requirement
     if (sampleRate !== RNNOISE_SAMPLE_RATE) {
-      console.warn(
-        `[RnnoiseProcessor] Sample rate is ${sampleRate}Hz, RNNoise expects ${RNNOISE_SAMPLE_RATE}Hz`
-      );
+      if (import.meta.env.DEV) {
+        console.warn(
+          `[RnnoiseProcessor] Sample rate is ${sampleRate}Hz, RNNoise expects ${RNNOISE_SAMPLE_RATE}Hz`
+        );
+      }
     }
 
     // Calculate buffer size - LCM ensures we never have partial frames
@@ -137,7 +139,7 @@ class RnnoiseWorkletProcessor extends AudioWorkletProcessor {
       this.ready = true;
       this.port.postMessage({ type: "ready" });
     } catch (error) {
-      console.error("[RnnoiseProcessor] WASM init failed:", error);
+      if (import.meta.env.DEV) console.error("[RnnoiseProcessor] WASM init failed:", error);
       this.port.postMessage({
         type: "error",
         error: error instanceof Error ? error.message : "WASM init failed",

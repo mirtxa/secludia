@@ -246,7 +246,7 @@ export async function waitForCrossSigningKeys(crypto: CryptoApi, timeoutMs = 300
 /**
  * Classify a bootstrap error into a CryptoError.
  */
-export function classifyBootstrapError(error: unknown): CryptoError {
+function classifyBootstrapError(error: unknown): CryptoError {
   const message = error instanceof Error ? error.message : String(error);
 
   // Cross-signing failures
