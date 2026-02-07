@@ -3,15 +3,8 @@ import { Alert, Button, Checkbox, Label, Spinner } from "@heroui/react";
 import { Copy, Check, Key } from "@gravity-ui/icons";
 import { useAppContext } from "@/context";
 import { ResponsiveCard } from "@/components/layouts";
-import { LanguageSelector, ThemeSelector } from "@/components/atoms";
+import { AuthSelectors } from "@/components/atoms";
 import type { RecoveryKeyDisplayProps } from "./SetupSecurityScreen.types";
-
-const SELECTORS = (
-  <div className="flex justify-center gap-2">
-    <ThemeSelector />
-    <LanguageSelector />
-  </div>
-);
 
 export const RecoveryKeyDisplay = memo(function RecoveryKeyDisplay({
   recoveryKey,
@@ -95,7 +88,7 @@ export const RecoveryKeyDisplay = memo(function RecoveryKeyDisplay({
           }
         </Button>
       }
-      bottomBar={SELECTORS}
+      bottomBar={<AuthSelectors />}
     />
   );
 });

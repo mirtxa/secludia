@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { memo, useEffect } from "react";
 import { LoadingState } from "@/components/atoms";
 import { useAppContext } from "@/context";
 
@@ -6,7 +6,7 @@ import { useAppContext } from "@/context";
  * OAuth callback page for web.
  * This page is opened in a popup window and sends the callback URL back to the opener.
  */
-export function OAuthCallback() {
+export const OAuthCallback = memo(function OAuthCallback() {
   const { t } = useAppContext();
 
   useEffect(() => {
@@ -41,4 +41,4 @@ export function OAuthCallback() {
   }, []);
 
   return <LoadingState fullscreen message={t("AUTH_STATUS_COMPLETING")} />;
-}
+});
