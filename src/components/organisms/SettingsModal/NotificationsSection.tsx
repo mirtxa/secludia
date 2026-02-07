@@ -3,7 +3,7 @@ import { Alert, Button, Label, Slider } from "@heroui/react";
 import { appToast } from "@/components/atoms";
 import { useAppContext } from "@/context";
 import { isWindowFocused, useNotification, usePlatform } from "@/hooks";
-import type { NotificationOptions } from "@/hooks/useNotification";
+import type { NotificationOptions } from "@/hooks";
 import type { TranslationKey } from "@/i18n/types";
 
 type PermissionStatus = "granted" | "denied" | "prompt" | "not-supported" | "unknown";

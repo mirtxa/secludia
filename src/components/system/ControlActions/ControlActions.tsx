@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { useTauriWindow } from "@/hooks/useTauriWindow";
+import { useTauriWindow } from "@/hooks";
 import { ControlButton } from "../ControlButton";
 
 export const ControlActions = memo(function ControlActions() {

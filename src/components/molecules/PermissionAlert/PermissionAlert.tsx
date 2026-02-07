@@ -1,7 +1,7 @@
 import { memo } from "react";
 import { Alert, Button } from "@heroui/react";
 import { usePlatform } from "@/platforms";
-import type { MediaPermissionState } from "@/hooks/useMediaPermission";
+import type { MediaPermissionState } from "@/hooks";
 
 interface PermissionAlertProps {
   permission: MediaPermissionState;
